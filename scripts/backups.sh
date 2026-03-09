@@ -3,12 +3,14 @@ set -euo pipefail
 
 TARGET_KEYS=(
   zshrc
+  zshenv
   zprofile
   gitconfig
   gitignore
   tmux
   starship
   ghostty
+  sshconfig
 )
 BACKUP_RESULTS=()
 
@@ -27,19 +29,21 @@ Commands:
       Restore a backup for a target. Current target is saved first.
 
 Targets:
-  zshrc, zprofile, gitconfig, gitignore, tmux, starship, ghostty
+  zshrc, zshenv, zprofile, gitconfig, gitignore, tmux, starship, ghostty, sshconfig
 EOF
 }
 
 target_path() {
   case "$1" in
     zshrc) echo "${HOME}/.zshrc" ;;
+    zshenv) echo "${HOME}/.zshenv" ;;
     zprofile) echo "${HOME}/.zprofile" ;;
     gitconfig) echo "${HOME}/.gitconfig" ;;
     gitignore) echo "${HOME}/.gitignore_global" ;;
     tmux) echo "${HOME}/.tmux.conf" ;;
     starship) echo "${HOME}/.config/starship.toml" ;;
     ghostty) echo "${HOME}/.config/ghostty/config" ;;
+    sshconfig) echo "${HOME}/.ssh/config" ;;
     *)
       return 1
       ;;

@@ -4,7 +4,6 @@
 
 font-family = "JetBrainsMono Nerd Font"
 font-size = 14
-font-feature = "-calt, -liga, -dlig"
 
 # --------------------------------------------------
 # window appearance
@@ -39,6 +38,34 @@ confirm-close-surface = true
 background-opacity = 0.7
 background-opacity-cells = true
 background-blur = true
+
+# --------------------------------------------------
+# colour theme: zero monochrome + pink/red accents
+# --------------------------------------------------
+
+background = #101014
+foreground = #f3f3f5
+cursor-color = #f3f3f5
+cursor-text = #101014
+selection-background = #2a2a2f
+selection-foreground = #fbe3ee
+
+palette = 0=#101014
+palette = 1=#c1121f
+palette = 2=#8e8e97
+palette = 3=#4a4a52
+palette = 4=#6e6e76
+palette = 5=#f28bb7
+palette = 6=#c4c4cc
+palette = 7=#e3e3e8
+palette = 8=#232329
+palette = 9=#e63946
+palette = 10=#a8a8b0
+palette = 11=#5b5b64
+palette = 12=#82828c
+palette = 13=#ffb4d2
+palette = 14=#d4d4dd
+palette = 15=#f8f8fa
 
 # ------------------------------------------------------------
 # shell integration

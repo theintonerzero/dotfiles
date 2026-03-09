@@ -37,10 +37,14 @@ link_file() {
 }
 
 link_file "${DOTFILES_DIR}/home/.zshrc" "${HOME}/.zshrc"
+link_file "${DOTFILES_DIR}/home/.zshenv" "${HOME}/.zshenv"
 link_file "${DOTFILES_DIR}/home/.zprofile" "${HOME}/.zprofile"
 link_file "${DOTFILES_DIR}/home/.gitconfig" "${HOME}/.gitconfig"
 link_file "${DOTFILES_DIR}/home/.gitignore_global" "${HOME}/.gitignore_global"
 link_file "${DOTFILES_DIR}/home/.tmux.conf" "${HOME}/.tmux.conf"
+link_file "${DOTFILES_DIR}/home/.ssh/config" "${HOME}/.ssh/config"
 
 link_file "${DOTFILES_DIR}/config/starship.toml" "${HOME}/.config/starship.toml"
 link_file "${DOTFILES_DIR}/config/ghostty/config" "${HOME}/.config/ghostty/config"
+
+chmod 700 "${HOME}/.ssh"

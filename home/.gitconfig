@@ -44,5 +44,16 @@
 [help]
     autocorrect = prompt
 
+# Optional path-based identity overrides.
+# Create ~/.gitconfig-work.local or ~/.gitconfig-personal.local.
+[includeIf "gitdir:~/work/**"]
+    path = ~/.gitconfig-work.local
+
+[includeIf "gitdir:~/src/work/**"]
+    path = ~/.gitconfig-work.local
+
+[includeIf "gitdir:~/personal/**"]
+    path = ~/.gitconfig-personal.local
+
 [include]
     path = ~/.gitconfig.local

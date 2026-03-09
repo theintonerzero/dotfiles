@@ -138,8 +138,10 @@ check_repo_file "scripts/doctor.sh"
 check_repo_file "scripts/update.sh"
 check_repo_file "scripts/backups.sh"
 check_repo_file "home/.zshrc"
+check_repo_file "home/.zshenv"
 check_repo_file "home/.zprofile"
 check_repo_file "home/.gitconfig"
+check_repo_file "home/.ssh/config"
 check_repo_file "config/starship.toml"
 check_repo_file "config/ghostty/config"
 check_repo_file "macos/defaults.sh"
@@ -174,10 +176,12 @@ check_linux_login_shell
 echo
 
 check_target_link "${DOTFILES_DIR}/home/.zshrc" "${HOME}/.zshrc"
+check_target_link "${DOTFILES_DIR}/home/.zshenv" "${HOME}/.zshenv"
 check_target_link "${DOTFILES_DIR}/home/.zprofile" "${HOME}/.zprofile"
 check_target_link "${DOTFILES_DIR}/home/.gitconfig" "${HOME}/.gitconfig"
 check_target_link "${DOTFILES_DIR}/home/.gitignore_global" "${HOME}/.gitignore_global"
 check_target_link "${DOTFILES_DIR}/home/.tmux.conf" "${HOME}/.tmux.conf"
+check_target_link "${DOTFILES_DIR}/home/.ssh/config" "${HOME}/.ssh/config"
 check_target_link "${DOTFILES_DIR}/config/starship.toml" "${HOME}/.config/starship.toml"
 check_target_link "${DOTFILES_DIR}/config/ghostty/config" "${HOME}/.config/ghostty/config"
 

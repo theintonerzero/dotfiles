@@ -19,9 +19,11 @@
 *.local.*
 .local/
 .zshrc.local
+.zshenv.local
 .zprofile.local
 .gitconfig.local
 ssh_config.local
+.ssh/config.local
 
 # ------------------------------------------------------------
 # macOS junk
