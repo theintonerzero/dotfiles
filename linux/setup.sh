@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+TARGET_USER="${SUDO_USER:-${USER}}"
+
 run_as_root() {
   if [[ "${EUID}" -eq 0 ]]; then
     "$@"
@@ -66,6 +68,33 @@ install_ghostty_from_copr() {
   fi
 }
 
+ensure_default_shell_is_zsh() {
+  local zsh_path
+  local current_shell
+
+  if ! command -v zsh >/dev/null 2>&1; then
+    echo "zsh is not installed; cannot set default shell."
+    return
+  fi
+
+  zsh_path="$(command -v zsh)"
+  current_shell="$(getent passwd "${TARGET_USER}" | cut -d: -f7)"
+
+  if [[ "${current_shell}" == "${zsh_path}" ]]; then
+    echo "Default login shell is already zsh (${zsh_path})."
+    return
+  fi
+
+  if run_as_root usermod --shell "${zsh_path}" "${TARGET_USER}"; then
+    echo "Set default login shell for ${TARGET_USER} to ${zsh_path}."
+    echo "Log out and back in for the shell change to take effect."
+  else
+    echo "Could not set default shell automatically."
+    echo "Run this manually:"
+    echo "  chsh -s \"${zsh_path}\" \"${TARGET_USER}\""
+  fi
+}
+
 if [[ "$(uname)" != "Linux" ]]; then
   echo "linux/setup.sh can only run on Linux."
   exit 1
@@ -91,14 +120,6 @@ install_optional_packages
 
 install_ghostty_from_copr
 
-if command -v zsh >/dev/null 2>&1; then
-  zsh_path="$(command -v zsh)"
-
-  if [[ "${SHELL:-}" != "${zsh_path}" ]]; then
-    echo "Default shell is not zsh."
-    echo "Run this command to switch:"
-    echo "  chsh -s \"${zsh_path}\" \"${USER}\""
-  fi
-fi
+ensure_default_shell_is_zsh
 
 echo "Fedora setup complete."

@@ -39,6 +39,35 @@ check_command() {
   fi
 }
 
+check_linux_login_shell() {
+  local target_user="${SUDO_USER:-${USER}}"
+  local expected_shell
+  local current_shell
+
+  if [[ "$(uname -s)" != "Linux" ]]; then
+    return
+  fi
+
+  if ! command -v zsh >/dev/null 2>&1; then
+    warn "Cannot verify login shell: zsh is unavailable."
+    return
+  fi
+
+  if ! command -v getent >/dev/null 2>&1; then
+    warn "Cannot verify login shell: getent is unavailable."
+    return
+  fi
+
+  expected_shell="$(command -v zsh)"
+  current_shell="$(getent passwd "${target_user}" | cut -d: -f7)"
+
+  if [[ "${current_shell}" == "${expected_shell}" ]]; then
+    ok "Login shell is zsh for ${target_user}"
+  else
+    warn "Login shell for ${target_user} is ${current_shell} (expected ${expected_shell})"
+  fi
+}
+
 check_target_link() {
   local source="$1"
   local target="$2"
@@ -139,6 +168,8 @@ case "$(uname -s)" in
     fi
     ;;
 esac
+
+check_linux_login_shell
 
 echo
 
