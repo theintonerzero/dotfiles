@@ -33,12 +33,97 @@ install_first_available_package() {
   return 1
 }
 
-install_required_packages() {
-  run_as_root dnf install -y \
-    git curl zsh tmux fzf starship neovim ripgrep nodejs python3 rustup gh tree dnf-plugins-core fontconfig
+install_required_package() {
+  local pkg="$1"
 
-  if ! run_as_root dnf install -y fd-find; then
-    run_as_root dnf install -y fd
+  if run_as_root dnf install -y "${pkg}"; then
+    echo "Installed required package: ${pkg}"
+    return 0
+  fi
+
+  echo "Missing required package in configured repos: ${pkg}"
+  return 1
+}
+
+install_starship() {
+  local starship_repo="atim/starship"
+
+  if command -v starship >/dev/null 2>&1; then
+    echo "Starship already installed."
+    return 0
+  fi
+
+  echo "Enabling COPR repository for Starship: ${starship_repo}"
+  if run_as_root dnf copr enable -y "${starship_repo}"; then
+    if run_as_root dnf install -y starship; then
+      echo "Installed Starship from COPR (${starship_repo})."
+      return 0
+    fi
+  else
+    echo "Could not enable COPR ${starship_repo}."
+  fi
+
+  if run_as_root dnf install -y starship; then
+    echo "Installed Starship from Fedora repositories."
+    return 0
+  fi
+
+  if command -v curl >/dev/null 2>&1; then
+    if curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b "${HOME}/.local/bin"; then
+      echo "Installed Starship via upstream installer."
+      return 0
+    fi
+  fi
+
+  if command -v cargo >/dev/null 2>&1; then
+    if cargo install --locked starship; then
+      echo "Installed Starship via cargo."
+      return 0
+    fi
+  fi
+
+  echo "Warning: Starship installation failed."
+  return 1
+}
+
+install_required_packages() {
+  local required_packages=(
+    git
+    curl
+    zsh
+    tmux
+    fzf
+    neovim
+    ripgrep
+    nodejs
+    python3
+    rustup
+    gh
+    tree
+    dnf-plugins-core
+    fontconfig
+  )
+  local missing_packages=()
+  local pkg
+
+  for pkg in "${required_packages[@]}"; do
+    if ! install_required_package "${pkg}"; then
+      missing_packages+=("${pkg}")
+    fi
+  done
+
+  if install_required_package fd-find || install_required_package fd; then
+    :
+  else
+    missing_packages+=("fd-find/fd")
+  fi
+
+  if ! install_starship; then
+    missing_packages+=("starship")
+  fi
+
+  if (( ${#missing_packages[@]} > 0 )); then
+    echo "Warning: some required tools were not installed: ${missing_packages[*]}"
   fi
 }
 
