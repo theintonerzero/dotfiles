@@ -1,0 +1,48 @@
+[user]
+    name = Jesse Darkovski
+    email = j.darkovski@gmail.com
+
+[core]
+    editor = nvim
+    excludesfile = ~/.gitignore_global
+    autocrlf = input
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false
+
+[push]
+    autoSetupRemote = true
+
+[rebase]
+    autoStash = true
+
+[merge]
+    conflictstyle = zdiff3
+
+[diff]
+    colorMoved = default
+
+[color]
+    ui = auto
+
+[alias]
+    st = status -sb
+    co = checkout
+    cb = checkout -b
+    br = branch
+    ci = commit
+    ca = commit -a
+    cm = commit -m
+    amend = commit --amend
+    unstage = restore --staged
+    last = log -1 HEAD --stat
+    lg = log --oneline --graph --decorate --all
+
+[help]
+    autocorrect = prompt
+
+[include]
+    path = ~/.gitconfig.local
