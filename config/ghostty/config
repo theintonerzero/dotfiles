@@ -2,7 +2,19 @@
 # font config
 # --------------------------------------------------
 
-font-family = "JetBrainsMono Nerd Font"
+# macOS can load both XDG and Application Support config paths. Reset first so
+# repeated loads don't append duplicate font/fallback entries.
+font-family = ""
+font-family-bold = ""
+font-family-italic = ""
+font-family-bold-italic = ""
+font-feature = ""
+
+# Use the font's canonical family name so Ghostty resolves the exact face.
+font-family = "JetBrainsMono NFM"
+font-family-bold = "JetBrainsMono NFM"
+font-family-italic = "JetBrainsMono NFM"
+font-family-bold-italic = "JetBrainsMono NFM"
 font-size = 14
 
 # --------------------------------------------------
@@ -36,7 +48,8 @@ confirm-close-surface = true
 # --------------------------------------------------
 
 background-opacity = 0.7
-background-opacity-cells = true
+# Keep cell backgrounds opaque so powerline separators render seamlessly.
+background-opacity-cells = false
 background-blur = true
 
 # --------------------------------------------------

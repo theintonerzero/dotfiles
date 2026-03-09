@@ -185,6 +185,10 @@ check_target_link "${DOTFILES_DIR}/home/.ssh/config" "${HOME}/.ssh/config"
 check_target_link "${DOTFILES_DIR}/config/starship.toml" "${HOME}/.config/starship.toml"
 check_target_link "${DOTFILES_DIR}/config/ghostty/config" "${HOME}/.config/ghostty/config"
 
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  check_target_link "${DOTFILES_DIR}/config/ghostty/config" "${HOME}/Library/Application Support/com.mitchellh.ghostty/config"
+fi
+
 echo
 
 check_oh_my_zsh

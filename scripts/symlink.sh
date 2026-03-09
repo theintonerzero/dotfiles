@@ -47,4 +47,8 @@ link_file "${DOTFILES_DIR}/home/.ssh/config" "${HOME}/.ssh/config"
 link_file "${DOTFILES_DIR}/config/starship.toml" "${HOME}/.config/starship.toml"
 link_file "${DOTFILES_DIR}/config/ghostty/config" "${HOME}/.config/ghostty/config"
 
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  link_file "${DOTFILES_DIR}/config/ghostty/config" "${HOME}/Library/Application Support/com.mitchellh.ghostty/config"
+fi
+
 chmod 700 "${HOME}/.ssh"
