@@ -119,7 +119,7 @@ check_oh_my_zsh() {
 
 check_starship_prompt() {
   local starship_file="${DOTFILES_DIR}/config/starship.toml"
-  if grep -q '\$status' "${starship_file}"; then
+  if grep -Fq "\$status" "${starship_file}"; then
     ok "Starship format includes \$status"
   else
     fail "Starship format is missing \$status in ${starship_file}"

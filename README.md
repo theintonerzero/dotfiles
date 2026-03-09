@@ -10,6 +10,8 @@ cd dotfiles
 ./install.sh
 ```
 
+Run the installer as your normal user (not `sudo`).
+
 ## CI
 
 GitHub Actions runs `bash -n`, `zsh -n`, `shellcheck`, and Brewfile validation.

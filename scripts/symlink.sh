@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ "${EUID}" -eq 0 ]]; then
+  echo "Run scripts/symlink.sh as your normal user, not root."
+  exit 1
+fi
+
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TIMESTAMP="$(date +%Y%m%d%H%M%S)"
 
