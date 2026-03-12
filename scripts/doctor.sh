@@ -97,6 +97,46 @@ check_linux_gnome_terminal_font() {
   fi
 }
 
+check_linux_gnome_terminal_shell() {
+  local raw_default
+  local profile_id
+  local profile_path
+  local profile_schema
+  local use_custom_command
+  local custom_command
+
+  if [[ "$(uname -s)" != "Linux" ]]; then
+    return
+  fi
+
+  if ! command -v gsettings >/dev/null 2>&1; then
+    return
+  fi
+
+  if ! gsettings list-schemas 2>/dev/null | grep -qx "org.gnome.Terminal.ProfilesList"; then
+    return
+  fi
+
+  raw_default="$(gsettings get org.gnome.Terminal.ProfilesList default 2>/dev/null || true)"
+  profile_id="${raw_default//\'}"
+
+  if [[ -z "${profile_id}" ]]; then
+    warn "Cannot verify GNOME Terminal shell: default profile not found."
+    return
+  fi
+
+  profile_path="/org/gnome/terminal/legacy/profiles:/:${profile_id}/"
+  profile_schema="org.gnome.Terminal.Legacy.Profile:${profile_path}"
+  use_custom_command="$(gsettings get "${profile_schema}" use-custom-command 2>/dev/null || true)"
+  custom_command="$(gsettings get "${profile_schema}" custom-command 2>/dev/null || true)"
+
+  if [[ "${use_custom_command}" == "false" ]]; then
+    ok "GNOME Terminal default profile uses login shell."
+  else
+    warn "GNOME Terminal default profile uses custom command ${custom_command}; zsh may be bypassed."
+  fi
+}
+
 check_linux_login_shell() {
   local target_user="${SUDO_USER:-${USER}}"
   local expected_shell
@@ -233,6 +273,7 @@ esac
 
 check_linux_nerd_fonts
 check_linux_gnome_terminal_font
+check_linux_gnome_terminal_shell
 check_linux_login_shell
 
 echo

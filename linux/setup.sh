@@ -253,6 +253,47 @@ configure_gnome_terminal_font() {
   done
 }
 
+configure_gnome_terminal_shell() {
+  local raw_profiles
+  local profile_ids
+  local profile_id
+  local profile_path
+  local profile_schema
+
+  if ! command -v gsettings >/dev/null 2>&1; then
+    echo "Skipping GNOME Terminal shell config: gsettings unavailable."
+    return
+  fi
+
+  if ! gsettings list-schemas 2>/dev/null | grep -qx "org.gnome.Terminal.ProfilesList"; then
+    echo "Skipping GNOME Terminal shell config: GNOME Terminal schema not found."
+    return
+  fi
+
+  if ! raw_profiles="$(gsettings get org.gnome.Terminal.ProfilesList list 2>/dev/null)"; then
+    echo "Skipping GNOME Terminal shell config: could not read terminal profiles."
+    return
+  fi
+
+  profile_ids="$(printf '%s' "${raw_profiles}" | tr -d "[]',")"
+  if [[ -z "${profile_ids// /}" ]]; then
+    echo "Skipping GNOME Terminal shell config: no terminal profiles found."
+    return
+  fi
+
+  for profile_id in ${profile_ids}; do
+    profile_path="/org/gnome/terminal/legacy/profiles:/:${profile_id}/"
+    profile_schema="org.gnome.Terminal.Legacy.Profile:${profile_path}"
+
+    if gsettings set "${profile_schema}" use-custom-command false; then
+      gsettings reset "${profile_schema}" custom-command >/dev/null 2>&1 || true
+      echo "Configured GNOME Terminal profile ${profile_id} to use login shell."
+    else
+      echo "Could not configure GNOME Terminal profile ${profile_id} shell."
+    fi
+  done
+}
+
 install_ghostty_from_copr() {
   local repo="scottames/ghostty"
 
@@ -290,6 +331,10 @@ ensure_default_shell_is_zsh() {
   if run_as_root usermod --shell "${zsh_path}" "${TARGET_USER}"; then
     echo "Set default login shell for ${TARGET_USER} to ${zsh_path}."
     echo "Log out and back in for the shell change to take effect."
+  elif command -v chsh >/dev/null 2>&1 \
+    && run_as_root chsh -s "${zsh_path}" "${TARGET_USER}"; then
+    echo "Set default login shell for ${TARGET_USER} to ${zsh_path} via chsh."
+    echo "Log out and back in for the shell change to take effect."
   else
     echo "Could not set default shell automatically."
     echo "Run this manually:"
@@ -325,6 +370,9 @@ install_nerd_fonts
 
 echo "Configuring GNOME Terminal profile fonts..."
 configure_gnome_terminal_font
+
+echo "Configuring GNOME Terminal shell behavior..."
+configure_gnome_terminal_shell
 
 install_ghostty_from_copr
 
