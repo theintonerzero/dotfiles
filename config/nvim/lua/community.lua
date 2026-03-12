@@ -7,5 +7,6 @@ return {
   "AstroNvim/astrocommunity",
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.utility.live-server-nvim" },
+  { import = "astrocommunity.markdown-and-latex.vimtex" },
   -- import/override with your plugins folder
 }
