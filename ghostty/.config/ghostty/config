@@ -1,0 +1,18 @@
+# Font
+font-family = JetBrainsMono Nerd Font
+font-size = 13
+
+# Theme
+theme = Gruvbox Dark
+
+# Window
+window-padding-x = 10
+window-padding-y = 10
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Transparency
+background-opacity = 0.85
+background-blur-radius = 20
