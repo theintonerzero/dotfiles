@@ -39,19 +39,55 @@ else
     echo "Oh My Zsh already installed, skipping..."
 fi
 
-# AstroNvim
+# Ensure .config exists as a real directory before stowing
 if [ -L "$HOME/.config" ]; then
     echo "Removing bad .config symlink..."
     rm "$HOME/.config"
 fi
 mkdir -p "$HOME/.config"
-# Back up generated dirs from any previous install
+
+# Stow helper
+cd "$(dirname "$0")"
+
+stow_package() {
+    local pkg=$1
+    local target=$2
+
+    if [ -L "$target" ]; then
+        echo "$pkg already stowed, restowing..."
+        stow --restow "$pkg"
+    else
+        echo "Stowing $pkg..."
+        stow "$pkg"
+    fi
+}
+
+# zsh
+if [ -f "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ]; then
+    mv "$HOME/.zshrc" "$HOME/.zshrc.bak"
+fi
+stow_package zsh "$HOME/.zshrc"
+
+# git
+if [ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]; then
+    mv "$HOME/.gitconfig" "$HOME/.gitconfig.bak"
+fi
+stow_package git "$HOME/.gitconfig"
+
+# starship
+stow_package starship "$HOME/.config/starship/starship.toml"
+
+# tmux
+stow_package tmux "$HOME/.tmux.conf"
+
+# ghostty
+stow_package ghostty "$HOME/.config/ghostty/config"
+
+# Neovim
 echo "Setting up Neovim..."
 
-# If already stowed just restow and move on
 if [ -L "$HOME/.config/nvim" ]; then
     echo "Neovim already stowed, restowing..."
-    cd "$(dirname "$0")"
     stow --restow nvim
 else
     # Back up generated dirs from any previous install
@@ -73,7 +109,6 @@ else
     fi
 
     echo "Stowing nvim..."
-    cd "$(dirname "$0")"
     stow nvim
 
     echo "Installing AstroNvim plugins (this may take a moment)..."
