@@ -23,3 +23,22 @@ if [ -d "$HOME/.oh-my-zsh" ]; then
 else
     echo "Oh My Zsh not found, skipping..."
 fi
+
+# AstroNvim
+echo "Removing Neovim config..."
+
+cd "$(dirname "$0")"
+stow -D nvim
+
+# Remove all generated dirs
+for dir in \
+    "$HOME/.local/share/nvim" \
+    "$HOME/.local/state/nvim" \
+    "$HOME/.cache/nvim"; do
+    if [ -d "$dir" ]; then
+        echo "Removing $dir..."
+        rm -rf "$dir"
+    fi
+done
+
+echo "Neovim config removed."
