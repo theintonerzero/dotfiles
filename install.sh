@@ -40,33 +40,44 @@ else
 fi
 
 # AstroNvim
+if [ -L "$HOME/.config" ]; then
+    echo "Removing bad .config symlink..."
+    rm "$HOME/.config"
+fi
+mkdir -p "$HOME/.config"
+# Back up generated dirs from any previous install
 echo "Setting up Neovim..."
 
-# Back up generated dirs from any previous install
-for dir in \
-    "$HOME/.local/share/nvim" \
-    "$HOME/.local/state/nvim" \
-    "$HOME/.cache/nvim"; do
-    if [ -d "$dir" ] && [ ! -L "$dir" ]; then
-        echo "Backing up $dir to $dir.bak"
-        rm -rf "$dir.bak"        
-        mv "$dir" "$dir.bak"
+# If already stowed just restow and move on
+if [ -L "$HOME/.config/nvim" ]; then
+    echo "Neovim already stowed, restowing..."
+    cd "$(dirname "$0")"
+    stow --restow nvim
+else
+    # Back up generated dirs from any previous install
+    for dir in \
+        "$HOME/.local/share/nvim" \
+        "$HOME/.local/state/nvim" \
+        "$HOME/.cache/nvim"; do
+        if [ -d "$dir" ] && [ ! -L "$dir" ]; then
+            echo "Backing up $dir to $dir.bak"
+            rm -rf "$dir.bak"
+            mv "$dir" "$dir.bak"
+        fi
+    done
+
+    # Back up existing config only if it's a real directory
+    if [ -d "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
+        echo "Backing up ~/.config/nvim to ~/.config/nvim.bak"
+        mv "$HOME/.config/nvim" "$HOME/.config/nvim.bak"
     fi
-done
 
-# Back up existing config only if it's a real directory
-if [ -d "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
-    echo "Backing up ~/.config/nvim to ~/.config/nvim.bak"
-    mv "$HOME/.config/nvim" "$HOME/.config/nvim.bak"
+    echo "Stowing nvim..."
+    cd "$(dirname "$0")"
+    stow nvim
+
+    echo "Installing AstroNvim plugins (this may take a moment)..."
+    nvim --headless -c 'quitall'
 fi
-
-# Symlink config via stow
-echo "Stowing nvim..."
-cd "$(dirname "$0")"
-stow nvim
-
-# Bootstrap plugins headlessly so nvim is ready on first open
-echo "Installing AstroNvim plugins (this may take a moment)..."
-nvim --headless -c 'quitall'
 
 echo "Neovim setup complete."
