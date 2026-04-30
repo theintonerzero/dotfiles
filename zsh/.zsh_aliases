@@ -1,0 +1,104 @@
+# Navigation
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias ~="cd ~"
+alias dotfiles="cd ~/dotfiles"
+
+# ls / eza
+alias ls="eza --icons"
+alias ll="eza -la --icons --git"
+alias la="eza -a --icons"
+alias lt="eza --tree --icons"
+alias lt2="eza --tree --icons -L 2"
+alias lt3="eza --tree --icons -L 3"
+
+# cat / bat
+alias cat="bat"
+alias catp="bat --plain"
+
+# cd / zoxide
+alias cd="z"
+
+# grep / ripgrep
+alias grep="rg"
+alias search="rg"
+
+# find / fd
+alias find="fd"
+
+# git
+alias g="git"
+alias gs="git status"
+alias ga="git add"
+alias gaa="git add ."
+alias gc="git commit"
+alias gcm="git commit -m"
+alias gca="git commit --amend"
+alias gp="git push"
+alias gpl="git pull"
+alias gf="git fetch"
+alias gco="git checkout"
+alias gcb="git checkout -b"
+alias gb="git branch"
+alias gbd="git branch -d"
+alias gl="git log --oneline --graph --decorate --all"
+alias gd="git diff"
+alias grb="git rebase"
+alias gst="git stash"
+alias gstp="git stash pop"
+alias gundo="git reset HEAD~1 --mixed"
+alias lg="lazygit"
+
+# npm
+alias ni="npm install"
+alias nid="npm install --save-dev"
+alias nr="npm run"
+alias nrb="npm run build"
+alias nrd="npm run dev"
+alias nrt="npm run test"
+
+# python
+alias py="python3"
+alias pip="pip3"
+alias venv="python3 -m venv .venv"
+alias activate="source .venv/bin/activate"
+
+# go
+alias gor="go run ."
+alias gob="go build ."
+alias got="go test ./..."
+alias gotv="go test -v ./..."
+
+# docker 
+alias dk="docker"
+alias dkc="docker compose"
+alias dkcu="docker compose up"
+alias dkcd="docker compose down"
+alias dkps="docker ps"
+
+# system
+alias reload="source ~/.zshrc"
+alias zshrc="nvim ~/.zshrc"
+alias hosts="sudo nvim /etc/hosts"
+alias ip="ipconfig getifaddr en0"
+alias pubip="curl -s https://ipecho.net/plain"
+alias flushdns="sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder"
+
+# neovim
+alias vim="nvim"
+alias vi="nvim"
+
+# tmux
+alias t="tmux"
+alias ta="tmux attach"
+alias tls="tmux ls"
+alias tn="tmux new-session -s"
+alias tk="tmux kill-session -t"
+alias tka="tmux kill-server"
+
+# misc
+alias btop="btop --utf-force"
+alias jq="jq --indent 2"
+alias weather="curl wttr.in"
+alias speedtest="curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -"

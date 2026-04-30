@@ -35,6 +35,9 @@ eval "$(zoxide init zsh)"
 # atuin
 eval "$(atuin init zsh --disable-up-arrow)"
 
+# Aliases
+[ -f "$HOME/.zsh_aliases" ] && source "$HOME/.zsh_aliases"
+
 # starship
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 eval "$(starship init zsh)"
