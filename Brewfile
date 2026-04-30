@@ -57,6 +57,9 @@ cask "github"
 # terminal emulator
 cask "ghostty"
 
+# fonts
+cask "font-jetbrains-mono-nerd-font"
+
 # apps 
 cask "firefox"
 cask "pearcleaner"
