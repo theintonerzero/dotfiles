@@ -21,8 +21,8 @@ echo "Unstowing dotfiles..."
 unstow_package zsh "$HOME/.zshrc"
 unstow_package git "$HOME/.gitconfig"
 unstow_package starship "$HOME/.config/starship/starship.toml"
-unstow_package tmux "$HOME/.tmux.conf"
 unstow_package ghostty "$HOME/.config/ghostty/config"
+unstow_package tmux "$HOME/.tmux.conf"
 
 # Neovim
 echo "Removing Neovim config..."

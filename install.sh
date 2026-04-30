@@ -77,11 +77,20 @@ stow_package git "$HOME/.gitconfig"
 # starship
 stow_package starship "$HOME/.config/starship/starship.toml"
 
-# tmux
-stow_package tmux "$HOME/.tmux.conf"
-
 # ghostty
 stow_package ghostty "$HOME/.config/ghostty/config"
+
+# tmux
+if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
+    mv "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak"
+fi
+stow_package tmux "$HOME/.tmux.conf"
+
+# Install tmux plugins
+echo "Installing tmux plugins..."
+tmux new-session -d -s setup 2>/dev/null || true
+$(brew --prefix)/opt/tpm/share/tpm/bin/install_plugins
+tmux kill-session -t setup 2>/dev/null || true
 
 # Neovim
 echo "Setting up Neovim..."
