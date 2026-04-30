@@ -14,7 +14,8 @@ source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 export PATH="$HOME/.local/bin:$PATH"
 
 # fnm 
-eval "$(fnm env --use-on-cd --shell zsh)"
+eval "$(fnm env --use-on-cd --shell zsh --version-file-strategy=recursive)"
+fnm use default 2>/dev/null || true
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"

@@ -14,8 +14,8 @@ if ! command -v brew &>/dev/null; then
     fi
 
     # Add brew to PATH
-    echo >> "$HOME/.zprofile"
-    echo "eval \"\$($BREW_PREFIX/bin/brew shellenv)\"" >> "$HOME/.zprofile"
+    echo >>"$HOME/.zprofile"
+    echo "eval \"\$($BREW_PREFIX/bin/brew shellenv)\"" >>"$HOME/.zprofile"
     eval "$($BREW_PREFIX/bin/brew shellenv)"
 else
     echo "Homebrew already installed, skipping..."
@@ -29,6 +29,16 @@ if [ -f "$BREWFILE_PATH" ]; then
     brew bundle --file="$BREWFILE_PATH"
 else
     echo "No Brewfile found at $BREWFILE_PATH, skipping..."
+fi
+
+# Node
+if ! fnm list | grep -q "lts"; then
+    echo "Installing Node LTS..."
+    eval "$(fnm env --shell bash)"
+    fnm install --lts
+    fnm default lts-latest
+else
+    echo "Node LTS already installed, skipping..."
 fi
 
 # Oh My Zsh
