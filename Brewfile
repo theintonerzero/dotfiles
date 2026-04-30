@@ -16,6 +16,9 @@ brew "atuin"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 
+# tmux plugins
+brew "tpm"
+
 # dotfiles
 brew "stow"
 
