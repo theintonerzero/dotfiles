@@ -30,3 +30,11 @@ if [ -f "$BREWFILE_PATH" ]; then
 else
     echo "No Brewfile found at $BREWFILE_PATH, skipping..."
 fi
+
+# Oh My Zsh
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "Installing Oh My Zsh..."
+    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+else
+    echo "Oh My Zsh already installed, skipping..."
+fi

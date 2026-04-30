@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+# Homebrew
 if [ -d /opt/homebrew ] || [ -d /usr/local/Cellar ]; then
     echo "Uninstalling Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
@@ -13,4 +14,12 @@ if [ -d /opt/homebrew ] || [ -d /usr/local/Cellar ]; then
     sed -i '' '/eval.*brew shellenv/d' ~/.zprofile
 else
     echo "Homebrew not found, nothing to uninstall..."
+fi
+
+# Oh My Zsh
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "Uninstalling Oh My Zsh..."
+    ZSH="$HOME/.oh-my-zsh" sh "$HOME/.oh-my-zsh/tools/uninstall.sh" --unattended
+else
+    echo "Oh My Zsh not found, skipping..."
 fi
