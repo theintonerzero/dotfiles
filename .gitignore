@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+._*
+
+# nvim 
+.local/share/nvim/
+.local/state/nvim/
+.cache/nvim/
+
+# zsh
+.zsh_history
+.zsh_sessions/
+.zcompdump*
+
+# atuin 
+.local/share/atuin/
+
+# general
+*.log
+*.swp
+*.swo
+.env
+.direnv/
