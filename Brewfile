@@ -12,6 +12,10 @@ brew "starship"
 brew "zoxide"
 brew "atuin"
 
+# zsh plugins
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
 # dotfiles
 brew "stow"
 
