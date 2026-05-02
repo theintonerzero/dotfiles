@@ -29,6 +29,9 @@ source $(brew --prefix)/opt/fzf/shell/completion.zsh
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
+# rust
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # zoxide
 eval "$(zoxide init zsh)"
 
