@@ -9,6 +9,7 @@
 .local/share/nvim/
 .local/state/nvim/
 .cache/nvim/
+nvim/.config/nvim/lazy-lock.json
 
 # zsh
 .zsh_history
@@ -24,3 +25,4 @@
 *.swo
 .env
 .direnv/
+
