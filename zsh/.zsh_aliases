@@ -113,3 +113,4 @@ alias cleanup="\find . -type f -name '*.DS_Store' -delete"
 alias ports="lsof -iTCP -sTCP:LISTEN -n -P"   
 alias path='echo -e ${PATH//:/\\n}'     
 alias please="sudo \$(fc -ln -1)"      
+alias battery="ioreg -l| grep -e "CurrentCapacity" -e "MaxCapacity" -e "CycleCount""
