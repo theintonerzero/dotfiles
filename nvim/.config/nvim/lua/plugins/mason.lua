@@ -41,6 +41,12 @@ return {
         "yaml-language-server",
         "taplo", -- toml
         "marksman", -- markdown
+
+        --c
+        "clangd",
+        "clang-format",
+        "codelldb",
+        "cpplint",
       },
     },
   },
