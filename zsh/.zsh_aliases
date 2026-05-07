@@ -116,6 +116,11 @@ alias please="sudo \$(fc -ln -1)"
 alias battery="ioreg -l| grep -e "CurrentCapacity" -e "MaxCapacity" -e "CycleCount""
 
 # functions
+# helper: open a URL in firefox detached from the terminal
+_ff_open() {
+  firefox -new-tab "$1" >/dev/null 2>&1 &!
+}
+
 # open git repo in firefox
 gitweb() {
   local url
@@ -123,11 +128,9 @@ gitweb() {
     echo "gitweb: not a git repo (or no 'origin' remote)" >&2
     return 1
   }
-
   url=${url/git@github.com:/https://github.com/}
   url=${url%.git}
-
-  firefox -new-tab "$url"
+  _ff_open "$url"
 }
 
 # open the current git repo's PR/issues page
@@ -139,7 +142,7 @@ gitprs() {
   }
   url=${url/git@github.com:/https://github.com/}
   url=${url%.git}
-  firefox -new-tab "$url/pulls"
+  _ff_open "$url/pulls"
 }
 
 # quick web search from the terminal
@@ -149,16 +152,16 @@ ffs() {
     return 1
   fi
   local IFS='+'
-  firefox -new-tab "https://duckduckgo.com/?q=$*"
+  _ff_open "https://duckduckgo.com/?q=$*"
 }
 
-# open the current directory in firefox 
+# open the current directory in firefox
 ff() {
   local target="${1:-.}"
-  firefox -new-tab "file://$(realpath "$target")"
+  _ff_open "file://$(realpath "$target")"
 }
 
 # open localhost on a given port
 localhost() {
-  firefox -new-tab "http://localhost:${1:-3000}"
+  _ff_open "http://localhost:${1:-3000}"
 }
