@@ -96,6 +96,9 @@ if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
 fi
 stow_package tmux "$HOME/.tmux.conf"
 
+# btop
+stow_package btop "$HOME/.config/btop/btop.conf"
+
 # Install tmux plugins
 echo "Installing tmux plugins..."
 tmux new-session -d -s setup 2>/dev/null || true
