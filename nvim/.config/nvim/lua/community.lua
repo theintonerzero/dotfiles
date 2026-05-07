@@ -8,4 +8,5 @@ return {
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.media.cord-nvim" },
   { import = "astrocommunity.colorscheme.gruvbox-nvim" },
+  { import = "astrocommunity.motion.nvim-surround" },
 }
