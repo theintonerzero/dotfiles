@@ -1,0 +1,37 @@
+# macOS
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+._*
+.AppleDouble
+.LSOverride
+
+# editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# environment
+.env
+.env.local
+.env.*.local
+.direnv/
+
+# logs
+*.log
+npm-debug.log*
+
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# build outputs
+dist/
+build/
+*.o
+*.out
