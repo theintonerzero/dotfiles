@@ -114,3 +114,51 @@ alias ports="lsof -iTCP -sTCP:LISTEN -n -P"
 alias path='echo -e ${PATH//:/\\n}'     
 alias please="sudo \$(fc -ln -1)"      
 alias battery="ioreg -l| grep -e "CurrentCapacity" -e "MaxCapacity" -e "CycleCount""
+
+# functions
+# open git repo in firefox
+gitweb() {
+  local url
+  url=$(git config --get remote.origin.url) || {
+    echo "gitweb: not a git repo (or no 'origin' remote)" >&2
+    return 1
+  }
+
+  url=${url/git@github.com:/https://github.com/}
+  url=${url%.git}
+
+  firefox -new-tab "$url"
+}
+
+# open the current git repo's PR/issues page
+gitprs() {
+  local url
+  url=$(git config --get remote.origin.url) || {
+    echo "gitprs: not a git repo" >&2
+    return 1
+  }
+  url=${url/git@github.com:/https://github.com/}
+  url=${url%.git}
+  firefox -new-tab "$url/pulls"
+}
+
+# quick web search from the terminal
+ffs() {
+  if [[ $# -eq 0 ]]; then
+    echo "usage: ffs <search terms>" >&2
+    return 1
+  fi
+  local IFS='+'
+  firefox -new-tab "https://duckduckgo.com/?q=$*"
+}
+
+# open the current directory in firefox 
+ff() {
+  local target="${1:-.}"
+  firefox -new-tab "file://$(realpath "$target")"
+}
+
+# open localhost on a given port
+localhost() {
+  firefox -new-tab "http://localhost:${1:-3000}"
+}
