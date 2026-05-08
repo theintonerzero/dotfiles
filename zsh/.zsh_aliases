@@ -5,6 +5,7 @@ alias ....="cd ../../.."
 alias ~="cd ~"
 alias dotfiles="cd ~/dotfiles"
 alias workspace="cd ~/workspace"
+alias projects="cd ~/projects"
 
 # ls / eza
 alias ls="eza --icons"
