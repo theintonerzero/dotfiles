@@ -52,6 +52,9 @@ alias gstp="git stash pop"
 alias gundo="git reset HEAD~1 --mixed"
 alias lg="lazygit"
 
+# git repos
+alias unitex="curl -s https://dl.intonerzero.com/github/university-latex-template/install.sh | bash"
+
 # npm
 alias ni="npm install"
 alias nid="npm install --save-dev"
