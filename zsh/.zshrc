@@ -32,9 +32,6 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 # rust
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# zoxide
-eval "$(zoxide init zsh)"
-
 # atuin
 eval "$(atuin init zsh --disable-up-arrow)"
 
@@ -44,3 +41,17 @@ eval "$(atuin init zsh --disable-up-arrow)"
 # starship
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 eval "$(starship init zsh)"
+
+# zoxide
+eval "$(zoxide init zsh)"
+
+# android studio
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+
+# java
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export PATH=$JAVA_HOME/bin:$PATH
