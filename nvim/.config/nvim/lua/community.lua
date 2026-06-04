@@ -9,4 +9,5 @@ return {
   { import = "astrocommunity.media.cord-nvim" },
   { import = "astrocommunity.colorscheme.gruvbox-nvim" },
   { import = "astrocommunity.motion.nvim-surround" },
+  { import = "astrocommunity.completion.copilot-lua" },
 }
