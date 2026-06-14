@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
+# OS detection
+case "$(uname -s)" in
+    Darwin) OS="macos" ;;
+    Linux)  OS="linux" ;;
+    *)      OS="unknown" ;;
+esac
+
 # Unstow helper
 cd "$(dirname "$0")"
 
@@ -55,13 +62,21 @@ else
     echo "Oh My Zsh not found, skipping..."
 fi
 
-# Homebrew
-if [ -d /opt/homebrew ] || [ -d /usr/local/Cellar ]; then
-    echo "Uninstalling Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
-    sudo rm -rf /opt/homebrew 2>/dev/null || true
-    sudo rm -rf /usr/local/Cellar /usr/local/Homebrew 2>/dev/null || true
-    sed -i '' '/eval.*brew shellenv/d' ~/.zprofile
+# Package manager cleanup
+if [ "$OS" = "macos" ]; then
+    # Homebrew
+    if [ -d /opt/homebrew ] || [ -d /usr/local/Cellar ]; then
+        echo "Uninstalling Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
+        sudo rm -rf /opt/homebrew 2>/dev/null || true
+        sudo rm -rf /usr/local/Cellar /usr/local/Homebrew 2>/dev/null || true
+        sed -i '' '/eval.*brew shellenv/d' ~/.zprofile 2>/dev/null || true
+    else
+        echo "Homebrew not found, skipping..."
+    fi
 else
-    echo "Homebrew not found, skipping..."
+    # On Fedora the packages were installed with dnf/flatpak. Removing system
+    # packages is destructive and out of scope, so they are left in place.
+    echo "Note: dnf/flatpak packages were left installed. Remove manually if desired, e.g.:"
+    echo "  sudo dnf remove <pkg>    /    flatpak uninstall <app-id>"
 fi

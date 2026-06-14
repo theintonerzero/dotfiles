@@ -1,3 +1,6 @@
+# OS detection (set OS only if not already provided by .zshrc)
+: "${OS:=$(case "$(uname -s)" in Darwin) echo macos ;; Linux) echo linux ;; *) echo unknown ;; esac)}"
+
 # Navigation
 alias ..="cd .."
 alias ...="cd ../.."
@@ -88,9 +91,7 @@ alias dkps="docker ps"
 alias reload="source ~/.zshrc"
 alias zshrc="nvim ~/.zshrc"
 alias hosts="sudo nvim /etc/hosts"
-alias ip="ipconfig getifaddr en0"
 alias pubip="curl -s https://ipecho.net/plain"
-alias flushdns="sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder"
 
 # neovim
 alias vim="nvim"
@@ -111,14 +112,26 @@ alias weather="curl wttr.in"
 alias speedtest="curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -"
 alias c="clear"
 
-# macOS specific
-alias o="open"                                
-alias oh="open ."
+# OS-specific
+if [ "$OS" = "macos" ]; then
+  alias o="open"
+  alias oh="open ."
+  alias ip="ipconfig getifaddr en0"
+  alias flushdns="sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder"
+  alias battery="ioreg -l | grep -e CurrentCapacity -e MaxCapacity -e CycleCount"
+else
+  alias o="xdg-open"
+  alias oh="xdg-open ."
+  alias ip="hostname -I | awk '{print \$1}'"
+  alias flushdns="sudo resolvectl flush-caches"
+  alias battery="upower -i \$(upower -e | grep -m1 BAT)"
+fi
+
+# system helpers (cross-platform)
 alias cleanup="\find . -type f -name '*.DS_Store' -delete"
-alias ports="lsof -iTCP -sTCP:LISTEN -n -P"   
-alias path='echo -e ${PATH//:/\\n}'     
-alias please="sudo \$(fc -ln -1)"      
-alias battery="ioreg -l| grep -e "CurrentCapacity" -e "MaxCapacity" -e "CycleCount""
+alias ports="lsof -iTCP -sTCP:LISTEN -n -P"
+alias path='echo -e ${PATH//:/\\n}'
+alias please="sudo \$(fc -ln -1)"
 
 # functions
 # helper: open a URL in firefox detached from the terminal
