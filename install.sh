@@ -27,7 +27,6 @@ echo "Detected OS: $OS"
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Make sure user-local installs are available for the rest of the script
 mkdir -p "$HOME/.local/bin"
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -83,7 +82,6 @@ install_fedora() {
 
     install_fedora_jdk
 
-    # lazygit is not in Fedora repos -> COPR (community-maintained; swap if moved)
     if ! command -v lazygit &>/dev/null; then
         echo "Enabling COPR atim/lazygit..."
         sudo dnf copr enable -y atim/lazygit
@@ -92,7 +90,6 @@ install_fedora() {
         echo "lazygit already installed, skipping..."
     fi
 
-    # Rust toolchain via Fedora's rustup package
     if ! command -v cargo &>/dev/null; then
         echo "Setting up Rust toolchain..."
         if command -v rustup-init &>/dev/null; then
@@ -104,19 +101,14 @@ install_fedora() {
         echo "Rust toolchain already installed, skipping..."
     fi
 
-    # Tools not packaged for Fedora -> official installers (into ~/.local/bin etc.)
     install_starship
     install_fnm
     install_pyenv
 
-    # GUI apps via Flatpak
     install_flatpaks
 
-    # Nerd font
     install_nerd_font
 
-    # Make zsh the default shell (chsh is provided by util-linux).
-    # Check the passwd entry, not $SHELL, since $SHELL is stale until re-login.
     local login_shell
     login_shell="$(getent passwd "$USER" | cut -d: -f7)"
     if [ "$login_shell" != "$(command -v zsh)" ]; then
@@ -135,7 +127,6 @@ install_fedora() {
 }
 
 install_fedora_jdk() {
-    # Prefer an LTS if the running Fedora still ships it, else newest available.
     local candidates=(java-21-openjdk-devel java-17-openjdk-devel java-latest-openjdk-devel)
     for pkg in "${candidates[@]}"; do
         if dnf info "$pkg" >/dev/null 2>&1; then
@@ -181,10 +172,8 @@ install_flatpaks() {
     fi
     echo "Configuring Flathub..."
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    # Fedora ships a filtered Flathub remote; unfilter so all apps are installable.
     sudo flatpak remote-modify --enable --no-filter flathub 2>/dev/null || true
 
-    # App IDs are community-maintained; adjust if any are renamed upstream.
     local apps=(
         com.spotify.Client
         com.jetbrains.RustRover
