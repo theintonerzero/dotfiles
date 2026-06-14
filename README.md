@@ -3,8 +3,8 @@
 My personal dotfiles. Supported on **macOS** and **Fedora Linux**.
 
 The installer detects your OS and uses the right package manager:
-- **macOS** — Homebrew (`Brewfile`)
-- **Fedora** — `dnf` + COPR + Flatpak
+- **macOS** : Homebrew (`Brewfile`)
+- **Fedora** : `dnf` + COPR + Flatpak
 
 ## One-liner for macOS and Linux
 
