@@ -125,6 +125,8 @@ else
   alias ip="hostname -I | awk '{print \$1}'"
   alias flushdns="sudo resolvectl flush-caches"
   alias battery="upower -i \$(upower -e | grep -m1 BAT)"
+  alias update="sudo dnf update"
+  alias upgrade="sudo dnf upgrade --refresh"
 fi
 
 # system helpers (cross-platform)
