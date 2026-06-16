@@ -73,7 +73,7 @@ install_fedora() {
         zsh-autosuggestions zsh-syntax-highlighting \
         stow \
         golang rustup \
-        neovim gcc gcc-c++ make \
+        neovim gcc gcc-c++ make dotnet \
         ripgrep fd-find bat eza git-delta jq btop gh \
         ghostty firefox \
         dotnet-sdk-8.0 texlive-scheme-basic \
