@@ -3,7 +3,7 @@
 set -euo pipefail
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 
-[[ $(os_id) == fedora ]] || die "v1.0.1 supports Fedora only"
+[[ $(os_id) == fedora ]] || die "v1.1.0 supports Fedora only"
 load_steps fedora
 
 say "removing the links"
