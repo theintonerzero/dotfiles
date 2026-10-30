@@ -2,6 +2,7 @@
 # shellcheck shell=bash
 
 FIREFOX_PREFS=/usr/lib64/firefox/browser/defaults/preferences/dotfiles.js
+FIREFOX_POLICIES=/etc/firefox/policies/policies.json
 
 apps_install() {
   apps_flatpaks
@@ -10,6 +11,7 @@ apps_install() {
   apps_releases
   font_install || todo "the nerd font didn't install; dot update tries again"
   firefox_prefs
+  firefox_policies
 }
 
 apps_update() {
@@ -21,6 +23,7 @@ apps_update() {
 
 apps_uninstall() {
   if [[ -e $FIREFOX_PREFS ]]; then as_root rm -f "$FIREFOX_PREFS"; fi
+  if [[ -e $FIREFOX_POLICIES ]]; then as_root rm -f "$FIREFOX_POLICIES"; fi
 }
 
 # apps_gtk_css: flatpak apps read the window-button css too, and the repo folder its links point into
@@ -129,4 +132,14 @@ firefox_prefs() {
   [[ -f $FIREFOX_PREFS && $(<"$FIREFOX_PREFS") == "$want" ]] && return 0
   say "turning off middle-click paste in firefox"
   printf '%s\n' "$want" | as_root tee "$FIREFOX_PREFS" >/dev/null
+}
+
+# firefox_policies: firefox-policies.json as firefox's policies: ublock origin, https-only mode, and no
+# ads, telemetry or ai features; telemetry and studies stay off, the rest you can change in firefox
+firefox_policies() {
+  have firefox || return 0
+  cmp -s "$DOTFILES/fedora/firefox-policies.json" "$FIREFOX_POLICIES" && return 0
+  say "setting firefox's policies"
+  as_root install -Dm644 "$DOTFILES/fedora/firefox-policies.json" "$FIREFOX_POLICIES"
+  todo "restart Firefox for its new policies; about:policies lists them"
 }

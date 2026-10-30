@@ -41,7 +41,7 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Area | |
 | --- | --- |
 | System | RPM Fusion, full multimedia codecs, COPRs, VSCodium's repo, snapper snapshots of `/`; LibreOffice, Fedora Media Writer and unused GNOME apps (Calculator, Calendar, Camera, Characters, Clocks, Parental Controls and more) removed |
-| Apps | Firefox, Steam, Vesktop, Godot, VSCodium, Blender, Spotify, OBS Studio, Mission Center, ArtCraft Launcher, JetBrains Mono Nerd Font |
+| Apps | Firefox with uBlock Origin, HTTPS-only mode and no ads, telemetry or AI features, Steam, Vesktop, Godot, VSCodium, Blender, Spotify, OBS Studio, Mission Center, ArtCraft Launcher, JetBrains Mono Nerd Font |
 | GNOME | Super+Enter opens Ghostty, Ctrl+Alt+Del Mission Center, Ctrl+Shift+Esc btop, JetBrains Mono as the monospace font, dark style, slate accent, macOS-style red, yellow and green window buttons on the left, no hot corners, flat mouse, no auto-suspend, Performance mode, VRR, the app grid on one page, Settings then System, Media, Development, Create and Games folders; Dash to Dock, Blur my Shell, Caffeine, AppIndicator, Coverflow Alt-Tab |
 | Gaming | Steam games named in GNOME, FSR4 on RDNA 4, Proton-GE, GameMode, Gamescope, ProtonTricks |
 | Shell | zsh, Starship, atuin, zoxide, fzf, eza, bat, fd, ripgrep, Ghostty, tmux with sesh and pills, lazygit |
@@ -66,6 +66,7 @@ Edit a list, then run `dot install`.
 | GNOME setting | `fedora/gsettings.txt` |
 | GNOME extension | `fedora/extensions.txt` |
 | App grid folder or order | `fedora/app-folders.txt` |
+| Firefox policy | `fedora/firefox-policies.json` |
 | Keyboard shortcut | `fedora/shortcuts.txt` |
 | VSCodium extension | `shared/vscodium-extensions.txt` |
 | Claude plugin | `shared/claude-plugins.txt` |
