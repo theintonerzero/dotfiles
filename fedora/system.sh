@@ -2,6 +2,7 @@
 # shellcheck shell=bash
 
 system_install() {
+  say "checking the system's repos and packages"
   system_repos
   system_codecs
   system_packages
@@ -19,6 +20,11 @@ system_update() {
   say "updating the system"
   as_root dnf upgrade -y --refresh
 }
+
+# dnf_query <args...>: a dnf that only looks, run as root so it reads the system's cache instead of
+# downloading every repo's metadata into one of its own; -y takes the signing keys of the repos added
+# here, and with no stdin it can't sit on a question its hidden output never shows
+dnf_query() { as_root dnf -y "$@" </dev/null 2>/dev/null; }
 
 # system_snapshots: snapper for / on btrfs, for the snapshot each dot update takes first; no hourly
 # ones, and the last 10 kept
@@ -41,11 +47,11 @@ system_repos() {
       "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$fedora.noarch.rpm" \
       "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$fedora.noarch.rpm"
   fi
-  if ! grep -q '^fedora-cisco-openh264' <<<"$(dnf repolist --enabled 2>/dev/null)"; then
+  if ! grep -q '^fedora-cisco-openh264' <<<"$(dnf_query repolist --enabled)"; then
     say "turning on fedora's openh264 repo"
     as_root dnf config-manager setopt fedora-cisco-openh264.enabled=1
   fi
-  enabled=$(dnf copr list 2>/dev/null || true)
+  enabled=$(dnf_query copr list || true)
   for copr in $(list "$DOTFILES/fedora/copr.txt"); do
     if ! grep -q "/$copr$" <<<"$enabled"; then
       say "adding the $copr copr"
@@ -81,7 +87,7 @@ system_codecs() {
     say "installing ffmpeg"
     as_root dnf install -y ffmpeg
   fi
-  if ! grep -qE '^Installed[[:space:]]*: yes' <<<"$(dnf group info multimedia 2>/dev/null)"; then
+  if ! grep -qE '^Installed[[:space:]]*: yes' <<<"$(dnf_query group info multimedia)"; then
     say "installing the multimedia codecs"
     as_root dnf install -y @multimedia --setopt=install_weak_deps=False --exclude=PackageKit-gstreamer-plugin
   fi
@@ -132,7 +138,7 @@ system_removals() {
   while ((kept && ${#remove[@]})); do
     kept=0 left=()
     for pkg in "${remove[@]}"; do
-      needer=$(dnf repoquery --installed --whatrequires "$pkg" --qf '%{name}\n' 2>/dev/null |
+      needer=$(dnf_query repoquery --installed --whatrequires "$pkg" --qf '%{name}\n' |
         grep -vxF -f <(printf '%s\n' "${remove[@]}") | head -n 1 || true)
       if [[ -n $needer ]]; then
         warn "keeping $pkg: $needer needs it"

@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Install no longer seems to freeze after the git step: dnf's checks ran as you, with their output
+  hidden, so they downloaded every repo's metadata into a cache of their own and could wait on a
+  question no one could see. They now run as root, read the system's cache and never wait for input.
+
 ## [1.0.0] - 2026-10-30
 
 First release, for Fedora 44 Workstation with GNOME.
