@@ -1,0 +1,22 @@
+/* window buttons like macos's: its own red, yellow and green dots, their symbols on hover,
+   grey while the window isn't focused (gtk 4 and libadwaita apps) */
+windowcontrols > button {
+  min-width: 14px;
+  min-height: 14px;
+  margin: 0 3px;
+  padding: 0;
+}
+
+windowcontrols > button > image {
+  padding: 1px;
+  color: transparent;
+  box-shadow: none;
+}
+
+windowcontrols > button.close > image { background-color: #ff5f57; }
+windowcontrols > button.minimize > image { background-color: #febc2e; }
+windowcontrols > button.maximize > image { background-color: #28c840; }
+
+windowcontrols:hover > button > image { color: rgb(0 0 0 / 60%); }
+
+windowcontrols > button:backdrop:not(:hover) > image { background-color: rgb(128 128 128 / 35%); }

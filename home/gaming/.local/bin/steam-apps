@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# steam-apps: a hidden desktop entry for each installed steam game, named for its window,
+# so the dock and alt+tab show the game's name and icon instead of steam_app_<id>
+set -euo pipefail
+
+steam=${STEAM_DIR:-$HOME/.local/share/Steam}
+data=${XDG_DATA_HOME:-$HOME/.local/share}
+apps=$data/applications
+
+# vdf_values <key> <file>: every value of a key in one of steam's key-value files
+vdf_values() {
+  sed -n 's/^[[:space:]]*"'"$1"'"[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' "$2"
+}
+
+# libraries: steam's own folder and every library folder it knows, once each
+libraries() {
+  local dir
+  {
+    echo "$steam"
+    if [[ -r $steam/steamapps/libraryfolders.vdf ]]; then vdf_values path "$steam/steamapps/libraryfolders.vdf"; fi
+  } | while IFS= read -r dir; do
+    if [[ -d $dir/steamapps ]]; then realpath "$dir"; fi
+  done | sort -u
+}
+
+declare -A names=()
+while IFS= read -r lib; do
+  for manifest in "$lib"/steamapps/appmanifest_*.acf; do
+    [[ -f $manifest ]] || continue
+    id=${manifest##*_}
+    id=${id%.acf}
+    [[ $id =~ ^[0-9]+$ ]] || continue
+    name=$(vdf_values name "$manifest")
+    name=${name%%$'\n'*}
+    if [[ -n $name ]]; then names[$id]=$name; fi
+  done
+done < <(libraries)
+
+mkdir -p "$apps"
+for id in "${!names[@]}"; do
+  icon=steam
+  for png in "$data"/icons/hicolor/*/apps/steam_icon_"$id".png; do
+    if [[ -f $png ]]; then
+      icon=steam_icon_$id
+      break
+    fi
+  done
+  entry=$(printf '%s\n' '[Desktop Entry]' 'Type=Application' "Name=${names[$id]}" \
+    "Exec=steam steam://rungameid/$id" "Icon=$icon" 'NoDisplay=true' \
+    "StartupWMClass=steam_app_$id" "X-Dotfiles-Steam-App=$id")
+  file=$apps/steam_app_$id.desktop
+  if [[ -f $file && $(<"$file") == "$entry" ]]; then continue; fi
+  printf '%s\n' "$entry" >"$file.new"
+  mv -f "$file.new" "$file"
+  echo "steam_app_$id: ${names[$id]}"
+done
+
+# entries this script made for games that are gone
+for file in "$apps"/steam_app_*.desktop; do
+  [[ -f $file ]] || continue
+  grep -q '^X-Dotfiles-Steam-App=' "$file" || continue
+  id=${file##*/steam_app_}
+  id=${id%.desktop}
+  if [[ -z ${names[$id]+set} ]]; then
+    rm -f "$file"
+    echo "steam_app_$id: gone"
+  fi
+done

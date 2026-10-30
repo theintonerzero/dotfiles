@@ -1,0 +1,16 @@
+# ghostty: kanagawa dragon, the nerd font, and a see-through background for blur my shell
+# a comment must be on its own line, as a colour starts with #
+theme = Kanagawa Dragon
+font-family = JetBrainsMono Nerd Font
+font-size = 13
+window-padding-x = 10
+window-padding-y = 10
+background-opacity = 0.9
+
+# a steady block cursor, which the shell integration leaves alone
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor,sudo,title
+
+copy-on-select = clipboard
+mouse-hide-while-typing = true

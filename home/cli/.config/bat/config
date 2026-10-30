@@ -1,0 +1,3 @@
+# the terminal's own colours, so bat follows ghostty's theme
+--theme=ansi
+--style=numbers,changes,header

@@ -1,0 +1,17 @@
+# vscodium's extensions, from open vsx; copilot isn't there, so it lives in neovim
+geequlim.godot-tools
+editorconfig.editorconfig
+anthropic.claude-code
+github.vscode-pull-request-github
+redhat.vscode-yaml
+timonwong.shellcheck
+tamasfe.even-better-toml
+metaphore.kanagawa-vscode-color-theme
+davidanson.vscode-markdownlint
+yzhang.markdown-all-in-one
+rust-lang.rust-analyzer
+ms-python.python
+golang.go
+llvm-vs-code-extensions.vscode-clangd
+muhammad-sammy.csharp
+ziglang.vscode-zig

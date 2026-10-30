@@ -1,0 +1,10 @@
+# reruns steam-apps when a game is installed or removed
+[Unit]
+Description=Steam's games, for the entries that name them
+
+[Path]
+PathChanged=%h/.local/share/Steam/steamapps
+Unit=steam-apps.service
+
+[Install]
+WantedBy=default.target

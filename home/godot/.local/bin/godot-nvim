@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# godot-nvim <project> <file> [line] [col]: godot's external editor, run as "{project} {file} {line} {col}"
+# the file opens in the neovim serving the project (lua/godot.lua), at godot's line and column, counted
+# from 1; with none, in a new ghostty window, whose neovim then serves the project
+set -euo pipefail
+
+if (($# < 2)); then
+  echo 'usage: godot-nvim <project> <file> [line] [col]' >&2
+  exit 2
+fi
+project=$1 file=$2 line=${3:-1} col=${4:-1}
+[[ $line =~ ^[0-9]{1,9}$ ]] || line=1
+[[ $col =~ ^[0-9]{1,9}$ ]] || col=1
+
+# vim_string <text>: text as a vim string in single quotes, any quote in it doubled
+vim_string() { printf "'%s'" "${1//\'/\'\'}"; }
+
+open="v:lua.require'godot'.open($(vim_string "$file"), $line, $col)"
+if [[ -n ${XDG_RUNTIME_DIR:-} ]] && real=$(realpath -e -- "$project" 2>/dev/null); then
+  sum=$(printf '%s' "$real" | sha256sum)
+  socket=$XDG_RUNTIME_DIR/godot-nvim/${sum:0:16}.sock
+  if [[ -S $socket ]] && nvim --server "$socket" --remote-expr "$open" >/dev/null 2>&1; then
+    exit 0
+  fi
+fi
+
+# the new neovim starts in the project's git top, or else the project; its commands go with -c, not
+# +…, as ghostty takes every argument starting with + as an action of its own, even after -e
+top=$(git -C "$project" rev-parse --show-toplevel 2>/dev/null) || top=$project
+exec ghostty +new-window -e nvim --cmd "exe 'cd' fnameescape($(vim_string "$top"))" -c "call $open" -- "$file"

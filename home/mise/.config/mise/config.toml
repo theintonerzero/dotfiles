@@ -1,0 +1,11 @@
+# mise: the languages, each at its newest release; dot update upgrades them
+# kotlin runs on mise's java, and zls follows zig's releases
+[tools]
+node = "lts"
+bun = "latest"
+go = "latest"
+java = "temurin"
+kotlin = "latest"
+zig = "latest"
+zls = "latest"
+"aqua:joshmedeski/sesh" = "latest"

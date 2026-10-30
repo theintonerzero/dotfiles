@@ -1,0 +1,49 @@
+# files from your machine that never belong in any repo; each repo's .gitignore stays about its project
+
+# macos
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+
+# windows
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# linux and gnome
+*~
+.directory
+.Trash-*
+.fuse_hidden*
+.goutputstream-*
+.~lock.*#
+
+# editors
+.vscode/
+.idea/
+*.swp
+*.swo
+Session.vim
+.nvim.lua
+*.sublime-workspace
+
+# godot and blender
+.godot/
+*.blend[0-9]*
+*.blend@
+
+# claude code
+**/.claude/settings.local.json
+CLAUDE.local.md
+
+# local environments
+.env.local
+.direnv/
+mise.local.toml
+.mise.local.toml

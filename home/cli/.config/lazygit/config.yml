@@ -1,0 +1,7 @@
+# lazygit: nerd font icons and delta for diffs; colours come from the terminal
+gui:
+  nerdFontsVersion: "3"
+  showRandomTip: false
+git:
+  diffRenderers:
+    - command: delta --{{colorScheme}} --paging=never

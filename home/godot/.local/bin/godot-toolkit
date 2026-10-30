@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# godot-toolkit: puts the godot mcp toolkit's editor plugin, which claude's godot server talks to, in the
+# godot project here (this folder, a parent, or ./game), replacing an older copy
+set -euo pipefail
+# shellcheck source-path=SCRIPTDIR source=../../../../lib.sh
+source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../../../lib.sh"
+
+project="" dir=$PWD
+while :; do
+  if [[ -f $dir/project.godot ]]; then project=$dir; break; fi
+  [[ $dir != / ]] || break
+  dir=$(dirname "$dir")
+done
+if [[ -z $project && -f $PWD/game/project.godot ]]; then project=$PWD/game; fi
+[[ -n $project ]] || die "no project.godot here, above here, or in ./game"
+
+url=$(gh_asset npgamedev/godot-mcp-toolkit '^godot-mcp-toolkit-.*\.zip$')
+[[ -n $url ]] || die "couldn't find the toolkit's latest release"
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+fetch "$url" "$tmp/toolkit.zip" || die "couldn't download $url"
+unzip -q "$tmp/toolkit.zip" -d "$tmp/zip"
+[[ -f $tmp/zip/addons/godot_mcp_toolkit/plugin.cfg ]] || die "the toolkit's zip has no addons/godot_mcp_toolkit"
+rm -rf "$project/addons/godot_mcp_toolkit"
+mkdir -p "$project/addons"
+mv "$tmp/zip/addons/godot_mcp_toolkit" "$project/addons/"
+say "the godot mcp toolkit is in $project/addons/godot_mcp_toolkit"
+echo "Turn it on: Project Settings → Plugins → Godot MCP Toolkit"

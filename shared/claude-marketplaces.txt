@@ -1,0 +1,6 @@
+# claude code's plugin marketplaces, besides its built-in anthropic-plugin-directory: the name each one
+# calls itself, then its github repo
+claude-plugins-official anthropics/claude-plugins-official
+skillsmith jame581/skillsmith
+impeccable pbakaus/impeccable
+humanizer blader/humanizer

@@ -1,0 +1,25 @@
+-- astronvim at its newest v6 release, with the plugin versions that release was tested with
+require("lazy").setup({
+  {
+    "AstroNvim/AstroNvim",
+    version = "^6",
+    import = "astronvim.plugins",
+    opts = {
+      mapleader = " ",
+      maplocalleader = ",",
+      icons_enabled = true,
+      pin_plugins = nil,
+      update_notifications = true,
+    },
+  },
+  { import = "community" },
+  { import = "plugins" },
+} --[[@as LazySpec]], {
+  install = { colorscheme = { "kanagawa-dragon", "astrotheme", "habamax" } },
+  ui = { backdrop = 100 },
+  performance = {
+    rtp = {
+      disabled_plugins = { "gzip", "netrwPlugin", "tarPlugin", "tohtml", "zipPlugin" },
+    },
+  },
+} --[[@as LazyConfig]])

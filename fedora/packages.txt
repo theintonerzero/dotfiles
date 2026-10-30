@@ -1,0 +1,90 @@
+# dnf packages, one a line; the coprs and repos they need are added first
+
+# shell
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship
+atuin
+zoxide
+fzf
+eza
+bat
+fd-find
+ripgrep
+jq
+stow
+
+# terminal
+ghostty
+tmux
+btop
+xdg-terminal-exec
+
+# git
+git
+git-lfs
+git-delta
+lazygit
+gh
+
+# snapshots of / before each dot update
+snapper
+
+# toolchains (mise brings node, bun, go, java, kotlin, zig and sesh)
+mise
+rustup
+uv
+dotnet-sdk-10.0
+gcc
+gcc-c++
+make
+# what bevy games and bevy_brp_mcp, bevy's mcp server, build against (bevy's fedora list)
+libX11-devel
+alsa-lib-devel
+systemd-devel
+wayland-devel
+libxkbcommon-devel
+
+# neovim
+neovim
+tree-sitter-cli
+unzip
+wl-clipboard
+
+# apps
+codium
+blender
+godot
+obs-studio
+gnome-tweaks
+gnome-extensions-app
+# what mission center reads per-process network use and hardware sensors with
+nethogs
+lm_sensors
+
+# gnome extensions (coverflow alt-tab and blur my shell come from extensions.gnome.org)
+gnome-shell-extension-dash-to-dock
+gnome-shell-extension-caffeine
+gnome-shell-extension-appindicator
+
+# gaming
+steam
+gamemode
+gamescope
+protontricks
+protonplus
+ntsync-autoload
+
+# claude's reverse-engineering server (rea) and its engines
+rizin
+gdb
+binwalk
+
+# codecs and extras beside rpm fusion's multimedia group
+intel-media-driver
+libheif-freeworld
+pipewire-codec-aptx
+mozilla-openh264
+rpmfusion-free-appstream-data
+rpmfusion-nonfree-appstream-data

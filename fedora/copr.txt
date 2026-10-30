@@ -1,0 +1,6 @@
+# coprs for what fedora doesn't package, one owner/name a line
+scottames/ghostty
+atim/starship
+dejan/lazygit
+jdxcode/mise
+wehagy/protonplus

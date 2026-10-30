@@ -1,0 +1,3 @@
+# apps from flathub, in your user installation; fedora doesn't package these
+io.missioncenter.MissionCenter   # replaces system monitor
+com.spotify.Client

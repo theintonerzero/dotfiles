@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# dot: runs install.sh, update.sh or uninstall.sh from the repo this link points into
+set -euo pipefail
+
+root=$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")")
+case ${1:-} in
+  install | update | uninstall)
+    cmd=$1
+    shift
+    exec "$root/$cmd.sh" "$@"
+    ;;
+  *)
+    echo "usage: dot install | update | uninstall" >&2
+    exit 2
+    ;;
+esac

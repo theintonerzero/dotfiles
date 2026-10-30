@@ -1,0 +1,4 @@
+# keyboard shortcuts: name|keys|command; they're added beside your own
+Ghostty|<Super>Return|ghostty +new-window
+Mission Center|<Control><Alt>Delete|flatpak run io.missioncenter.MissionCenter
+btop|<Control><Shift>Escape|ghostty +new-window -e btop

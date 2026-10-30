@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# claude-github-headers: the header claude code's github mcp server signs in with: gh's own token, read
+# each time claude connects, so no token is made, pasted or stored
+set -euo pipefail
+token=$(gh auth token --hostname github.com)
+jq -nc --arg auth "Bearer $token" '{Authorization: $auth}'

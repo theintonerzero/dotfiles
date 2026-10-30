@@ -1,0 +1,34 @@
+# claude code's plugins, at user scope, each as name@marketplace
+superpowers@anthropic-plugin-directory
+context7@anthropic-plugin-directory
+skill-creator@anthropic-plugin-directory
+code-review-anthropics@anthropic-plugin-directory
+code-simplifier@anthropic-plugin-directory
+claude-md-management@anthropic-plugin-directory
+feature-dev@anthropic-plugin-directory
+security-guidance@anthropic-plugin-directory
+claude-code-setup@anthropic-plugin-directory
+commit-commands@anthropic-plugin-directory
+pr-review-toolkit@anthropic-plugin-directory
+plugin-dev@anthropic-plugin-directory
+mcp-server-dev@anthropic-plugin-directory
+frontend-design@anthropic-plugin-directory
+supabase@anthropic-plugin-directory
+sentry@anthropic-plugin-directory
+figma@claude-plugins-official
+hookify@claude-plugins-official
+claude-security@claude-plugins-official
+impeccable@impeccable
+godot-prompter@skillsmith
+humanizer@humanizer
+
+# language servers, which mason (neovim) and rustup install
+typescript-lsp@claude-plugins-official
+pyright-lsp@claude-plugins-official
+rust-analyzer-lsp@claude-plugins-official
+gopls-lsp@claude-plugins-official
+clangd-lsp@claude-plugins-official
+csharp-lsp@claude-plugins-official
+jdtls-lsp@claude-plugins-official
+kotlin-lsp@claude-plugins-official
+lua-lsp@claude-plugins-official

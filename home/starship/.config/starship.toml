@@ -1,0 +1,103 @@
+# the prompt: two lines of pills, where you are on the left and what you're running on the right
+# every colour comes from the palette below; another theme is another palette
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = true
+scan_timeout = 10
+command_timeout = 200
+palette = "kanagawa_dragon"
+
+format = """
+$hostname\
+$directory\
+([](fg:surface)$git_branch$git_state$git_status[](fg:surface) )\
+$fill\
+${custom.godot}\
+$python$nodejs$rust$golang$zig\
+$cmd_duration\
+$status\
+$line_break\
+$character"""
+
+[palettes.kanagawa_dragon]
+accent = "#7a8382"
+on_accent = "#0d0c0c"
+surface = "#282727"
+subtle = "#c5c9c5"
+branch = "#a6a69c"
+ok = "#87a987"
+err = "#c4746e"
+
+[fill]
+symbol = " "
+
+[hostname]
+ssh_only = true
+format = "[](fg:branch)[$hostname](bold fg:on_accent bg:branch)[](fg:branch) "
+
+[directory]
+truncation_length = 3
+truncation_symbol = "…/"
+read_only = " ro"
+format = "[](fg:accent)[$path](bold fg:on_accent bg:accent)[$read_only](bold fg:on_accent bg:accent)[](fg:accent) "
+
+[git_branch]
+symbol = " "
+format = "[$symbol$branch](fg:branch bg:surface)"
+
+[git_state]
+format = '[ \($state( $progress_current/$progress_total)\)](bold fg:branch bg:surface)'
+
+[git_status]
+format = "([ $all_status$ahead_behind](fg:branch bg:surface))"
+conflicted = "≠"
+ahead = "↑${count}"
+behind = "↓${count}"
+diverged = "↕"
+untracked = "?"
+stashed = "≡"
+modified = "~"
+staged = "+"
+renamed = "»"
+deleted = "−"
+
+# the godot version a project targets, from its project.godot
+[custom.godot]
+detect_files = ["project.godot"]
+command = '''sed -n 's/^config\/features=PackedStringArray("\([0-9.]*\)".*/\1/p' project.godot'''
+shell = ["sh"]
+format = "([](fg:surface)[godot $output](fg:subtle bg:surface)[](fg:surface) )"
+
+[python]
+symbol = "py "
+version_format = "${major}.${minor}"
+format = '[](fg:surface)[${symbol}${version}( \($virtualenv\))](fg:subtle bg:surface)[](fg:surface) '
+
+[nodejs]
+symbol = "node "
+version_format = "${major}"
+detect_extensions = []
+format = "[](fg:surface)[$symbol$version](fg:subtle bg:surface)[](fg:surface) "
+
+[rust]
+symbol = "rs "
+format = "[](fg:surface)[$symbol$version](fg:subtle bg:surface)[](fg:surface) "
+
+[golang]
+symbol = "go "
+format = "[](fg:surface)[$symbol$version](fg:subtle bg:surface)[](fg:surface) "
+
+[zig]
+symbol = "zig "
+format = "[](fg:surface)[$symbol$version](fg:subtle bg:surface)[](fg:surface) "
+
+[cmd_duration]
+min_time = 2000
+format = "[](fg:surface)[took $duration](fg:subtle bg:surface)[](fg:surface) "
+
+[status]
+disabled = false
+format = "[](fg:err)[✕ $status](bold fg:on_accent bg:err)[](fg:err) "
+
+[character]
+success_symbol = "[❯](bold fg:ok)"
+error_symbol = "[❯](bold fg:err)"

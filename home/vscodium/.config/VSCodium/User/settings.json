@@ -1,0 +1,14 @@
+{
+  "editor.fontFamily": "'JetBrainsMono Nerd Font', monospace",
+  "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font",
+  "editor.rulers": [100],
+  "editor.formatOnSave": true,
+  "editor.selectionClipboard": false,
+  "workbench.colorTheme": "Kanagawa Dragon",
+  "[gdscript]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4
+  },
+  "godotTools.lsp.serverPort": 6005,
+  "git.autofetch": true
+}

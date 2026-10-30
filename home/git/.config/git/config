@@ -1,0 +1,40 @@
+# git: delta for diffs, commits signed with your ssh key, and your name and email from
+# ~/.config/git/local, which dot install writes; what tools add with --global goes in ~/.gitconfig
+[core]
+	editor = nvim
+	pager = delta
+	autocrlf = false
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+	syntax-theme = ansi
+[init]
+	defaultBranch = main
+[pull]
+	ff = only
+[push]
+	autoSetupRemote = true
+[fetch]
+	prune = true
+[merge]
+	conflictStyle = zdiff3
+[rerere]
+	enabled = true
+[diff]
+	colorMoved = default
+	algorithm = histogram
+[user]
+	signingkey = ~/.ssh/id_ed25519.pub
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers
+[commit]
+	gpgsign = true
+[tag]
+	gpgsign = true
+[include]
+	path = ~/.config/git/local

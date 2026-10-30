@@ -1,0 +1,6 @@
+# gnome extensions to turn on, by uuid; the others you turn on stay on
+dash-to-dock@micxgx.gmail.com
+blur-my-shell@aunetx
+caffeine@patapon.info
+appindicatorsupport@rgcjonas.gmail.com
+CoverflowAltTab@palatis.blogspot.com   # from extensions.gnome.org

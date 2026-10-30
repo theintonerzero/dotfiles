@@ -1,0 +1,10 @@
+# names steam's games for gnome: at login, and when steam-apps.path sees a change
+[Unit]
+Description=Desktop entries that name Steam's games
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/steam-apps
+
+[Install]
+WantedBy=default.target

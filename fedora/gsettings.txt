@@ -1,0 +1,31 @@
+# gnome settings: schema, key, then the value as `gsettings get` prints it
+# dot install sets each one that differs; dot update leaves them alone
+
+# appearance
+org.gnome.desktop.interface color-scheme 'prefer-dark'
+org.gnome.desktop.interface accent-color 'slate'
+org.gnome.desktop.interface monospace-font-name 'JetBrainsMono Nerd Font 11'
+
+# multitasking, mouse and windows
+org.gnome.desktop.interface enable-hot-corners false
+org.gnome.desktop.peripherals.mouse accel-profile 'flat'
+org.gnome.mutter center-new-windows true
+org.gnome.desktop.wm.preferences button-layout 'close,minimize,maximize:'
+org.gnome.desktop.interface gtk-enable-primary-paste false
+
+# power: no automatic suspend, the screen blanks after 10 minutes, the power button suspends
+org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
+org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'
+org.gnome.desktop.session idle-delay uint32 600
+org.gnome.settings-daemon.plugins.power power-button-action 'suspend'
+
+# extensions
+org.gnome.shell.extensions.dash-to-dock custom-theme-shrink true
+org.gnome.shell.extensions.blur-my-shell.applications blur true
+org.gnome.shell.extensions.blur-my-shell.applications whitelist ['com.mitchellh.ghostty']
+org.gnome.shell.extensions.blur-my-shell.applications dynamic-opacity false
+org.gnome.shell.extensions.blur-my-shell.applications pipeline 'pipeline_apps'
+org.gnome.shell.extensions.blur-my-shell.overview blur true
+
+# the dock
+org.gnome.shell favorite-apps ['org.mozilla.firefox.desktop', 'steam.desktop', 'vesktop.desktop', 'org.godotengine.Godot.desktop', 'com.visualstudio.CodeOSS.desktop', 'com.mitchellh.ghostty.desktop', 'blender.desktop', 'com.spotify.Client.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Software.desktop']
