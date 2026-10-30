@@ -1,0 +1,35 @@
+# the app grid, in order on one page: the apps before the first folder sit on their own, then each
+# [folder] with any categories whose apps join it, and its apps, one a line; the folders replace gnome's
+# own, the dock's apps stay out of them, and folders you make come after these
+org.gnome.Settings
+
+[System]
+org.gnome.tweaks
+org.gnome.Extensions
+io.missioncenter.MissionCenter
+btop
+org.gnome.DiskUtility
+org.gnome.baobab
+org.gnome.Logs
+
+[Media]
+org.gnome.Showtime
+org.gnome.Decibels
+org.gnome.Loupe
+org.gnome.Papers
+org.gnome.font-viewer
+
+[Development]
+nvim
+org.gnome.TextEditor
+org.gnome.Ptyxis
+yad-icon-browser
+
+[Create]
+com.obsproject.Studio
+ai.storyteller.artcraft-launcher
+
+[Games] Game
+com.vysp3r.ProtonPlus
+protontricks
+winetricks

@@ -1,5 +1,6 @@
 # fedora workstation apps to remove; delete a line to keep that app
 libreoffice-*
+unoconv   # needs libreoffice, so libreoffice stayed while it did
 gnome-tour
 gnome-contacts
 gnome-maps
@@ -12,3 +13,11 @@ gnome-user-docs
 gnome-boxes
 gnome-system-monitor   # mission center replaces it
 gnome-shell-extension-blur-my-shell   # extensions.gnome.org's is newer
+mediawriter
+gnome-clocks
+snapshot   # camera
+gnome-characters
+malcontent-control   # parental controls; settings still needs malcontent itself
+malcontent-ui-libs
+gnome-calculator
+gnome-calendar

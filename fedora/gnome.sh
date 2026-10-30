@@ -16,6 +16,7 @@ gnome_install() {
   done
   gnome_blur_pipeline
   gnome_settings
+  gnome_app_folders
   gnome_extensions
   gnome_shortcuts
   gnome_vrr
@@ -53,6 +54,77 @@ gnome_settings() {
     say "setting $schema $key"
     "${gs[@]}" set "$schema" "$key" "$value"
   done < <(list "$DOTFILES/fedora/gsettings.txt")
+}
+
+# strv <items...>: the items as a string array, as gsettings get prints it
+strv() {
+  local out="" item
+  for item; do out+="${out:+, }'$item'"; done
+  if [[ -n $out ]]; then echo "[$out]"; else echo "@as []"; fi
+}
+
+# gnome_app_folders: the folders in app-folders.txt in place of gnome's own (System, Utilities, YaST and
+# Pardus), beside any you made, and the grid as one page: the apps on their own and the folders in the
+# file's order, then yours, then any app that's in none of them
+gnome_app_folders() {
+  local schema=org.gnome.desktop.app-folders base=/org/gnome/desktop/app-folders/folders
+  local line name="" cats="" id key value current layout="" i=0
+  local -a apps=() loose=() categories=() excluded=() favorites=() ids=() children=()
+  local changed=0
+  mapfile -t favorites < <(gsettings get org.gnome.shell favorite-apps | tr -d "[]' " | tr , '\n' |
+    sed -e '/^$/d' -e '/^@as$/d')
+  # a [] at the end closes the last folder
+  while read -r line; do
+    if [[ $line =~ ^\[(.*)\](.*)$ ]]; then
+      if [[ -n $name ]]; then
+        id=${name,,}
+        id=${id// /-}
+        ids+=("$id")
+        read -ra categories <<<"$cats"
+        excluded=()
+        # the dock's apps are hidden from the grid, so they stay out of a folder that takes a category
+        ((${#categories[@]})) && excluded=("${favorites[@]}")
+        for key in name translate apps categories excluded-apps; do
+          case $key in
+            name) value="'$name'" ;;
+            translate) value=false ;;
+            apps) value=$(strv "${apps[@]}") ;;
+            categories) value=$(strv "${categories[@]}") ;;
+            excluded-apps) value=$(strv "${excluded[@]}") ;;
+          esac
+          [[ $(gsettings get "$schema.folder:$base/$id/" $key) == "$value" ]] && continue
+          gsettings set "$schema.folder:$base/$id/" $key "$value"
+          changed=1
+        done
+      fi
+      name=${BASH_REMATCH[1]} cats=${BASH_REMATCH[2]} apps=()
+    elif [[ -n $name ]]; then
+      apps+=("$line.desktop")
+    else
+      loose+=("$line.desktop")
+    fi
+  done < <(list "$DOTFILES/fedora/app-folders.txt"; echo "[]")
+  current=$(gsettings get $schema folder-children)
+  mapfile -t children < <(tr -d "[]' " <<<"${current#@as }" | tr , '\n' | sed '/^$/d')
+  for id in "${children[@]}"; do
+    case " ${ids[*]} System Utilities YaST Pardus " in
+      *" $id "*) ;;
+      *) ids+=("$id") ;;
+    esac
+  done
+  value=$(strv "${ids[@]}")
+  if [[ $current != "$value" ]]; then
+    gsettings set $schema folder-children "$value"
+    changed=1
+  fi
+  ((changed)) && say "sorting the app grid into folders"
+  for id in "${loose[@]}" "${ids[@]}"; do
+    layout+="${layout:+, }'$id': <{'position': <$((i++))>}>"
+  done
+  layout="[{$layout}]"
+  [[ $(gsettings get org.gnome.shell app-picker-layout) == "$layout" ]] && return 0
+  say "ordering the app grid"
+  gsettings set org.gnome.shell app-picker-layout "$layout"
 }
 
 # the extensions in extensions.txt join the ones already on; a new one starts at the next login

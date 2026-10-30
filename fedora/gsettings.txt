@@ -25,6 +25,7 @@ org.gnome.shell.extensions.blur-my-shell.applications blur true
 org.gnome.shell.extensions.blur-my-shell.applications whitelist ['com.mitchellh.ghostty']
 org.gnome.shell.extensions.blur-my-shell.applications dynamic-opacity false
 org.gnome.shell.extensions.blur-my-shell.applications pipeline 'pipeline_apps'
+org.gnome.shell.extensions.blur-my-shell.applications blur-on-overview true
 org.gnome.shell.extensions.blur-my-shell.overview blur true
 
 # the dock
