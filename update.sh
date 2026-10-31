@@ -3,7 +3,7 @@
 set -euo pipefail
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 
-[[ $(os_id) == fedora ]] || die "v1.1.0 supports Fedora only"
+[[ $(os_id) == fedora ]] || die "v1.2.0 supports Fedora only"
 pull_dotfiles
 load_steps fedora
 
