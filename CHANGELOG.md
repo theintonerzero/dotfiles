@@ -12,6 +12,10 @@ All notable changes to this project are documented here. The format is based on
   telemetry, studies, feature pop-ups or AI features (translations stay). They're policies in
   `/etc/firefox/policies/policies.json`, from `fedora/firefox-policies.json`; telemetry and studies
   stay off, and the rest can be changed in Firefox.
+- Firefox opens Firefox Home in place of Fedora's start page, restores the last session, and drops
+  Fedora's shortcut from the new tab page. Fedora's bookmarks, tags and folders are removed from
+  profiles that have them, as install's GitHub sign-in opens Firefox first; bookmarks you added
+  stay, and the database is kept as `places.sqlite.bak`. Firefox has to be closed for that.
 
 ## [1.1.0] - 2026-10-31
 

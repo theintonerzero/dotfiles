@@ -41,7 +41,7 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Area | |
 | --- | --- |
 | System | RPM Fusion, full multimedia codecs, COPRs, VSCodium's repo, snapper snapshots of `/`; LibreOffice, Fedora Media Writer and unused GNOME apps (Calculator, Calendar, Camera, Characters, Clocks, Parental Controls and more) removed |
-| Apps | Firefox with uBlock Origin, HTTPS-only mode and no ads, telemetry or AI features, Steam, Vesktop, Godot, VSCodium, Blender, Spotify, OBS Studio, Mission Center, ArtCraft Launcher, JetBrains Mono Nerd Font |
+| Apps | Firefox with uBlock Origin, HTTPS-only mode, Firefox Home in place of Fedora's start page, the last session restored, and no ads, telemetry, AI features or Fedora bookmarks, Steam, Vesktop, Godot, VSCodium, Blender, Spotify, OBS Studio, Mission Center, ArtCraft Launcher, JetBrains Mono Nerd Font |
 | GNOME | Super+Enter opens Ghostty, Ctrl+Alt+Del Mission Center, Ctrl+Shift+Esc btop, JetBrains Mono as the monospace font, dark style, slate accent, macOS-style red, yellow and green window buttons on the left, no hot corners, flat mouse, no auto-suspend, Performance mode, VRR, the app grid on one page, Settings then System, Media, Development, Create and Games folders; Dash to Dock, Blur my Shell, Caffeine, AppIndicator, Coverflow Alt-Tab |
 | Gaming | Steam games named in GNOME, FSR4 on RDNA 4, Proton-GE, GameMode, Gamescope, ProtonTricks |
 | Shell | zsh, Starship, atuin, zoxide, fzf, eza, bat, fd, ripgrep, Ghostty, tmux with sesh and pills, lazygit |

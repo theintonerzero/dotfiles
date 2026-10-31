@@ -12,6 +12,7 @@ apps_install() {
   font_install || todo "the nerd font didn't install; dot update tries again"
   firefox_prefs
   firefox_policies
+  firefox_bookmarks
 }
 
 apps_update() {
@@ -142,4 +143,33 @@ firefox_policies() {
   say "setting firefox's policies"
   as_root install -Dm644 "$DOTFILES/fedora/firefox-policies.json" "$FIREFOX_POLICIES"
   todo "restart Firefox for its new policies; about:policies lists them"
+}
+
+# firefox_bookmarks: fedora's bookmarks out of the profiles made before the policies said no to them, as
+# install's github sign-in opens firefox first; yours stay, and each changed database keeps a .bak
+firefox_bookmarks() {
+  local tmp db out status=0
+  local -a dbs=()
+  have firefox || return 0
+  for db in "$HOME"/.config/mozilla/firefox/*/places.sqlite "$HOME"/.mozilla/firefox/*/places.sqlite; do
+    [[ -f $db ]] && dbs+=("$db")
+  done
+  ((${#dbs[@]})) || return 0
+  tmp=$(mktemp)
+  # omni.ja is a zip that unzip warns about but reads
+  unzip -p /usr/lib64/firefox/browser/omni.ja chrome/browser/content/browser/default-bookmarks.html \
+    >"$tmp" 2>/dev/null || true
+  if [[ ! -s $tmp ]]; then
+    warn "couldn't read firefox's default bookmarks, so fedora's stay"
+    rm -f "$tmp"
+    return 0
+  fi
+  out=$(python3 -I "$DOTFILES/fedora/firefox-bookmarks.py" "$tmp" "${dbs[@]}" 2>&1) || status=$?
+  rm -f "$tmp"
+  [[ -n $out ]] && say "$out"
+  if ((status == 3)); then
+    todo "close Firefox, then run dot install again to remove Fedora's bookmarks"
+  elif ((status)); then
+    warn "couldn't remove fedora's bookmarks"
+  fi
 }
