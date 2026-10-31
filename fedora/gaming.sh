@@ -1,10 +1,14 @@
-# fedora/gaming.sh: steam's games by name, fsr4 on rdna4 cards, and proton-ge
+# fedora/gaming.sh: steam's games by name, fsr4 on rdna4 cards, proton-ge as steam's default, and steam's
+# performance monitor
 # shellcheck shell=bash
+
+STEAM=$HOME/.local/share/Steam
 
 gaming_install() {
   gaming_names
   gaming_fsr4
   gaming_proton
+  gaming_steam
 }
 
 gaming_update() {
@@ -13,6 +17,7 @@ gaming_update() {
     protonplus update all || warn "ProtonPlus couldn't update Proton-GE"
   else
     gaming_proton
+    gaming_steam
   fi
 }
 
@@ -47,20 +52,51 @@ gaming_fsr4() {
 }
 
 proton_ge_installed() {
-  [[ -d "$HOME/.local/share/Steam/compatibilitytools.d/Proton-GE Latest" ]]
+  [[ -d "$STEAM/compatibilitytools.d/Proton-GE Latest" ]]
 }
 
 # proton-ge latest through protonplus, once steam has run
 gaming_proton() {
-  if [[ ! -f $HOME/.local/share/Steam/config/config.vdf ]]; then
+  if [[ ! -f $STEAM/config/config.vdf ]]; then
     todo "open Steam once and sign in, then run dot update to add Proton-GE Latest"
     return 0
   fi
   proton_ge_installed && return 0
   say "installing Proton-GE Latest"
-  if protonplus install steam-system proton-ge latest; then
-    todo "make Proton-GE Latest Steam's default: Steam > Settings > Compatibility"
-  else
-    warn "ProtonPlus couldn't install Proton-GE Latest"
+  protonplus install steam-system proton-ge latest || warn "ProtonPlus couldn't install Proton-GE Latest"
+}
+
+# gaming_steam: proton-ge latest as the default for every game, and the performance monitor in full
+# detail at the top left, for each steam account here; steam writes its settings over these when it
+# quits, so it has to be closed
+gaming_steam() {
+  local tool="InstallConfigStore/Software/Valve/Steam/CompatToolMapping/0"
+  local system="UserLocalConfigStore/system" file
+  local -a jobs=()
+  [[ -f $STEAM/config/config.vdf ]] || return 0
+  if proton_ge_installed; then
+    jobs+=("$STEAM/config/config.vdf|$tool/name=Proton-GE Latest|$tool/config=|$tool/priority=75")
   fi
+  for file in "$STEAM"/userdata/*/config/localconfig.vdf; do
+    [[ -f $file ]] || continue
+    jobs+=("$file|$system/InGameOverlayShowFPSCorner=1|$system/InGameOverlayShowFPSDetailLevel=4")
+  done
+  local job status
+  local -a args
+  for job in "${jobs[@]}"; do
+    IFS='|' read -ra args <<<"$job"
+    status=0
+    python3 -I "$DOTFILES/fedora/steam-config.py" --check "${args[@]}" >/dev/null 2>&1 || status=$?
+    ((status == 0)) && continue
+    if ((status != 10)); then
+      warn "couldn't read ${args[0]}"
+      continue
+    fi
+    if pgrep -x steam >/dev/null; then
+      todo "quit Steam, then run dot install again for Proton-GE as its default and its performance monitor"
+      return 0
+    fi
+    python3 -I "$DOTFILES/fedora/steam-config.py" "${args[@]}" | while read -r line; do say "$line"; done ||
+      warn "couldn't change ${args[0]}"
+  done
 }

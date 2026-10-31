@@ -16,6 +16,13 @@ All notable changes to this project are documented here. The format is based on
   Fedora's shortcut from the new tab page. Fedora's bookmarks, tags and folders are removed from
   profiles that have them, as install's GitHub sign-in opens Firefox first; bookmarks you added
   stay, and the database is kept as `places.sqlite.bak`. Firefox has to be closed for that.
+- Steam uses Proton-GE Latest for every game, and shows its performance monitor in full detail at
+  the top left, for each account signed in. Steam has to be closed, as it writes its settings when
+  it quits.
+
+### Changed
+
+- Install no longer asks you to make Proton-GE Steam's default yourself.
 
 ## [1.1.0] - 2026-10-31
 
