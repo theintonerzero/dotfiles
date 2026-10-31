@@ -22,7 +22,6 @@ org.gnome.font-viewer
 [Development]
 nvim
 org.gnome.TextEditor
-org.gnome.Ptyxis
 yad-icon-browser
 
 [Create]

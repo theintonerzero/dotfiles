@@ -23,6 +23,7 @@ All notable changes to this project are documented here. The format is based on
 ### Changed
 
 - Install no longer asks you to make Proton-GE Steam's default yourself.
+- Ptyxis, Fedora's terminal, is removed, as Ghostty replaces it.
 
 ## [1.1.0] - 2026-10-31
 

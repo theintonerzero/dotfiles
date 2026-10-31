@@ -12,6 +12,7 @@ yelp
 gnome-user-docs
 gnome-boxes
 gnome-system-monitor   # mission center replaces it
+ptyxis   # ghostty replaces it
 gnome-shell-extension-blur-my-shell   # extensions.gnome.org's is newer
 mediawriter
 gnome-clocks
