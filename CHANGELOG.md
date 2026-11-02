@@ -10,6 +10,8 @@ All notable changes to this project are documented here. The format is based on
 
 - Location services and automatic problem reports are off, and Coverflow Alt-Tab has a white
   background.
+- Steam's "GPU accelerated rendering in web views" (Interface > Advanced) is off. Like Steam's other
+  settings, it's set while Steam is closed.
 
 ## [1.2.0] - 2026-10-31
 

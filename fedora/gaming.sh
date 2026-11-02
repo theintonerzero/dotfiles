@@ -66,9 +66,9 @@ gaming_proton() {
   protonplus install steam-system proton-ge latest || warn "ProtonPlus couldn't install Proton-GE Latest"
 }
 
-# gaming_steam: proton-ge latest as the default for every game, and the performance monitor in full
-# detail at the top left, for each steam account here; steam writes its settings over these when it
-# quits, so it has to be closed
+# gaming_steam: proton-ge latest as the default for every game, the performance monitor in full detail
+# at the top left for each steam account here, and no gpu rendering for steam's web views; steam writes
+# its settings over these when it quits, so it has to be closed
 gaming_steam() {
   local tool="InstallConfigStore/Software/Valve/Steam/CompatToolMapping/0"
   local system="UserLocalConfigStore/system" file
@@ -76,6 +76,10 @@ gaming_steam() {
   [[ -f $STEAM/config/config.vdf ]] || return 0
   if proton_ge_installed; then
     jobs+=("$STEAM/config/config.vdf|$tool/name=Proton-GE Latest|$tool/config=|$tool/priority=75")
+  fi
+  # interface > advanced > gpu accelerated rendering in web views
+  if [[ -f $HOME/.steam/registry.vdf ]]; then
+    jobs+=("$HOME/.steam/registry.vdf|Registry/HKCU/Software/Valve/Steam/GPUAccelWebViewsV3=0")
   fi
   for file in "$STEAM"/userdata/*/config/localconfig.vdf; do
     [[ -f $file ]] || continue
