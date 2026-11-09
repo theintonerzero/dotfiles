@@ -50,7 +50,7 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Neovim | AstroNvim v6, 17 language packs, Copilot, claudecode.nvim, Discord presence |
 | Godot | Neovim as the external editor, `gdscript-formatter` on save; `godot-toolkit` adds the MCP plugin to a project |
 | LLMs | LM Studio in the Development folder, `lms` on the PATH, Developer Mode and its resource monitor, and no models downloaded; on AMD GPUs, Fedora's ROCm, and LM Studio's ROCm engine beside its default Vulkan one |
-| Claude Code | Settings, plugins, language servers, and MCP servers for GitHub, Godot, Bevy, Blender, Playwright and REA |
+| Claude Code | Settings (compacting at about 225k tokens, Alt+S for Send now, no error reports or surveys), plugins, language servers, and MCP servers for GitHub, Godot, Bevy, Blender, Playwright and REA |
 
 `home/claude/.claude/CLAUDE.md` is my own; replace it with yours.
 
@@ -72,6 +72,7 @@ Edit a list, then run `dot install`.
 | Keyboard shortcut | `fedora/shortcuts.txt` |
 | VSCodium extension | `shared/vscodium-extensions.txt` |
 | Claude plugin | `shared/claude-plugins.txt` |
+| Claude setting | `shared/claude-settings.json` |
 | LM Studio setting | `shared/lmstudio-settings.json` |
 | Config file | `home/<app>/`, laid out as in `~` |
 

@@ -20,6 +20,17 @@ All notable changes to this project are documented here. The format is based on
 - On AMD GPUs, Fedora's ROCm, for LLMs and other GPU compute, and LM Studio's ROCm engine beside its
   Vulkan one, which stays the default. `fedora/rocm.txt` lists the packages, and `dot update` keeps
   them current.
+- Claude Code compacts a conversation at 75% of a 300,000-token window, about 225,000 tokens,
+  instead of near the model's full context.
+- Claude Code sends no error reports, shows no session survey, and leaves out the Zoom, ZoomInfo and
+  browser-use plugins that claude.ai syncs to it.
+- Alt+S is Claude Code's Send now, as Ghostty keeps Ctrl+Enter for fullscreen.
+
+### Changed
+
+- Claude Code asks before `rm -rf` however its flags are written (`-rf`, `-fr`, `-Rf`, `-fR`), and
+  still before force-pushing or deleting a GitHub repo. It no longer has to ask before Godot's MCP
+  tools run code, call methods or write scripts.
 
 ## [1.2.0] - 2026-10-31
 

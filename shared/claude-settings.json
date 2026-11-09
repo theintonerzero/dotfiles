@@ -1,9 +1,18 @@
 {
   "model": "opus",
   "theme": "dark",
+  "autoCompactWindow": 300000,
+  "feedbackSurveyRate": 0,
   "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "75",
     "CLAUDE_CODE_PLUGIN_PREFER_HTTPS": "1",
+    "DISABLE_ERROR_REPORTING": "1",
     "IMPECCABLE_NO_TELEMETRY": "1"
+  },
+  "enabledPlugins": {
+    "browser-use@synced": false,
+    "zoom-plugin@synced": false,
+    "zoominfo@synced": false
   },
   "permissions": {
     "deny": [
@@ -22,9 +31,9 @@
       "Bash(git push -f *)",
       "Bash(gh repo delete *)",
       "Bash(rm -rf *)",
-      "mcp__godot-mcp-toolkit__execute_code",
-      "mcp__godot-mcp-toolkit__node_call_method",
-      "mcp__godot-mcp-toolkit__script_write",
+      "Bash(rm -fr *)",
+      "Bash(rm -Rf *)",
+      "Bash(rm -fR *)",
       "mcp__rea__capture_process_scenario",
       "mcp__rea__capture_electron_scenario",
       "mcp__rea__capture_browser_scenario",
