@@ -1,0 +1,9 @@
+{
+  "developerMode": true,
+  "developer": {
+    "showResourceConsumptionWidget": true
+  },
+  "chat": {
+    "moveDeletedItemsToTrash": true
+  }
+}

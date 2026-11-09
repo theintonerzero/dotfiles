@@ -21,6 +21,7 @@ godot_install
 claude_install
 gnome_install
 gaming_install
+llm_install
 todo "sign in to Claude (claude), Copilot (:Copilot auth in Neovim), Spotify and Vesktop"
 say "done"
 todo_print

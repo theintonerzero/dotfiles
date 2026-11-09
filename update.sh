@@ -19,5 +19,6 @@ claude_update
 godot_update
 gnome_update
 gaming_update
+llm_update
 say "done"
 todo_print

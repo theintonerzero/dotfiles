@@ -9,9 +9,10 @@ export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 export ZDOTDIR=$XDG_CONFIG_HOME/zsh
 
-# your scripts, mise's tools and cargo's first; mason's language servers last, for claude code's plugins
+# your scripts, mise's tools and cargo's first; mason's language servers, for claude code's plugins, and
+# lm studio's lms last
 typeset -U path
-path=(~/.local/bin $XDG_DATA_HOME/mise/shims ~/.cargo/bin $path $XDG_DATA_HOME/nvim/mason/bin)
+path=(~/.local/bin $XDG_DATA_HOME/mise/shims ~/.cargo/bin $path $XDG_DATA_HOME/nvim/mason/bin ~/.lmstudio/bin)
 
 export EDITOR=nvim VISUAL=nvim PAGER=less LESS='-R -F -i -M'
 export EZA_ICONS_AUTO=1

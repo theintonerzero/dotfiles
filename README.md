@@ -33,7 +33,7 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Command | Does |
 | --- | --- |
 | `dot install` | Sets everything up |
-| `dot update` | Takes a snapshot of `/`, pulls the repo, then updates packages, Flatpaks, toolchains, Neovim, VSCodium, Claude Code and Proton-GE |
+| `dot update` | Takes a snapshot of `/`, pulls the repo, then updates packages, Flatpaks, toolchains, Neovim, VSCodium, Claude Code, LM Studio and Proton-GE |
 | `dot uninstall` | Removes the links and restores the `.bak` files they replaced |
 
 ## What you get
@@ -49,6 +49,7 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Toolchains | mise (Node, Bun, Go, Java, Kotlin, Zig), rustup, uv, .NET 10, GCC |
 | Neovim | AstroNvim v6, 17 language packs, Copilot, claudecode.nvim, Discord presence |
 | Godot | Neovim as the external editor, `gdscript-formatter` on save; `godot-toolkit` adds the MCP plugin to a project |
+| LLMs | LM Studio in the Development folder, `lms` on the PATH, Developer Mode and its resource monitor, and no models downloaded; on AMD GPUs, Fedora's ROCm, and LM Studio's ROCm engine beside its default Vulkan one |
 | Claude Code | Settings, plugins, language servers, and MCP servers for GitHub, Godot, Bevy, Blender, Playwright and REA |
 
 `home/claude/.claude/CLAUDE.md` is my own; replace it with yours.
@@ -61,6 +62,7 @@ Edit a list, then run `dot install`.
 | --- | --- |
 | Package | `fedora/packages.txt` |
 | COPR | `fedora/copr.txt` |
+| ROCm package, on AMD GPUs | `fedora/rocm.txt` |
 | Flatpak | `fedora/flatpaks.txt` |
 | App to remove | `fedora/remove.txt` |
 | GNOME setting | `fedora/gsettings.txt` |
@@ -70,6 +72,7 @@ Edit a list, then run `dot install`.
 | Keyboard shortcut | `fedora/shortcuts.txt` |
 | VSCodium extension | `shared/vscodium-extensions.txt` |
 | Claude plugin | `shared/claude-plugins.txt` |
+| LM Studio setting | `shared/lmstudio-settings.json` |
 | Config file | `home/<app>/`, laid out as in `~` |
 
 ## Undoing an update

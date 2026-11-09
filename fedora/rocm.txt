@@ -1,0 +1,4 @@
+# rocm for local llms and other gpu compute, one dnf package a line; installed only when the kernel
+# reports an amd gpu, and kept current by dot update. rocm is fedora's whole stack: hip, the math
+# libraries, miopen, migraphx, rocminfo and amd-smi; add rocm-devel to build hip code yourself
+rocm

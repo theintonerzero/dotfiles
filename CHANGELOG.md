@@ -12,6 +12,14 @@ All notable changes to this project are documented here. The format is based on
   background.
 - Steam's "GPU accelerated rendering in web views" (Interface > Advanced) is off. Like Steam's other
   settings, it's set while Steam is closed.
+- LM Studio, the newest release from lmstudio.ai, in `~/.local/opt/lm-studio`, with a launcher in
+  the Development folder and `lms` on the PATH. It starts in Developer Mode, shows its resource
+  monitor and moves deleted chats to the trash; `shared/lmstudio-settings.json` holds these, set
+  while LM Studio is closed. `dot update` installs new releases, unless LM Studio has updated itself
+  already. No models are downloaded.
+- On AMD GPUs, Fedora's ROCm, for LLMs and other GPU compute, and LM Studio's ROCm engine beside its
+  Vulkan one, which stays the default. `fedora/rocm.txt` lists the packages, and `dot update` keeps
+  them current.
 
 ## [1.2.0] - 2026-10-31
 

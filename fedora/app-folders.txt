@@ -23,6 +23,7 @@ org.gnome.font-viewer
 nvim
 org.gnome.TextEditor
 yad-icon-browser
+ai.elementlabs.lmstudio
 
 [Create]
 com.obsproject.Studio
