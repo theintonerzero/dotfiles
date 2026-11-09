@@ -25,6 +25,7 @@ All notable changes to this project are documented here. The format is based on
 - Claude Code sends no error reports, shows no session survey, and leaves out the Zoom, ZoomInfo and
   browser-use plugins that claude.ai syncs to it.
 - Alt+S is Claude Code's Send now, as Ghostty keeps Ctrl+Enter for fullscreen.
+- Claude Code runs shellcheck on each shell script it edits in this repo.
 
 ### Changed
 

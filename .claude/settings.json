@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); [ -f \"$f\" ] || exit 0; case $f in *.sh) ;; *) head -n 1 \"$f\" | grep -qE '^#!.*[/ ](ba)?sh$' || exit 0 ;; esac; command -v shellcheck >/dev/null || exit 0; out=$(cd \"$(dirname \"$f\")\" && shellcheck -x -f gcc \"$f\" 2>&1) || { printf '%s\\n' \"$out\" >&2; exit 2; }",
+            "statusMessage": "Running shellcheck"
+          }
+        ]
+      }
+    ]
+  }
+}
