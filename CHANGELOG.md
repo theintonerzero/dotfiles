@@ -20,8 +20,9 @@ All notable changes to this project are documented here. The format is based on
 - On AMD GPUs, Fedora's ROCm, for LLMs and other GPU compute, and LM Studio's ROCm engine beside its
   Vulkan one, which stays the default. `fedora/rocm.txt` lists the packages, and `dot update` keeps
   them current.
-- Claude Code compacts a conversation at 75% of a 300,000-token window, about 225,000 tokens,
-  instead of near the model's full context.
+- Claude Code compacts a conversation at about 467,000 tokens, a 500,000-token window less room for
+  its reply, instead of near Opus's full 1,000,000. Every call re-reads the conversation, so this
+  uses about a third less of the plan.
 - Claude Code sends no error reports, shows no session survey, and leaves out the Zoom, ZoomInfo and
   browser-use plugins that claude.ai syncs to it.
 - Alt+S is Claude Code's Send now, as Ghostty keeps Ctrl+Enter for fullscreen.

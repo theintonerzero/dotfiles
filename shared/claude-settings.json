@@ -1,10 +1,9 @@
 {
   "model": "opus",
   "theme": "dark",
-  "autoCompactWindow": 300000,
+  "autoCompactWindow": 500000,
   "feedbackSurveyRate": 0,
   "env": {
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "75",
     "CLAUDE_CODE_PLUGIN_PREFER_HTTPS": "1",
     "DISABLE_ERROR_REPORTING": "1",
     "IMPECCABLE_NO_TELEMETRY": "1"
