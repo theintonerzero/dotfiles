@@ -34,7 +34,7 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | --- | --- |
 | `dot install` | Sets everything up |
 | `dot update` | Takes a snapshot of `/`, pulls the repo, then updates packages, Flatpaks, toolchains, Neovim, VSCodium, the Unity CLI, Claude Code, LM Studio and Proton-GE |
-| `dot uninstall` | Removes the links and restores the `.bak` files they replaced |
+| `dot uninstall` | Removes the links and restores the `.bak` files they replaced, and gives Godot and Unity their own script editors back |
 
 ## What you get
 
@@ -49,9 +49,9 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Toolchains | mise (Node, Bun, Go, Java, Kotlin, Zig), rustup, uv, .NET 10, GCC |
 | Neovim | AstroNvim v6, 17 language packs, Copilot, claudecode.nvim, Discord presence |
 | Godot | Neovim as the external editor, `gdscript-formatter` on save; `godot-toolkit` adds the MCP plugin to a project |
-| Unity | Unity Hub from Unity's dnf repo, opening its terminal in Ghostty; the Unity CLI with no telemetry, crash reports, plugin tips or update check; Neovim, in Ghostty, as Unity's script editor, brought forward by Activate Window By Title; `unity-project` adds Unity's Pipeline package, for the CLI and Claude, and the Neovim IDE package, which writes the `.sln` for its C# server, and puts the project on Vulkan |
+| Unity | Unity Hub from Unity's dnf repo, opening its terminal in Ghostty; the Unity CLI with no usage analytics, crash reports, plugin tips or update check; Neovim, in Ghostty, as Unity's script editor, brought forward by Activate Window By Title; `unity-project [path]` adds Unity's Pipeline package, for the CLI and Claude, and the Neovim IDE package, which writes the `.sln` for its C# server, and puts the project on Vulkan |
 | LLMs | LM Studio in the Development folder, `lms` on the PATH, Developer Mode and its resource monitor, and no models downloaded; on AMD GPUs, Fedora's ROCm, and LM Studio's ROCm engine beside its default Vulkan one |
-| Claude Code | Settings (compacting at about 467k tokens, Alt+S for Send now, no error reports or surveys), plugins, language servers, and MCP servers for GitHub, Godot, Unity, Bevy, Blender, Playwright and REA |
+| Claude Code | Settings (compacting at about 467k tokens, Alt+S for Send now, no error reports or surveys), plugins, a `unity-workflow` skill, the cc-blender-skill pack of 30 Blender skills, language servers, and MCP servers for GitHub, Godot, Unity, Bevy, Blender (the community MCP for Blender and Blender Lab's official one), Playwright and REA |
 
 `home/claude/.claude/CLAUDE.md` is my own; replace it with yours.
 

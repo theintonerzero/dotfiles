@@ -17,17 +17,6 @@
 - UI mockups and front-end polish go through impeccable (the `impeccable` plugin).
 - I prefer GNOME and libadwaita apps, such as Nautilus, over KDE and Qt ones.
 
-## Unity
-
-- Use the Unity Editor I have installed (`unity editors --installed`), not the newest LTS, unless I
-  say otherwise. Ask before installing another Editor or module.
-- Run `unity-project` in every Unity project, new or existing, before Unity opens it: it adds
-  Unity's Pipeline package, which the `unity` CLI and MCP server drive the Editor through, and the
-  Neovim package, and sets the Editor and Linux builds to Vulkan only.
-- Keep the Editor open and drive it with the `unity` CLI. Check gameplay in Play mode with
-  simulated input, Game view captures and the console before calling it done. Build for Linux
-  (StandaloneLinux64).
-
 ## This machine
 
 - Fedora Workstation with GNOME.

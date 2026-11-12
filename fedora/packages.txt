@@ -56,6 +56,11 @@ wl-clipboard
 # apps
 codium
 blender
+# what the blender skills' image scripts use (shared/claude-skills.txt)
+python3-opencv
+python3-numpy
+python3-scipy
+python3-pillow
 godot
 unityhub
 obs-studio

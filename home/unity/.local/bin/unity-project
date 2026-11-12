@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# unity-project: sets up the unity project here (this folder, a parent, or ./game) for claude and neovim:
+# unity-project [path]: sets up a unity project (the one at path, or here: this folder, a parent, or
+# ./game) for claude and neovim:
 # unity's pipeline package, which the unity cli and claude's unity mcp server drive the editor through,
 # the neovim ide package, which opens scripts in neovim and writes the .sln its c# server reads, and
 # vulkan alone for its editor and linux builds
@@ -19,12 +20,16 @@ neovim_url=https://github.com/walcht/com.walcht.ide.neovim.git#54fb26c29f5fc35ca
 is_project() { [[ -f $1/ProjectSettings/ProjectVersion.txt && -f $1/Packages/manifest.json ]]; }
 
 project="" dir=$PWD
+if (($#)); then
+  is_project "$1" || die "$1 isn't a unity project (ProjectSettings/ProjectVersion.txt)"
+  dir=$(cd "$1" && pwd)
+fi
 while :; do
   if is_project "$dir"; then project=$dir; break; fi
   [[ $dir != / ]] || break
   dir=$(dirname "$dir")
 done
-if [[ -z $project ]] && is_project "$PWD/game"; then project=$PWD/game; fi
+if [[ -z $project ]] && ((!$#)) && is_project "$PWD/game"; then project=$PWD/game; fi
 [[ -n $project ]] || die "no unity project (ProjectSettings/ProjectVersion.txt) here, above here, or in ./game"
 have unity || die "no unity cli: run dot install"
 

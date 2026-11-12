@@ -23,6 +23,7 @@ while (($#)); do
     *) break ;;
   esac
 done
-# a command given as one string, as `-e "bash -c '…'"` from apps written for xterm, runs through sh
-if (($# == 1)) && [[ $1 == *[[:space:]]* ]]; then set -- sh -c "$1"; fi
+# a command given as one string, as `-e "bash -c '…'"` from apps written for xterm, runs through sh,
+# unless it's a program's path that has a space in it
+if (($# == 1)) && [[ $1 == *[[:space:]]* && ! -x $1 ]]; then set -- sh -c "$1"; fi
 exec xdg-terminal-exec "${args[@]}" -- "$@"

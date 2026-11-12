@@ -1,0 +1,4 @@
+# skill packs for claude, each cloned at a fixed commit into ~/.local/share/claude-skills/<name>, with
+# every skill in <folder> linked into ~/.claude/skills
+# name               repo                                        commit                                    folder
+cc-blender-skill     https://github.com/RobLe3/cc-blender-skill  a2634b588e80265e796aa53f8ab178d75105c2af  plugin/skills

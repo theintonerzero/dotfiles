@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# blender-lab-mcp: blender lab's official mcp server, for claude, at the version of the mcp add-on the
+# newest blender has, so the two speak the same protocol (each add-on release has a tag of its own);
+# v1.0.3 before the add-on is there. the tag's commit is looked up once and kept, so uv starts the
+# server from its cache, offline too. it reaches the add-on on BLENDER_MCP_HOST and BLENDER_MCP_PORT
+set -euo pipefail
+
+repo=https://projects.blender.org/lab/blender_mcp.git
+version=1.0.3
+manifest=$(printf '%s\n' "${XDG_CONFIG_HOME:-$HOME/.config}"/blender/*/extensions/blender_lab/mcp/blender_manifest.toml |
+  sort -V | tail -n 1)
+if [[ -f $manifest ]]; then
+  found=$(sed -n 's/^version = "\([0-9.]*\)"$/\1/p' "$manifest" | head -n 1)
+  version=${found:-$version}
+fi
+
+cache=${XDG_CACHE_HOME:-$HOME/.cache}/blender-lab-mcp
+ref=v$version
+if [[ -s $cache/v$version ]]; then
+  ref=$(<"$cache/v$version")
+elif commit=$(GIT_TERMINAL_PROMPT=0 git ls-remote --tags "$repo" "v$version" "v$version^{}" 2>/dev/null |
+  awk '$2 ~ /\^\{\}$/ { peeled = $1 } $2 !~ /\^\{\}$/ { plain = $1 } END { print peeled ? peeled : plain }') &&
+  [[ $commit =~ ^[0-9a-f]{40}$ ]]; then
+  mkdir -p "$cache"
+  printf '%s\n' "$commit" >"$cache/v$version"
+  ref=$commit
+fi
+exec uvx --from "git+$repo@$ref#subdirectory=mcp" blender-mcp "$@"

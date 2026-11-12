@@ -72,9 +72,8 @@ gpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg
 metadata_expire=1h
 EOF
   fi
-  if [[ ! -f /etc/yum.repos.d/unityhub.repo ]]; then
-    say "adding unity hub's repo"
-    as_root tee /etc/yum.repos.d/unityhub.repo >/dev/null <<'EOF'
+  local hub
+  hub=$(cat <<'EOF'
 [unityhub]
 name=Unity Hub
 baseurl=https://hub.unity3d.com/linux/repos/rpm/stable
@@ -84,6 +83,10 @@ gpgkey=https://hub.unity3d.com/linux/repos/rpm/stable/repodata/repomd.xml.key
 repo_gpgcheck=1
 skip_if_unavailable=1
 EOF
+  )
+  if [[ $(cat /etc/yum.repos.d/unityhub.repo 2>/dev/null) != "$hub" ]]; then
+    say "setting up unity hub's repo"
+    printf '%s\n' "$hub" | as_root tee /etc/yum.repos.d/unityhub.repo >/dev/null
   fi
 }
 
@@ -106,16 +109,26 @@ system_codecs() {
   fi
 }
 
-# the packages in packages.txt that aren't installed yet
+# the packages in packages.txt that aren't installed yet; the ones from vendors' own repos go in on
+# their own, so a vendor's repo being down leaves a todo, not a failed install
 system_packages() {
   local pkg
-  local -a missing=()
+  local -a missing=() vendor=()
   for pkg in $(list "$DOTFILES/fedora/packages.txt"); do
-    rpm -q --quiet "$pkg" || missing+=("$pkg")
+    rpm -q --quiet "$pkg" && continue
+    case $pkg in
+      codium | unityhub) vendor+=("$pkg") ;;
+      *) missing+=("$pkg") ;;
+    esac
   done
-  ((${#missing[@]})) || return 0
-  say "installing ${#missing[@]} packages"
-  as_root dnf install -y "${missing[@]}"
+  if ((${#missing[@]})); then
+    say "installing ${#missing[@]} packages"
+    as_root dnf install -y "${missing[@]}"
+  fi
+  for pkg in "${vendor[@]}"; do
+    say "installing $pkg"
+    as_root dnf install -y "$pkg" || todo "$pkg didn't install, as its repo may be down: run dot install again"
+  done
 }
 
 # rpm fusion's video drivers, 64 and 32 bit for steam; runs after the packages, as steam pulls in fedora's

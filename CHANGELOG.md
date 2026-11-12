@@ -27,24 +27,47 @@ All notable changes to this project are documented here. The format is based on
   browser-use plugins that claude.ai syncs to it.
 - Alt+S is Claude Code's Send now, as Ghostty keeps Ctrl+Enter for fullscreen.
 - Claude Code runs shellcheck on each shell script it edits in this repo.
-- Unity Hub, from Unity's dnf repo, in the Development folder. Its Unity CLI button opens Ghostty, as
-  an `x-terminal-emulator` in `~/.local/bin` hands apps that look for one to the default terminal.
-- The Unity CLI, from Unity's installer, in `~/.local/bin`, with no usage pings, crash reports,
-  plugin tips or update check of its own; `dot update` updates it. No Unity Editor is installed:
-  pick one in the Hub or with `unity install`.
+- Unity Hub, from Unity's dnf repo, in the Development folder. Its Unity CLI button opens Ghostty,
+  as an `x-terminal-emulator` in `~/.local/bin` hands apps that look for one to the default
+  terminal.
+- The Unity CLI, from Unity's installer, in `~/.local/bin`, with Unity's usage analytics turned
+  off (shared with the Hub, and checked again on each install and update), and no usage pings, crash
+  reports, plugin tips or update check of its own; `dot update` updates it. No Unity Editor is
+  installed: pick one in the Hub or with `unity install`.
 - Claude Code's Unity MCP server (`unity mcp`, from the Unity CLI), and Unity's official plugin and
   Microsoft's docs plugin, for Unity and C#.
-- `unity-project`, run in a Unity project, adds Unity's Pipeline package, which the CLI and Claude
-  drive the Editor through, and the Neovim IDE package (`com.walcht.ide.neovim`, at a fixed commit),
-  which opens scripts in Neovim and writes the `.sln` and `.csproj` files `csharp-ls` reads, and
-  sets the project's Editor and Linux builds to Vulkan alone, in place of Unity's automatic OpenGL.
+- `unity-project`, run in a Unity project or given its path, adds Unity's Pipeline package, which
+  the CLI and Claude drive the Editor through, and the Neovim IDE package (`com.walcht.ide.neovim`,
+  at a fixed commit), which opens scripts in Neovim and writes the `.sln` and `.csproj` files
+  `csharp-ls` reads, and sets the project's Editor and Linux builds to Vulkan alone, in place of
+  Unity's automatic OpenGL.
+  A settings file it can't read leaves a todo to set Vulkan in the Editor.
 - Unity opens scripts in Neovim, in Ghostty, with nothing to pick in its preferences: Neovim is its
   script editor, and the Neovim package opens it through `x-terminal-emulator`, as the package's
-  own Ghostty command never starts. Both are set in Unity's preferences while Unity is closed; an
-  editor or terminal you chose yourself stays. The Activate Window By Title extension, from
-  extensions.gnome.org, lets the package bring Neovim forward.
-- My CLAUDE.md tells Claude to use the installed Unity Editor, to run `unity-project` in every Unity
-  project, and to check games in Play mode before calling them done.
+  own Ghostty command never starts. Both are set in Unity's preferences while Unity is closed,
+  which install starts as an empty file before Unity's first run; an editor or terminal you chose
+  yourself stays, and `dot uninstall` gives Unity its own script editor back. The Activate Window By
+  Title extension, from extensions.gnome.org, lets the package bring Neovim forward.
+- A `unity-workflow` skill for Claude, which it loads for any Unity work, before Unity's own: use
+  the installed Editor, run `unity-project` in every project, check games in Play mode with the
+  Editor kept ticking, simulated input and Game view captures, and build for Linux from the open
+  Editor.
+- The cc-blender-skill pack's 30 Blender skills for Claude (modelling, materials, lighting,
+  rendering, animation, export, reference-to-3D), linked into `~/.claude/skills` from a clone at a
+  fixed commit in `~/.local/share/claude-skills`. `shared/claude-skills.txt` lists skill packs, and
+  a skill of your own by the same name stays. Fedora's OpenCV, NumPy, SciPy and Pillow for Python
+  run the pack's image scripts.
+- Blender Lab's official MCP add-on, from the Blender Lab extensions repo, on Blender 5.1 and newer:
+  turned on and started with Blender, on port 9877 beside MCP for Blender's 9876, with Blender's
+  online access on, which the add-on needs. Claude's `blender_official` server runs the matching
+  release through `blender-lab-mcp`, which looks the release's commit up once, so the server starts
+  offline too. `dot update` updates Blender's extensions, this add-on included, while Blender is
+  closed, and an add-on turned off in Blender is turned back on.
+- Install lists signing in to Unity and installing an Editor among what's left for you, until both
+  are done.
+- Unity Hub and VSCodium install on their own, so one of their repos being down leaves a todo
+  instead of stopping the install, and Unity Hub's repo file is rewritten when it differs from the
+  one here.
 - Git keeps HTTPS passwords and tokens for hosts such as GitLab in GNOME's keyring, through
   `git-credential-libsecret`. GitHub and its gists sign in through `gh` alone, now set in the linked
   git config, so a token never lands in the keyring even before `gh auth setup-git` has run; Unity
@@ -54,8 +77,10 @@ All notable changes to this project are documented here. The format is based on
 
 - Claude Code asks before `rm -rf` however its flags are written (`-rf`, `-fr`, `-Rf`, `-fR`), and
   still before force-pushing or deleting a GitHub repo, and before the Unity CLI uninstalls an
-  Editor or itself, prunes Editors, returns a licence or sends a bug report. It no longer has to ask before Godot's MCP
-  tools run code, call methods or write scripts.
+  Editor or itself (`unity u` included), installs an Editor or modules (`unity i` and `unity im`
+  included), accepts an Editor's terms, closes an Editor (which doesn't save), prunes Editors,
+  returns a licence or sends a bug report. It no longer has to ask before Godot's MCP tools run
+  code, call methods or write scripts.
 
 ## [1.2.0] - 2026-10-31
 

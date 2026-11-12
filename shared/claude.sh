@@ -6,6 +6,7 @@ claude_install() {
   have claude || return 0
   claude_settings
   claude_plugins
+  claude_skills
   claude_servers
 }
 
@@ -19,6 +20,7 @@ claude_update() {
   while read -r id; do
     claude plugin update "$id" --scope user >/dev/null </dev/null || warn "couldn't update $id"
   done < <(list "$DOTFILES/shared/claude-plugins.txt")
+  claude_skills
   say "updating the tools claude's mcp servers use"
   cargo install --quiet bevy_brp_mcp </dev/null || warn "couldn't update bevy_brp_mcp"
   quiet npx -y @playwright/mcp@latest install-browser chromium || warn "couldn't update playwright's chromium"
@@ -77,6 +79,45 @@ claude_plugins() {
   done < <(list "$DOTFILES/shared/claude-plugins.txt")
 }
 
+# claude_skills: the skill packs in shared/claude-skills.txt, each cloned at its commit into
+# ~/.local/share/claude-skills/<name>, with each of its skills linked into ~/.claude/skills; a skill of
+# your own by the same name stays, and links to skills no listed pack has any more go
+claude_skills() {
+  local share=${XDG_DATA_HOME:-$HOME/.local/share}/claude-skills skills=$HOME/.claude/skills
+  local name repo commit folder dir skill link
+  local -A keep=()
+  mkdir -p "$skills"
+  while read -r name repo commit folder; do
+    dir=$share/$name
+    if [[ $(git -C "$dir" rev-parse HEAD 2>/dev/null) != "$commit" ]]; then
+      say "getting claude's $name skills"
+      if { [[ -d $dir/.git ]] || GIT_TERMINAL_PROMPT=0 quiet git clone --quiet --filter=blob:none --no-checkout "$repo" "$dir"; } &&
+        GIT_TERMINAL_PROMPT=0 quiet git -C "$dir" fetch --quiet --filter=blob:none origin "$commit" &&
+        quiet git -C "$dir" checkout --quiet --detach "$commit"; then
+        :
+      else
+        warn "couldn't get $name's skills at $commit, so the ones it has stay"
+      fi
+    fi
+    for skill in "$dir/$folder"/*/; do
+      skill=${skill%/}
+      link=$skills/${skill##*/}
+      [[ -f $skill/SKILL.md ]] || continue
+      if [[ $(readlink "$link") != "$skill" ]]; then
+        if [[ -e $link || -L $link ]] && [[ $(readlink "$link") != "$share"/* ]]; then
+          warn "claude has a ${skill##*/} skill of your own, so $name's is left out"
+          continue
+        fi
+        ln -sfn "$skill" "$link"
+      fi
+      keep[$link]=1
+    done
+  done < <(list "$DOTFILES/shared/claude-skills.txt")
+  for link in "$skills"/*; do
+    if [[ -L $link && $(readlink "$link") == "$share"/* && -z ${keep[$link]:-} ]]; then rm -f "$link"; fi
+  done
+}
+
 # claude_servers: the mcp servers, at user scope, and what each needs; one claude already has by that
 # name stays as it is
 claude_servers() {
@@ -101,6 +142,11 @@ claude_servers() {
   if [[ -x $cargo/bin/bevy_brp_mcp ]]; then claude_server brp -- "$cargo/bin/bevy_brp_mcp"; fi
   claude_blender
   claude_server blender -e DISABLE_TELEMETRY=true -- uvx mcp-for-blender@latest
+  # blender lab's own server, beside it, on the port its add-on is set to (claude_blender_lab)
+  if compgen -G "${XDG_CONFIG_HOME:-$HOME/.config}/blender/*/extensions/blender_lab/mcp" >/dev/null; then
+    claude_server blender_official -e BLENDER_MCP_HOST=127.0.0.1 -e BLENDER_MCP_PORT=9877 \
+      -- "$HOME/.local/bin/blender-lab-mcp"
+  fi
   if ! compgen -G "$HOME/.cache/ms-playwright/chromium-*" >/dev/null; then
     say "installing chromium for playwright"
     quiet npx -y @playwright/mcp@latest install-browser chromium || warn "couldn't install playwright's chromium"
@@ -123,10 +169,10 @@ claude_server() {
   claude mcp add --scope user "$name" "$@" >/dev/null </dev/null || warn "couldn't add the $name mcp server"
 }
 
-# claude_blender [update]: the mcp for blender add-on, turned on in blender's preferences while blender
-# is closed, and its telemetry prompt answered no
+# claude_blender [update]: the mcp for blender add-on and blender lab's official one, turned on in
+# blender's preferences while blender is closed, and mcp for blender's telemetry prompt answered no
 claude_blender() {
-  local series addons prefs consent=$HOME/.config/blender-mcp/consent_prompt.json
+  local series config addons prefs community=0 lab=0 consent=$HOME/.config/blender-mcp/consent_prompt.json
   have blender || return 0
   if [[ ! -e $consent ]]; then
     mkdir -p "$(dirname "$consent")"
@@ -134,22 +180,59 @@ claude_blender() {
   fi
   series=$(blender --version 2>/dev/null | sed -n 's/^Blender \([0-9]*\.[0-9]*\).*/\1/p' | head -n 1)
   [[ -n $series ]] || return 0
-  addons=$HOME/.config/blender/$series/scripts/addons
-  prefs=$HOME/.config/blender/$series/config/userpref.blend
+  config=${XDG_CONFIG_HOME:-$HOME/.config}/blender/$series
+  addons=$config/scripts/addons prefs=$config/config/userpref.blend
   if [[ ! -f $addons/blender_mcp.py || ${1:-} == update ]]; then
     [[ -f $addons/blender_mcp.py ]] || say "installing the mcp for blender add-on"
     uvx mcp-for-blender@latest install-addon --addons-dir "$addons" >/dev/null </dev/null ||
-      { warn "couldn't install the mcp for blender add-on"; return 0; }
+      warn "couldn't install the mcp for blender add-on"
   fi
-  if [[ -f $prefs ]] && grep -qa blender_mcp "$prefs"; then return 0; fi
+  if [[ -f $addons/blender_mcp.py ]] && ! grep -qa blender_mcp "$prefs" 2>/dev/null; then community=1; fi
+  # blender lab's needs blender 5.1
+  if [[ $(printf '%s\n' 5.1 "$series" | sort -V | head -n 1) == 5.1 ]]; then
+    if [[ ! -d $config/extensions/blender_lab/mcp ]] || ! grep -qa bl_ext.blender_lab.mcp "$prefs" 2>/dev/null; then
+      lab=1
+    elif [[ ${1:-} == update ]] && ! pgrep -x blender >/dev/null; then
+      # --sync fetches the repos' listings first; without it, nothing newer is ever seen
+      blender --online-mode -c extension update --sync >/dev/null 2>&1 </dev/null || warn "couldn't update blender's extensions"
+    fi
+  fi
+  ((community || lab)) || return 0
   if pgrep -x blender >/dev/null; then
-    todo "close Blender and run dot install again, so the MCP for Blender add-on gets turned on"
+    todo "close Blender and run dot install again, so its MCP add-ons get turned on"
     return 0
   fi
-  say "turning on the mcp for blender add-on"
-  blender --background --python-expr 'import addon_utils, bpy
-addon_utils.enable("blender_mcp", default_set=True, persistent=True)
+  if ((community)); then
+    say "turning on the mcp for blender add-on"
+    blender --background --python-exit-code 1 --python-expr 'import addon_utils, bpy
+assert addon_utils.enable("blender_mcp", default_set=True, persistent=True)
 bpy.ops.wm.save_userpref()' >/dev/null 2>&1 </dev/null || warn "couldn't turn on the mcp for blender add-on"
+  fi
+  if ((lab)); then claude_blender_lab "$config"; fi
+}
+
+# claude_blender_lab <config dir>: blender lab's official mcp add-on, from the blender lab extensions
+# repo, turned on and started with blender, on port 9877, as mcp for blender's has 9876. it works only
+# with blender's online access on, so that's turned on too
+claude_blender_lab() {
+  if [[ ! -d $1/extensions/blender_lab/mcp ]]; then
+    say "installing blender lab's mcp add-on"
+    if [[ ! -d $1/extensions/blender_lab ]]; then
+      blender -c extension repo-add blender_lab --name "Blender Lab" --url https://lab.blender.org/ >/dev/null 2>&1 </dev/null ||
+        { warn "couldn't add the blender lab extensions repo"; return 0; }
+    fi
+    blender --online-mode -c extension install --sync blender_lab.mcp >/dev/null 2>&1 </dev/null ||
+      { warn "couldn't install blender lab's mcp add-on"; return 0; }
+  fi
+  say "turning on blender lab's mcp add-on"
+  blender --background --python-exit-code 1 --python-expr 'import addon_utils, bpy
+p = bpy.context.preferences
+p.system.use_online_access = True
+assert addon_utils.enable("bl_ext.blender_lab.mcp", default_set=True, persistent=True)
+a = p.addons["bl_ext.blender_lab.mcp"].preferences
+a.port = 9877
+a.use_autostart = True
+bpy.ops.wm.save_userpref()' >/dev/null 2>&1 </dev/null || warn "couldn't turn on blender lab's mcp add-on"
 }
 
 # claude_ghidra: rea's engine: ghidra's newest release in ~/.local/opt/ghidra-<tag>, linked as
