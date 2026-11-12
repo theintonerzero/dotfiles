@@ -36,10 +36,15 @@ All notable changes to this project are documented here. The format is based on
   Microsoft's docs plugin, for Unity and C#.
 - `unity-project`, run in a Unity project, adds Unity's Pipeline package, which the CLI and Claude
   drive the Editor through, and the Neovim IDE package (`com.walcht.ide.neovim`, at a fixed commit),
-  which opens scripts in Neovim and writes the `.sln` and `.csproj` files `csharp-ls` reads. The
-  package opens Neovim through `x-terminal-emulator`, so in Ghostty, as its own Ghostty command
-  never starts; this is set in Unity's preferences while Unity is closed. The Activate Window By
-  Title extension, from extensions.gnome.org, lets it bring Neovim forward.
+  which opens scripts in Neovim and writes the `.sln` and `.csproj` files `csharp-ls` reads, and
+  sets the project's Editor and Linux builds to Vulkan alone, in place of Unity's automatic OpenGL.
+- Unity opens scripts in Neovim, in Ghostty, with nothing to pick in its preferences: Neovim is its
+  script editor, and the Neovim package opens it through `x-terminal-emulator`, as the package's
+  own Ghostty command never starts. Both are set in Unity's preferences while Unity is closed; an
+  editor or terminal you chose yourself stays. The Activate Window By Title extension, from
+  extensions.gnome.org, lets the package bring Neovim forward.
+- My CLAUDE.md tells Claude to use the installed Unity Editor, to run `unity-project` in every Unity
+  project, and to check games in Play mode before calling them done.
 - Git keeps HTTPS passwords and tokens for hosts such as GitLab in GNOME's keyring, through
   `git-credential-libsecret`. GitHub and its gists sign in through `gh` alone, now set in the linked
   git config, so a token never lands in the keyring even before `gh auth setup-git` has run; Unity
@@ -48,7 +53,8 @@ All notable changes to this project are documented here. The format is based on
 ### Changed
 
 - Claude Code asks before `rm -rf` however its flags are written (`-rf`, `-fr`, `-Rf`, `-fR`), and
-  still before force-pushing or deleting a GitHub repo. It no longer has to ask before Godot's MCP
+  still before force-pushing or deleting a GitHub repo, and before the Unity CLI uninstalls an
+  Editor or itself, prunes Editors, returns a licence or sends a bug report. It no longer has to ask before Godot's MCP
   tools run code, call methods or write scripts.
 
 ## [1.2.0] - 2026-10-31

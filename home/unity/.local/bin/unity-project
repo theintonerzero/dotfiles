@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # unity-project: sets up the unity project here (this folder, a parent, or ./game) for claude and neovim:
 # unity's pipeline package, which the unity cli and claude's unity mcp server drive the editor through,
-# and the neovim ide package, which opens scripts in neovim and writes the .sln its c# server reads
+# the neovim ide package, which opens scripts in neovim and writes the .sln its c# server reads, and
+# vulkan alone for its editor and linux builds
 set -euo pipefail
 dotfiles=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../../..
 # shellcheck source-path=SCRIPTDIR source=../../../../lib.sh
@@ -45,7 +46,9 @@ else
   fi
 fi
 
-# neovim in the default terminal, unless unity is open, which leaves a todo
+# the editor and linux builds on vulkan; neovim in the default terminal, unless unity is open, which
+# leaves a todo
+unity_vulkan "$project"
 unity_neovim
 todo_print
-echo "In Unity, once it has reloaded: Edit → Preferences → External Tools → External Script Editor → Neovim"
+echo "Open it with: unity open \"$project\""
