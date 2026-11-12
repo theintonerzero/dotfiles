@@ -24,6 +24,7 @@ xdg-terminal-exec
 # git
 git
 git-lfs
+git-credential-libsecret
 git-delta
 lazygit
 gh
@@ -56,6 +57,7 @@ wl-clipboard
 codium
 blender
 godot
+unityhub
 obs-studio
 gnome-tweaks
 gnome-extensions-app

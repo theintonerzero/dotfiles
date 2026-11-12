@@ -1,4 +1,4 @@
-# fedora/system.sh: rpm fusion, the coprs, vscodium's repo, codecs, packages and removals
+# fedora/system.sh: rpm fusion, the coprs, vscodium's and unity hub's repos, codecs, packages and removals
 # shellcheck shell=bash
 
 system_install() {
@@ -37,7 +37,7 @@ system_snapshots() {
     warn "couldn't set up snapper"
 }
 
-# rpm fusion (free and nonfree), fedora's openh264 repo, the coprs and vscodium's repo
+# rpm fusion (free and nonfree), fedora's openh264 repo, the coprs, and vscodium's and unity hub's repos
 system_repos() {
   local fedora copr enabled
   fedora=$(rpm -E %fedora)
@@ -70,6 +70,19 @@ gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg
 metadata_expire=1h
+EOF
+  fi
+  if [[ ! -f /etc/yum.repos.d/unityhub.repo ]]; then
+    say "adding unity hub's repo"
+    as_root tee /etc/yum.repos.d/unityhub.repo >/dev/null <<'EOF'
+[unityhub]
+name=Unity Hub
+baseurl=https://hub.unity3d.com/linux/repos/rpm/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://hub.unity3d.com/linux/repos/rpm/stable/repodata/repomd.xml.key
+repo_gpgcheck=1
+skip_if_unavailable=1
 EOF
   fi
 }

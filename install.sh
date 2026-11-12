@@ -18,6 +18,7 @@ toolchains_install
 neovim_install
 vscodium_install
 godot_install
+unity_install
 claude_install
 gnome_install
 gaming_install

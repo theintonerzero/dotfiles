@@ -27,6 +27,23 @@ All notable changes to this project are documented here. The format is based on
   browser-use plugins that claude.ai syncs to it.
 - Alt+S is Claude Code's Send now, as Ghostty keeps Ctrl+Enter for fullscreen.
 - Claude Code runs shellcheck on each shell script it edits in this repo.
+- Unity Hub, from Unity's dnf repo, in the Development folder. Its Unity CLI button opens Ghostty, as
+  an `x-terminal-emulator` in `~/.local/bin` hands apps that look for one to the default terminal.
+- The Unity CLI, from Unity's installer, in `~/.local/bin`, with no usage pings, crash reports,
+  plugin tips or update check of its own; `dot update` updates it. No Unity Editor is installed:
+  pick one in the Hub or with `unity install`.
+- Claude Code's Unity MCP server (`unity mcp`, from the Unity CLI), and Unity's official plugin and
+  Microsoft's docs plugin, for Unity and C#.
+- `unity-project`, run in a Unity project, adds Unity's Pipeline package, which the CLI and Claude
+  drive the Editor through, and the Neovim IDE package (`com.walcht.ide.neovim`, at a fixed commit),
+  which opens scripts in Neovim and writes the `.sln` and `.csproj` files `csharp-ls` reads. The
+  package opens Neovim through `x-terminal-emulator`, so in Ghostty, as its own Ghostty command
+  never starts; this is set in Unity's preferences while Unity is closed. The Activate Window By
+  Title extension, from extensions.gnome.org, lets it bring Neovim forward.
+- Git keeps HTTPS passwords and tokens for hosts such as GitLab in GNOME's keyring, through
+  `git-credential-libsecret`. GitHub and its gists sign in through `gh` alone, now set in the linked
+  git config, so a token never lands in the keyring even before `gh auth setup-git` has run; Unity
+  Hub's GitHub sign-in uses `gh`'s too.
 
 ### Changed
 

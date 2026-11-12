@@ -20,5 +20,6 @@ These stay, so remove them yourself if you want them gone:
   - GNOME's settings, extensions and dock
   - app data: Neovim's plugins, Claude Code's plugins and MCP servers, VSCodium's extensions
   - LM Studio and its launcher, in ~/.local/opt/lm-studio, and its models and engines in ~/.lmstudio
+  - the Unity CLI in ~/.local/bin (unity self-uninstall removes it), and Unity's editors and settings
   - your git identity in ~/.config/git/local and your SSH key
 EOF

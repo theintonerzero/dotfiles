@@ -33,7 +33,7 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Command | Does |
 | --- | --- |
 | `dot install` | Sets everything up |
-| `dot update` | Takes a snapshot of `/`, pulls the repo, then updates packages, Flatpaks, toolchains, Neovim, VSCodium, Claude Code, LM Studio and Proton-GE |
+| `dot update` | Takes a snapshot of `/`, pulls the repo, then updates packages, Flatpaks, toolchains, Neovim, VSCodium, the Unity CLI, Claude Code, LM Studio and Proton-GE |
 | `dot uninstall` | Removes the links and restores the `.bak` files they replaced |
 
 ## What you get
@@ -41,16 +41,17 @@ Copilot, Spotify and Vesktop. Running it again only does what's missing.
 | Area | |
 | --- | --- |
 | System | RPM Fusion, full multimedia codecs, COPRs, VSCodium's repo, snapper snapshots of `/`; LibreOffice, Fedora Media Writer, Ptyxis and unused GNOME apps (Calculator, Calendar, Camera, Characters, Clocks, Parental Controls and more) removed |
-| Apps | Firefox with uBlock Origin, HTTPS-only mode, Firefox Home in place of Fedora's start page, the last session restored, and no ads, telemetry, AI features or Fedora bookmarks, Steam, Vesktop, Godot, VSCodium, Blender, Spotify, OBS Studio, Mission Center, ArtCraft Launcher, JetBrains Mono Nerd Font |
-| GNOME | Super+Enter opens Ghostty, Ctrl+Alt+Del Mission Center, Ctrl+Shift+Esc btop, JetBrains Mono as the monospace font, dark style, slate accent, macOS-style red, yellow and green window buttons on the left, no hot corners, flat mouse, no auto-suspend, Performance mode, VRR, the app grid on one page, Settings then System, Media, Development, Create and Games folders; Dash to Dock, Blur my Shell, Caffeine, AppIndicator, Coverflow Alt-Tab |
+| Apps | Firefox with uBlock Origin, HTTPS-only mode, Firefox Home in place of Fedora's start page, the last session restored, and no ads, telemetry, AI features or Fedora bookmarks, Steam, Vesktop, Godot, Unity Hub, VSCodium, Blender, Spotify, OBS Studio, Mission Center, ArtCraft Launcher, JetBrains Mono Nerd Font |
+| GNOME | Super+Enter opens Ghostty, Ctrl+Alt+Del Mission Center, Ctrl+Shift+Esc btop, JetBrains Mono as the monospace font, dark style, slate accent, macOS-style red, yellow and green window buttons on the left, no hot corners, flat mouse, no auto-suspend, Performance mode, VRR, the app grid on one page, Settings then System, Media, Development, Create and Games folders; Dash to Dock, Blur my Shell, Caffeine, AppIndicator, Coverflow Alt-Tab, Activate Window By Title |
 | Gaming | Steam games named in GNOME, FSR4 on RDNA 4, Proton-GE as Steam's default, Steam's performance monitor in full detail at the top left, no GPU rendering in Steam's web views, GameMode, Gamescope, ProtonTricks |
 | Shell | zsh, Starship, atuin, zoxide, fzf, eza, bat, fd, ripgrep, Ghostty, tmux with sesh and pills, lazygit |
-| Git | delta, SSH-signed commits, Git LFS |
+| Git | delta, SSH-signed commits, Git LFS, HTTPS logins (GitLab's, say) in GNOME's keyring, and GitHub's through `gh` alone |
 | Toolchains | mise (Node, Bun, Go, Java, Kotlin, Zig), rustup, uv, .NET 10, GCC |
 | Neovim | AstroNvim v6, 17 language packs, Copilot, claudecode.nvim, Discord presence |
 | Godot | Neovim as the external editor, `gdscript-formatter` on save; `godot-toolkit` adds the MCP plugin to a project |
+| Unity | Unity Hub from Unity's dnf repo, opening its terminal in Ghostty; the Unity CLI with no telemetry, crash reports, plugin tips or update check; `unity-project` adds Unity's Pipeline package, for the CLI and Claude, and the Neovim IDE package, so Unity opens scripts in Neovim, in Ghostty, brought forward by Activate Window By Title, and writes the `.sln` for its C# server |
 | LLMs | LM Studio in the Development folder, `lms` on the PATH, Developer Mode and its resource monitor, and no models downloaded; on AMD GPUs, Fedora's ROCm, and LM Studio's ROCm engine beside its default Vulkan one |
-| Claude Code | Settings (compacting at about 467k tokens, Alt+S for Send now, no error reports or surveys), plugins, language servers, and MCP servers for GitHub, Godot, Bevy, Blender, Playwright and REA |
+| Claude Code | Settings (compacting at about 467k tokens, Alt+S for Send now, no error reports or surveys), plugins, language servers, and MCP servers for GitHub, Godot, Unity, Bevy, Blender, Playwright and REA |
 
 `home/claude/.claude/CLAUDE.md` is my own; replace it with yours.
 

@@ -19,3 +19,7 @@ export EZA_ICONS_AUTO=1
 export FZF_DEFAULT_OPTS_FILE=$XDG_CONFIG_HOME/fzf/fzfrc
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
+
+# the unity cli: no usage pings, crash reports, plugin tips or update check, as dot update updates it
+# (environment.d does the same for apps)
+export UNITY_NO_CLI_INVOKED_TELEMETRY=1 UNITY_NO_CRASH_REPORT=1 UNITY_NO_AGENT_HINTS=1 UNITY_NO_UPDATE_CHECK=1

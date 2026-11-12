@@ -2,8 +2,9 @@
 # shellcheck shell=bash
 
 # the extensions installed from extensions.gnome.org, which has newer builds than fedora: blur my shell
-# rounds the corners of live blur from v76 on
-EGO_EXTENSIONS=(CoverflowAltTab@palatis.blogspot.com blur-my-shell@aunetx)
+# rounds the corners of live blur from v76 on; activate window by title, which unity's neovim package
+# brings neovim forward with, isn't in fedora at all
+EGO_EXTENSIONS=(CoverflowAltTab@palatis.blogspot.com blur-my-shell@aunetx activate-window-by-title@lucaswerkmeister.de)
 
 gnome_install() {
   if [[ -z ${DBUS_SESSION_BUS_ADDRESS:-} ]] || ! have gsettings; then

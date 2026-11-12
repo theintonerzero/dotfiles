@@ -88,6 +88,12 @@ claude_servers() {
       warn "couldn't add the github mcp server"
   fi
   claude_server godot-mcp-toolkit -- npx -y @npgamedev/godot-mcp-server@latest
+  # unity's own server, in the unity cli: the editor open on the project claude runs in, through the
+  # project's pipeline package (unity-project adds it)
+  if [[ -x $HOME/.local/bin/unity ]]; then
+    claude_server unity -e UNITY_NO_CLI_INVOKED_TELEMETRY=1 -e UNITY_NO_CRASH_REPORT=1 -e UNITY_NO_AGENT_HINTS=1 \
+      -e UNITY_NO_UPDATE_CHECK=1 -- "$HOME/.local/bin/unity" mcp
+  fi
   if [[ ! -x $cargo/bin/bevy_brp_mcp ]]; then
     say "building bevy_brp_mcp, bevy's mcp server"
     cargo install --quiet bevy_brp_mcp </dev/null || todo "bevy_brp_mcp didn't build, so Claude has no Bevy server yet: run dot install again"

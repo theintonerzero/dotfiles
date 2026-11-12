@@ -1,5 +1,6 @@
-# git: delta for diffs, commits signed with your ssh key, and your name and email from
-# ~/.config/git/local, which dot install writes; what tools add with --global goes in ~/.gitconfig
+# git: delta for diffs, commits signed with your ssh key, https logins in gnome's keyring, and your name
+# and email from ~/.config/git/local, which dot install writes; what tools add with --global goes in
+# ~/.gitconfig
 [core]
 	editor = nvim
 	pager = delta
@@ -36,5 +37,15 @@
 	gpgsign = true
 [tag]
 	gpgsign = true
+# https passwords and tokens, such as gitlab's, kept in gnome's keyring; github and its gists sign in
+# through gh alone, as each one's empty helper clears the keyring's, so gh's token never lands in it
+[credential]
+	helper = libsecret
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
 [include]
 	path = ~/.config/git/local

@@ -5,6 +5,8 @@ DOTFILES=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd -P)
 TODOS=()
 # what the steps install is on PATH for the steps after them, in ~/.zshenv's order
 export PATH=$HOME/.local/bin:${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:${CARGO_HOME:-$HOME/.cargo}/bin:$PATH
+# the unity cli the steps run sends nothing home, even before you log in again for ~/.zshenv's settings
+export UNITY_NO_CLI_INVOKED_TELEMETRY=1 UNITY_NO_CRASH_REPORT=1 UNITY_NO_AGENT_HINTS=1 UNITY_NO_UPDATE_CHECK=1
 
 say() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mwarning:\033[0m %s\n' "$*" >&2; }

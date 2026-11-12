@@ -24,6 +24,7 @@ nvim
 org.gnome.TextEditor
 yad-icon-browser
 ai.elementlabs.lmstudio
+unityhub
 
 [Create]
 com.obsproject.Studio

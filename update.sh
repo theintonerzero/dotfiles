@@ -15,6 +15,7 @@ shell_update
 toolchains_update
 neovim_update
 vscodium_update
+unity_update
 claude_update
 godot_update
 gnome_update

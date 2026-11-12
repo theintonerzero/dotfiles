@@ -18,6 +18,8 @@ sentry@anthropic-plugin-directory
 figma@claude-plugins-official
 hookify@claude-plugins-official
 claude-security@claude-plugins-official
+unity@claude-plugins-official
+microsoft-docs@claude-plugins-official
 impeccable@impeccable
 godot-prompter@skillsmith
 humanizer@humanizer
