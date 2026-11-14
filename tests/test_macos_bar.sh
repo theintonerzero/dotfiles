@@ -123,17 +123,34 @@ stub pgrep
 eq "spotify running, nothing new: left alone" "" "$(plugin spotify SENDER=routine)"
 has "junk from spotify: nothing drawn" "$(plugin spotify SENDER=spotify_change INFO='not json')" drawing=off
 
-# workspaces: the current one filled, one with windows a pill, an empty one bare
+# workspaces: the current one filled, one with windows a pill, an empty one bare. one script dresses them
+# all in one call, so a switch shows at once
 windows() { jq -n --argjson s "$1" --argjson a "$2" '{ space: $s, apps: $a }'; }
-plugin space SID=2 SELECTED=false SENDER=space_windows_change INFO="$(windows 2 '{"Ghostty":1}')" >/dev/null
-has "current" "$(plugin space SID=2 SELECTED=true SENDER=space_change)" "background.color=$ACCENT" background.drawing=on
-has "has windows" "$(plugin space SID=2 SELECTED=false SENDER=space_change)" "background.color=$SURFACE" background.drawing=on
-plugin space SID=3 SELECTED=false SENDER=space_windows_change INFO="$(windows 3 '{}')" >/dev/null
-has "empty" "$(plugin space SID=3 SELECTED=false SENDER=space_change)" background.drawing=off "label.color=$DIM"
-has "empty but current" "$(plugin space SID=3 SELECTED=true SENDER=space_change)" "background.color=$ACCENT" background.drawing=on
-eq "another space's windows aren't this one's" "" "$(plugin space SID=3 SELECTED=false SENDER=space_windows_change INFO="$(windows 2 '{"Ghostty":1}')")"
-has "still empty after it" "$(plugin space SID=3 SELECTED=false SENDER=space_change)" background.drawing=off
-has "never heard about: taken to have windows" "$(plugin space SID=7 SELECTED=false SENDER=space_change)" background.drawing=on
+# pill <call> <n>: what the call sets on workspace n
+pill() { grep "^space\.$2 " <<<"${1// --set /$'\n'}" || true; }
+plugin spaces SENDER=space_windows_change INFO="$(windows 1 '{}')" >/dev/null
+plugin spaces SENDER=space_windows_change INFO="$(windows 2 '{"Ghostty":1}')" >/dev/null
+plugin spaces SENDER=space_windows_change INFO="$(windows 3 '{"Firefox":2,"a } b":1}')" >/dev/null
+call=$(plugin spaces SENDER=space_change INFO='{ "display-1": 2 }')
+eq "one call for all of them" 1 "$(grep -c . <<<"$call")"
+has "current" "$(pill "$call" 2)" "background.color=$ACCENT" background.drawing=on
+has "has windows" "$(pill "$call" 3)" "background.color=$SURFACE" background.drawing=on
+has "empty" "$(pill "$call" 1)" background.drawing=off "label.color=$DIM"
+has "never heard about: taken to have windows" "$(pill "$call" 7)" background.drawing=on "background.color=$SURFACE"
+call=$(plugin spaces SENDER=space_change INFO='{ "display-1": 1 }')
+has "empty but current" "$(pill "$call" 1)" "background.color=$ACCENT" background.drawing=on
+has "the one left behind" "$(pill "$call" 2)" "background.color=$SURFACE"
+# a window opening elsewhere keeps the current one current
+call=$(plugin spaces SENDER=space_windows_change INFO="$(windows 3 '{}')")
+has "still current after windows change" "$(pill "$call" 1)" "background.color=$ACCENT"
+has "now empty" "$(pill "$call" 3)" background.drawing=off
+# two displays: each one's current workspace is filled
+call=$(plugin spaces SENDER=space_change INFO='{ "display-1": 2, "display-2": 5 }')
+has "current on the first display" "$(pill "$call" 2)" "background.color=$ACCENT"
+has "current on the second" "$(pill "$call" 5)" "background.color=$ACCENT"
+has "neither" "$(pill "$call" 1)" background.drawing=off
+# it's quick because it starts nothing but the one sketchybar call
+no "no other program is run on a switch" grep -qE '\$\(|`|[^|]\|[^|]' <(sed -n '/^[^#]/p' "$B/plugins/spaces.sh" | grep -v '^source ')
 
 # the front app, the date and the time
 has "front app" "$(plugin front_app SENDER=front_app_switched INFO=Ghostty)" label=Ghostty
