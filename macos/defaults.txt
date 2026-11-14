@@ -10,11 +10,18 @@ NSGlobalDomain AppleInterfaceStyle string Dark
 NSGlobalDomain AppleAccentColor int -1
 NSGlobalDomain AppleAquaColorVariant int 6
 NSGlobalDomain AppleHighlightColor delete
+# icons and widgets in the clear style, the dark one
+NSGlobalDomain AppleIconAppearanceTheme string ClearDark
 com.apple.WindowManager StandardHideDesktopIcons bool true
 com.apple.WindowManager HideDesktop bool true
 com.apple.WindowManager StandardHideWidgets bool true
 com.apple.WindowManager StageManagerHideWidgets bool true
 com.apple.WindowManager EnableTiledWindowMargins bool false
+
+# apple's menu bar, for when the pointer brings it down: a background behind it, so it's dark whatever
+# is underneath, and the battery with its percentage
+NSGlobalDomain SLSMenuBarUseBlurredAppearance bool true
+-currentHost com.apple.controlcenter BatteryShowPercentage bool true
 
 # the dock: hidden until the pointer reaches it, small, no recent apps
 com.apple.dock autohide bool true
