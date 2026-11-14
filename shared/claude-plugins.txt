@@ -2,7 +2,7 @@
 superpowers@anthropic-plugin-directory
 context7@anthropic-plugin-directory
 skill-creator@anthropic-plugin-directory
-code-review-anthropics@anthropic-plugin-directory
+code-review@anthropic-plugin-directory
 code-simplifier@anthropic-plugin-directory
 claude-md-management@anthropic-plugin-directory
 feature-dev@anthropic-plugin-directory
