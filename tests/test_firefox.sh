@@ -21,7 +21,7 @@ policy "no password manager" '.PasswordManagerEnabled == false'
 policy "no saved addresses or cards" '.AutofillAddressEnabled == false and .AutofillCreditCardEnabled == false'
 policy "no experiments or promotions" '.DisableRemoteImprovements == true and .UserMessaging.FirefoxLabs == false
   and .UserMessaging.UrlbarInterventions == false and .UserMessaging.MoreFromMozilla == false'
-policy "global privacy control" '.Preferences["privacy.globalprivacycontrol.enabled"] == {Value: true, Status: "locked"}'
+policy "global privacy control" '.Preferences["privacy.globalprivacycontrol.enabled"] == {Value: true, Status: "locked", Type: "boolean"}'
 policy "other sites see only the site you came from" '.Preferences["network.http.referer.XOriginTrimmingPolicy"] == {Value: 2, Status: "default", Type: "number"}'
 policy "calls keep your local addresses to themselves" '.Preferences["media.peerconnection.ice.default_address_only"].Value == true'
 policy "lookalike names in their raw form" '.Preferences["network.IDN_show_punycode"].Value == true'
@@ -54,3 +54,8 @@ policy "safe browsing stays" '[.Preferences | keys[] | select(test("safebrowsing
 # every pref is one the Preferences policy takes: firefox drops any other without a word
 allowed='^(accessibility\.|alerts\.|app\.update\.|browser\.|datareporting\.policy\.|devtools\.|dom\.|extensions\.|geo\.|gfx\.|intl\.|layers\.|layout\.|media\.|network\.|pdfjs\.|places\.|pref\.|print\.|signon\.|spellchecker\.|ui\.|widget\.|privacy\.globalprivacycontrol\.enabled$|privacy\.fingerprintingProtection$)'
 eq "prefs the policy won't take" "" "$(jq -r '.policies.Preferences | keys[]' "$f" | grep -vE "$allowed" || true)"
+
+# every pref says its type: on macos the policies reach firefox as a plist, where true and false arrive as
+# 1 and 0, and firefox would take a pref with no Type for a number and leave the real one as it was
+eq "prefs with no Type, or the wrong one" "" "$(jq -r '.policies.Preferences | to_entries[]
+  | select(.value.Type != (.value.Value | type)) | .key' "$f")"

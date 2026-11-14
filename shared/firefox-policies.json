@@ -81,15 +81,15 @@
       "Locked": false
     },
     "Preferences": {
-      "browser.newtabpage.pinned": { "Value": "[]", "Status": "default" },
-      "privacy.globalprivacycontrol.enabled": { "Value": true, "Status": "locked" },
+      "browser.newtabpage.pinned": { "Value": "[]", "Status": "default", "Type": "string" },
+      "privacy.globalprivacycontrol.enabled": { "Value": true, "Status": "locked", "Type": "boolean" },
       "network.http.referer.XOriginTrimmingPolicy": { "Value": 2, "Status": "default", "Type": "number" },
-      "media.peerconnection.ice.default_address_only": { "Value": true, "Status": "default" },
-      "network.IDN_show_punycode": { "Value": true, "Status": "locked" },
-      "pdfjs.enableScripting": { "Value": false, "Status": "default" },
-      "network.prefetch-next": { "Value": false, "Status": "default" },
-      "browser.urlbar.speculativeConnect.enabled": { "Value": false, "Status": "default" },
-      "browser.places.speculativeConnect.enabled": { "Value": false, "Status": "default" }
+      "media.peerconnection.ice.default_address_only": { "Value": true, "Status": "default", "Type": "boolean" },
+      "network.IDN_show_punycode": { "Value": true, "Status": "locked", "Type": "boolean" },
+      "pdfjs.enableScripting": { "Value": false, "Status": "default", "Type": "boolean" },
+      "network.prefetch-next": { "Value": false, "Status": "default", "Type": "boolean" },
+      "browser.urlbar.speculativeConnect.enabled": { "Value": false, "Status": "default", "Type": "boolean" },
+      "browser.places.speculativeConnect.enabled": { "Value": false, "Status": "default", "Type": "boolean" }
     },
     "AIControls": {
       "Default": { "Value": "blocked", "Locked": false },
