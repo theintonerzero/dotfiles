@@ -1,0 +1,30 @@
+# apt packages, one a line, from ubuntu's own archive
+
+# what the dotfiles' own scripts run on
+stow
+jq
+curl
+ca-certificates
+unzip
+
+# shell
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+eza
+bat
+fd-find
+ripgrep
+zoxide
+
+# terminal
+tmux
+btop
+
+# git
+git
+git-delta
+
+# a c compiler, for the parsers neovim's treesitter builds
+gcc
+libc6-dev

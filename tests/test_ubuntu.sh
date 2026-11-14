@@ -40,3 +40,90 @@ out=$( (load ubuntu && not_root 0) 2>&1) && fail "as root: install stops"
 [[ $out == *"not as root"* ]] || fail "as root: says why: $out"
 eq "as root: nothing run" "" "$(calls)"
 ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubuntu; not_root 1000"
+
+# apt: only what's missing is asked for, in one call, with no recommended extras
+(
+  load ubuntu
+  stub dpkg-query '[[ ${*: -1} == zsh ]] && printf installed; exit 0'
+  apt_packages >/dev/null
+  eq "one install" 1 "$(calls | grep -c 'apt-get install')"
+  called "sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends"
+  line=$(calls | grep 'apt-get install')
+  while read -r pkg; do
+    if [[ $pkg == zsh ]]; then
+      [[ " $line " != *" zsh "* ]] || fail "zsh is there already, so it isn't asked for"
+    else
+      [[ " $line " == *" $pkg "* ]] || fail "$pkg is asked for"
+    fi
+  done < <(list "$REPO/ubuntu/packages.txt")
+)
+(
+  load ubuntu
+  stub dpkg-query 'printf installed'
+  apt_packages
+  not_called "apt-get install"
+)
+(
+  load ubuntu
+  while read -r pkg; do [[ $pkg =~ ^[a-z0-9][a-z0-9.+-]+$ ]] || fail "packages.txt: $pkg isn't a package name"; done < <(list "$REPO/ubuntu/packages.txt")
+  ok "a compiler, for neovim's parsers" grep -qx gcc <(list "$REPO/ubuntu/packages.txt")
+)
+# the package lists are fetched when there are none or they're a day old, and always for an update
+(
+  load ubuntu
+  APT_LISTS=$T/lists
+  mkdir -p "$APT_LISTS"
+  apt_refresh >/dev/null
+  called "sudo apt-get update"
+  touch "$APT_LISTS/archive_dists_noble_InRelease"
+  : >"$T/calls"
+  apt_refresh
+  not_called "apt-get update"
+  touch -t 202001010000 "$APT_LISTS/archive_dists_noble_InRelease"
+  apt_refresh >/dev/null
+  called "sudo apt-get update"
+  touch "$APT_LISTS/archive_dists_noble_InRelease"
+  : >"$T/calls"
+  apt_refresh force >/dev/null
+  called "sudo apt-get update"
+)
+# an upgrade that needs a restart says so, and restarts nothing
+(
+  load ubuntu
+  REBOOT_FLAG=$T/reboot-required
+  apt_upgrade >/dev/null
+  called "apt-get upgrade -y"
+  [[ ${#TODOS[@]} == 0 ]] || fail "no restart needed: no todo"
+  touch "$REBOOT_FLAG"
+  apt_upgrade >/dev/null
+  [[ ${TODOS[*]} == *"restart the computer"* ]] || fail "a restart is needed: a todo"
+  not_called "reboot"
+)
+# debian's names for bat and fd, under the names everything else uses
+(
+  load ubuntu
+  fresh_home
+  stub batcat
+  stub fdfind
+  PATH=$T/bin:/usr/bin:/bin
+  debian_names
+  eq "bat" "$T/bin/batcat" "$(readlink "$HOME/.local/bin/bat")"
+  eq "fd" "$T/bin/fdfind" "$(readlink "$HOME/.local/bin/fd")"
+  eq "again: nothing said" "" "$(debian_names)"
+  rm -f "$T/bin/batcat" "$T/bin/fdfind" "$HOME/.local/bin/bat" "$HOME/.local/bin/fd"
+  debian_names
+  no "no batcat: no bat link" test -L "$HOME/.local/bin/bat"
+)
+# ghostty's terminal description, where the system doesn't know it
+(
+  load ubuntu
+  stub infocmp 'exit 1'
+  stub tic
+  terminfo_install >/dev/null
+  called "tic -x -o $HOME/.terminfo $REPO/ubuntu/xterm-ghostty.terminfo"
+  stub infocmp 'exit 0'
+  : >"$T/calls"
+  terminfo_install
+  not_called "tic"
+)
+ok "the terminfo source describes xterm-ghostty" grep -q '^xterm-ghostty|' "$REPO/ubuntu/xterm-ghostty.terminfo"
