@@ -73,7 +73,8 @@ system_appstore() {
   have mas || return 0
   installed=$(mas list 2>/dev/null </dev/null) || installed=""
   while read -r id name; do
-    grep -q "^$id " <<<"$installed" && continue
+    # mas lines its ids up on the right, so a shorter one has spaces before it
+    grep -qE "^[[:space:]]*${id}[[:space:]]" <<<"$installed" && continue
     say "installing $name from the app store"
     mas install "$id" </dev/null || todo "sign in to the App Store, then run dot install again for $name"
   done < <(list "$DOTFILES/macos/appstore.txt")

@@ -223,22 +223,25 @@ prune_links() {
 
 # link_home: links every package of every root into ~, moving anything in the way to <file>.bak first
 link_home() {
-  local root pkg rel target bak
+  local root pkg rel target bak foreign=""
   local -a roots pkgs
   mapfile -t roots < <(home_roots)
   prune_links
   # a folder linked in from elsewhere, like another dotfiles setup, would have its files moved aside in
-  # that other tree before stow refuses it, so stop before anything moves
+  # that other tree before stow refuses it, so stop before anything moves, and name every such folder
   for root in "${roots[@]}"; do
     while IFS= read -r pkg; do
       while IFS= read -r rel; do
         target=$HOME/$rel
-        if [[ -L $target && $(readlink -f "$target") != "$DOTFILES"/* ]]; then
-          die "$target is a link to $(readlink -f "$target"): move it aside, then run dot install again"
+        if [[ -L $target && $(readlink -f "$target") != "$DOTFILES"/* && $foreign != *"  $target is "* ]]; then
+          foreign+="  $target is a link to $(readlink -f "$target")"$'\n'
         fi
       done < <(package_dirs "$root" "$pkg")
     done < <(packages "$root")
   done
+  if [[ -n $foreign ]]; then
+    die "these folders are links to somewhere else:"$'\n'"${foreign}move them aside, then run dot install again"
+  fi
   for root in "${roots[@]}"; do
     while IFS= read -r pkg; do
       while IFS= read -r rel; do

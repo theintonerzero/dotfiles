@@ -53,7 +53,8 @@ source "$(dirname "$0")/helpers.sh"
 # xcode already there, from the app store: not installed again
 (
   load macos
-  stub mas '[[ $1 == list ]] && echo "497799835  Xcode  (27.0)"; exit 0'
+  # mas lines its ids up on the right, so a shorter one has a space before it
+  stub mas '[[ $1 == list ]] && printf "%s\n" "1631624924  Final Cut Pro   (12.4)" " 497799835  Xcode           (27.2)"; exit 0'
   system_appstore
   not_called "mas install"
 )

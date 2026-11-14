@@ -57,3 +57,14 @@ mkdir -p "$HOME/.config/git"
 ln -s /nowhere/config "$HOME/.config/git/config"
 (load macos && link_home) >/dev/null
 ok "foreign dead link kept as .bak" test -L "$HOME/.config/git/config.bak"
+
+# folders linked in from another dotfiles setup: all of them named at once, and nothing moved
+fresh_home
+mkdir -p "$HOME/.config/git" "$T/elsewhere/ghostty" "$T/elsewhere/nvim"
+echo mine >"$HOME/.config/git/config"
+ln -s "$T/elsewhere/ghostty" "$HOME/.config/ghostty"
+ln -s "$T/elsewhere/nvim" "$HOME/.config/nvim"
+out=$( (load macos && link_home) 2>&1) && fail "folders linked from elsewhere: install stops"
+[[ $out == *"$HOME/.config/ghostty"* && $out == *"$HOME/.config/nvim"* ]] || fail "both folders named: $out"
+eq "nothing moved before it stops" mine "$(cat "$HOME/.config/git/config")"
+eq "no backups made" "" "$(find "$HOME" -name '*.bak*')"
