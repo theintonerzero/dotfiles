@@ -73,8 +73,10 @@ lib() {
   PATH=$T/bin:$PATH
 }
 
-# load <os>: lib.sh and that os's steps, as install.sh has them
+# load <os>: lib.sh and that os's steps, as install.sh has them, and the calls noted so far forgotten, so
+# each case that starts with it sees only its own
 load() {
+  : >"$T/calls"
   export DOT_OS=$1
   lib
   load_steps "$1"

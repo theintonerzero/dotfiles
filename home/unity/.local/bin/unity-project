@@ -3,11 +3,14 @@
 # ./game) for claude and neovim:
 # unity's pipeline package, which the unity cli and claude's unity mcp server drive the editor through,
 # the neovim ide package, which opens scripts in neovim and writes the .sln its c# server reads, and
-# vulkan alone for its editor and linux builds
+# vulkan alone for its linux editor and builds; on macos unity opens scripts in vscodium, and the
+# project still gets both, so it's ready for linux too
 set -euo pipefail
 dotfiles=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../../..
 # shellcheck source-path=SCRIPTDIR source=../../../../lib.sh
 source "$dotfiles/lib.sh"
+# shellcheck source-path=SCRIPTDIR source=../../../../shared/platform.sh
+source "$dotfiles/shared/platform.sh"
 # shellcheck source-path=SCRIPTDIR source=../../../../shared/unity.sh
 source "$dotfiles/shared/unity.sh"
 
@@ -51,9 +54,9 @@ else
   fi
 fi
 
-# the editor and linux builds on vulkan; neovim in the default terminal, unless unity is open, which
-# leaves a todo
+# the linux editor and builds on vulkan; unity's script editor as this os has it (neovim in the default
+# terminal, or vscodium on macos), unless unity is open, which leaves a todo
 unity_vulkan "$project"
-unity_neovim
+unity_editor
 todo_print
 echo "Open it with: unity open \"$project\""

@@ -1,13 +1,35 @@
 # shared/unity.sh: the unity cli, which drives unity editors and the hub from the shell and serves
-# claude's unity mcp server, and the terminal unity's neovim package opens neovim in; the hub comes from
-# its dnf repo, and unity-project sets up a project
+# claude's unity mcp server, and unity's script editor: neovim, in the terminal unity's neovim package
+# opens it in, on linux, and vscodium on macos, where that package isn't finished; the hub comes from
+# its dnf repo or homebrew's cask, and unity-project sets up a project
 # shellcheck shell=bash
 
 unity_install() {
   unity_cli
   unity_analytics
-  unity_neovim
+  unity_editor
   unity_ready
+}
+
+# unity_editor: unity's script editor, as this os has it
+unity_editor() {
+  if [[ $(os_id) == macos ]]; then unity_vscodium; else unity_neovim; fi
+}
+
+# unity_vscodium: vscodium as unity's script editor on macos, where unity keeps its editor prefs in a
+# preferences domain; an editor you chose stays, and it waits for unity to be closed, as unity writes
+# the prefs it holds back when it quits
+unity_vscodium() {
+  local domain=com.unity3d.UnityEditor5.x app=$APPS/VSCodium.app current
+  [[ -d $app ]] || return 0
+  current=$(defaults read "$domain" kScriptsDefaultApp 2>/dev/null) || current=""
+  [[ -z $current ]] || return 0
+  if unity_running; then
+    todo "close Unity and run dot install again, so Unity opens scripts in VSCodium"
+    return 0
+  fi
+  say "setting unity to open scripts in vscodium"
+  defaults write "$domain" kScriptsDefaultApp -string "$app" || warn "couldn't set unity's script editor"
 }
 
 # unity_analytics: unity's usage analytics off; the cli and the hub share the choice, and the UNITY_NO_*
@@ -37,6 +59,17 @@ unity_ready() {
 # x-terminal-emulator, as uninstall removes x-terminal-emulator; only while unity is closed
 unity_uninstall() {
   local prefs=${XDG_DATA_HOME:-$HOME/.local/share}/unity3d/prefs json term app
+  if [[ $(os_id) == macos ]]; then
+    app=$(defaults read com.unity3d.UnityEditor5.x kScriptsDefaultApp 2>/dev/null) || app=""
+    [[ $app == "$APPS/VSCodium.app" ]] || return 0
+    if unity_running; then
+      warn "Unity is open, so it still opens scripts in VSCodium: close it and run dot uninstall again"
+      return 0
+    fi
+    say "giving unity its own script editor back"
+    defaults delete com.unity3d.UnityEditor5.x kScriptsDefaultApp || true
+    return 0
+  fi
   [[ -s $prefs ]] || return 0
   json=$(unity_pref NvimUnityConfigJson)
   term=$(jq -r '.TermLaunchCmd? // ""' 2>/dev/null <<<"$json") || term=""
@@ -63,12 +96,13 @@ unity_update() {
     unity_cli
   fi
   unity_analytics
-  unity_neovim
+  unity_editor
 }
 
 # unity_cli: the unity cli from unity's installer, in ~/.local/bin, when it isn't there; with SHELL=/bin/sh
 # the installer edits no shell config (zsh's is linked from here, and has ~/.local/bin on the path), and
-# UNITY_CLI_SKIP_SETUP leaves claude's skills to unity's plugin
+# UNITY_CLI_SKIP_SETUP leaves claude's skills to unity's plugin. on macos the installer puts it in
+# ~/.unity/bin, so ~/.local/bin/unity is a link to it there
 unity_cli() {
   local tmp
   [[ -x $HOME/.local/bin/unity ]] && return 0
@@ -80,6 +114,10 @@ unity_cli() {
     warn "couldn't download the unity cli's installer"
   fi
   rm -rf "$tmp"
+  if [[ ! -e $HOME/.local/bin/unity && -x $HOME/.unity/bin/unity ]]; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sfn "$HOME/.unity/bin/unity" "$HOME/.local/bin/unity"
+  fi
   [[ -x $HOME/.local/bin/unity ]] ||
     todo "the Unity CLI didn't install, so Claude has no Unity server yet: run dot install again"
 }
@@ -119,8 +157,8 @@ unity_pref_del() {
 }
 
 # unity_running: whether a unity editor is open; it names its process after its main thread, so it's
-# found by its path
-unity_running() { pgrep -f '/Editor/Unity( |$)' >/dev/null; }
+# found by its path, which on macos is inside Unity.app
+unity_running() { pgrep -f '(/Editor/Unity|/Unity\.app/Contents/MacOS/Unity)( |$)' >/dev/null; }
 
 # unity_neovim: neovim as unity's script editor, through unity's neovim package (com.walcht.ide.neovim,
 # which unity-project adds), which opens it through x-terminal-emulator, so in the default terminal, as
