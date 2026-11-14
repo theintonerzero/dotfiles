@@ -58,10 +58,11 @@ brew_bootstrap() {
   fi
 }
 
-# keep_sudo: asks for the sudo password once and keeps it fresh until the script ends
+# keep_sudo: asks for the sudo password once and keeps it fresh until the script ends. where sudo wants
+# no password nothing is asked: the newer sudo won't check one without a terminal to type it at
 keep_sudo() {
   ((EUID == 0)) && return 0
-  sudo -v || die "the system steps need sudo"
+  sudo -n true 2>/dev/null || sudo -v || die "the system steps need sudo"
   # its output goes nowhere, so a piped run ends when the script does
   (while kill -0 "$$" 2>/dev/null; do
     sudo -n true 2>/dev/null

@@ -511,3 +511,25 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   eq "update asks who you are first" refused "$(os_update 2>/dev/null | head -n 1)"
   eq "uninstall too" refused "$(os_uninstall 2>/dev/null | head -n 1)"
 )
+# sudo that asks for no password, as a cloud image's first user has: it isn't asked to check one, which
+# the newer sudo refuses to do where there's no terminal to type it at
+(
+  load ubuntu
+  stub sudo '[[ $1 == -n && $2 == true ]] && exit 0; exit 1'
+  (keep_sudo) 2>/dev/null || fail "sudo without a password: carries on"
+  not_called "sudo -v"
+)
+# sudo that wants a password is asked for it once
+(
+  load ubuntu
+  stub sudo '[[ $1 == -v ]] && exit 0; exit 1'
+  (keep_sudo) 2>/dev/null || fail "sudo with a password: carries on"
+  called "sudo -v"
+)
+# no sudo at all: it stops and says why
+(
+  load ubuntu
+  stub sudo 'exit 1'
+  out=$( (keep_sudo) 2>&1) && fail "no sudo: stops"
+  [[ $out == *"need sudo"* ]] || fail "no sudo: says why: $out"
+)
