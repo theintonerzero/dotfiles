@@ -117,6 +117,18 @@ All notable changes to this project are documented here. The format is based on
 - What Claude is told about the machine it's on is a file per OS, `~/.claude/machine.md`, which
   `CLAUDE.md` reads.
 
+- Firefox is hardened further, on Fedora and macOS alike: tracking protection on Strict, DNS over
+  HTTPS with the system's DNS to fall back on, DuckDuckGo as the default search engine, no search
+  suggestions, no prompts for notifications or your location (a site can still be allowed), the
+  Global Privacy Control signal, other sites told only the site you came from, no connections before
+  you click, lookalike domain names in their raw form, no scripts in PDFs, and no experiments from
+  Mozilla between updates. uBlock Origin also strips tracking parameters from links and hides cookie
+  banners; its lists are the policy's now, set again each time Firefox starts, so change them in
+  `shared/firefox-policies.json`. Firefox's password manager, and its saving of cards and addresses,
+  are off: logins already saved stay in the profile but can't be reached while it's off, so export
+  them from `about:logins` before running `dot install`. The last session, WebGL, DRM video, Safe
+  Browsing and Sync are as they were.
+
 ## [1.2.0] - 2026-10-31
 
 ### Added
