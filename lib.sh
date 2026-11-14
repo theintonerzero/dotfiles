@@ -3,6 +3,10 @@
 
 DOTFILES=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd -P)
 TODOS=()
+# the step files check this, to tell a lib.sh as new as they are from an older one an update still has
+# in memory (shared/platform.sh)
+# shellcheck disable=SC2034
+DOT_LIB=2
 # what the steps install is on PATH for the steps after them, in ~/.zshenv's order
 export PATH=$HOME/.local/bin:${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:${CARGO_HOME:-$HOME/.cargo}/bin:$PATH
 # the unity cli the steps run sends nothing home, even before you log in again for ~/.zshenv's settings
@@ -63,13 +67,18 @@ todo_print() {
   printf '  - %s\n' "${TODOS[@]}"
 }
 
-# os_id: fedora, ubuntu, macos or unknown
+# os_id: fedora, ubuntu, macos or unknown; DOT_OS, which the tests set, stands in for the real one
 os_id() {
   local id=""
+  if [[ -n ${DOT_OS:-} ]]; then
+    echo "$DOT_OS"
+    return
+  fi
   if [[ $(uname -s) == Darwin ]]; then
     echo macos
     return
   fi
+  # shellcheck source=/dev/null
   if [[ -r /etc/os-release ]]; then id=$(. /etc/os-release && echo "${ID:-}"); fi
   case $id in
     fedora | ubuntu) echo "$id" ;;
@@ -122,14 +131,34 @@ packages() {
   for d in "$DOTFILES"/home/*/; do basename "$d"; done
 }
 
-# package_files <pkg>: every file a package links, relative to home
+# package_files <root> <pkg>: every file a package links, relative to home
 package_files() {
-  (cd "$DOTFILES/home/$1" && find . \( -type f -o -type l \) -printf '%P\n')
+  (cd "$1/$2" && find . \( -type f -o -type l \) | sed 's|^\./||')
 }
 
-# package_dirs <pkg>: every folder a package's files sit in, relative to home
+# package_dirs <root> <pkg>: every folder a package's files sit in, relative to home
 package_dirs() {
-  (cd "$DOTFILES/home/$1" && find . -mindepth 1 -type d -printf '%P\n')
+  (cd "$1/$2" && find . -mindepth 1 -type d | sed 's|^\./||')
+}
+
+# link_dest <link>: the path a link names, made absolute and with its .. folded, there or not
+link_dest() {
+  local text dir part out=""
+  local -a parts
+  text=$(readlink "$1") || return 1
+  if [[ $text != /* ]]; then
+    dir=$(cd "$(dirname "$1")" && pwd -P) || return 1
+    text=$dir/$text
+  fi
+  IFS=/ read -ra parts <<<"$text"
+  for part in "${parts[@]}"; do
+    case $part in
+      "" | .) ;;
+      ..) out=${out%/*} ;;
+      *) out+=/$part ;;
+    esac
+  done
+  printf '%s\n' "${out:-/}"
 }
 
 # link_home: links every package into ~, moving anything in the way to <file>.bak first
@@ -145,7 +174,7 @@ link_home() {
       if [[ -L $target && $(readlink -f "$target") != "$DOTFILES"/* ]]; then
         die "$target is a link to $(readlink -f "$target"): move it aside, then run dot install again"
       fi
-    done < <(package_dirs "$pkg")
+    done < <(package_dirs "$DOTFILES/home" "$pkg")
   done
   for pkg in "${pkgs[@]}"; do
     while IFS= read -r rel; do
@@ -157,7 +186,7 @@ link_home() {
         say "moving $target aside to $bak"
         mv "$target" "$bak"
       fi
-    done < <(package_files "$pkg")
+    done < <(package_files "$DOTFILES/home" "$pkg")
   done
   stow --no-folding --restow -d "$DOTFILES/home" -t "$HOME" "${pkgs[@]}"
   mkdir -p "$HOME/.local/bin"
@@ -184,7 +213,7 @@ unlink_home() {
     while IFS= read -r rel; do
       target=$HOME/$rel
       if [[ -e $target.bak && ! -e $target && ! -L $target ]]; then mv "$target.bak" "$target"; fi
-    done < <(package_files "$pkg")
+    done < <(package_files "$DOTFILES/home" "$pkg")
   done
   if [[ -L $HOME/.local/bin/dot ]]; then rm -f "$HOME/.local/bin/dot"; fi
 }
