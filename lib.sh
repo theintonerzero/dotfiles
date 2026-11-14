@@ -7,8 +7,15 @@ TODOS=()
 # in memory (shared/platform.sh)
 # shellcheck disable=SC2034
 DOT_LIB=2
-# what the steps install is on PATH for the steps after them, in ~/.zshenv's order
-export PATH=$HOME/.local/bin:${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:${CARGO_HOME:-$HOME/.cargo}/bin:$PATH
+# what the steps install is on PATH for the steps after them, in ~/.zshenv's order; on macos homebrew's
+# programs come next, and homebrew sends nothing home, gives no tips and asks nothing mid-run
+homebrew=""
+if [[ $(uname -s) == Darwin ]]; then
+  homebrew=/opt/homebrew/bin:/opt/homebrew/sbin:
+  export HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_ENV_HINTS=1 HOMEBREW_NO_ASK=1
+fi
+export PATH=$HOME/.local/bin:${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:${CARGO_HOME:-$HOME/.cargo}/bin:$homebrew$PATH
+unset homebrew
 # the unity cli the steps run sends nothing home, even before you log in again for ~/.zshenv's settings
 export UNITY_NO_CLI_INVOKED_TELEMETRY=1 UNITY_NO_CRASH_REPORT=1 UNITY_NO_AGENT_HINTS=1 UNITY_NO_UPDATE_CHECK=1
 
@@ -23,6 +30,31 @@ have() { command -v "$1" >/dev/null 2>&1; }
 # as_root <cmd...>: runs a command as root, through sudo unless we already are root
 as_root() {
   if ((EUID == 0)); then "$@"; else sudo "$@"; fi
+}
+
+# need_bash "$@": these scripts need bash 4 or newer; macos has 3.2, so there a script hands itself to
+# homebrew's bash, after installing homebrew and that bash where they're missing
+need_bash() {
+  if ((BASH_VERSINFO[0] >= 4)); then return 0; fi
+  [[ $(os_id) == macos ]] || die "this needs bash 4 or newer, and this is bash $BASH_VERSION"
+  brew_bootstrap
+  exec "${DOT_BREW_BASH:-/opt/homebrew/bin/bash}" "$0" "$@"
+}
+
+# brew_bootstrap: homebrew, which brings apple's command line tools with it, and homebrew's bash; this
+# runs in bash 3.2, so it's written for it
+brew_bootstrap() {
+  local brew=/opt/homebrew/bin/brew
+  if [[ ! -x $brew ]]; then
+    say "installing homebrew"
+    sudo -v || die "installing homebrew needs sudo"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" ||
+      die "homebrew's installer failed"
+  fi
+  if [[ ! -x /opt/homebrew/bin/bash ]]; then
+    say "installing a newer bash"
+    "$brew" install bash || die "couldn't install bash"
+  fi
 }
 
 # keep_sudo: asks for the sudo password once and keeps it fresh until the script ends
@@ -230,14 +262,21 @@ link_home() {
   ln -sfn "$DOTFILES/bin/dot" "$HOME/.local/bin/dot"
 }
 
-# pull_dotfiles: the repo's new commits, when it has an upstream to pull from
+# pull_dotfiles "$@": the repo's new commits, when it has an upstream to pull from; the scripts running
+# are still the ones from before the pull, so after new commits the script starts again as the new one
 pull_dotfiles() {
+  local before
   if ! git -C "$DOTFILES" rev-parse --abbrev-ref '@{upstream}' >/dev/null 2>&1; then
     warn "the dotfiles have no upstream to pull from, so they stay as they are"
     return 0
   fi
+  before=$(git -C "$DOTFILES" rev-parse HEAD)
   say "pulling the dotfiles"
   git -C "$DOTFILES" pull --ff-only
+  if [[ $(git -C "$DOTFILES" rev-parse HEAD) != "$before" ]]; then
+    say "starting again with the new dotfiles"
+    exec "$0" "$@"
+  fi
 }
 
 # unlink_home: removes the links and puts the .bak files back

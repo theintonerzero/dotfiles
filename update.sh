@@ -2,24 +2,13 @@
 # update.sh: pulls the dotfiles, then updates everything they installed
 set -euo pipefail
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
+need_bash "$@"
 
-[[ $(os_id) == fedora ]] || die "v1.2.0 supports Fedora only"
-pull_dotfiles
-load_steps fedora
+os=$(os_id)
+[[ -f $DOTFILES/$os/steps.sh ]] || die "these dotfiles support Fedora and macOS"
+pull_dotfiles "$@"
+load_steps "$os"
 
-keep_sudo
-system_update
-apps_update
-link_home
-shell_update
-toolchains_update
-neovim_update
-vscodium_update
-unity_update
-claude_update
-godot_update
-gnome_update
-gaming_update
-llm_update
+os_update
 say "done"
 todo_print

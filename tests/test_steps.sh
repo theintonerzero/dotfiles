@@ -1,0 +1,53 @@
+# tests/test_steps.sh: the order each os runs its steps in, and the entry scripts' start
+# shellcheck shell=bash
+# shellcheck disable=SC2016 # a stub's body is expanded when the stub runs
+# shellcheck source=helpers.sh
+source "$(dirname "$0")/helpers.sh"
+
+# order <os> <function>: the steps the function runs, in order, each step standing in for itself by name
+order() (
+  load "$1"
+  for f in $(declare -F | awk '{ print $3 }' |
+    grep -E '_(install|update|uninstall)$|^(ask_questions|keep_sudo|set_hostname|link_home|unlink_home|system_first|gui_env)$'); do
+    [[ $f == os_* ]] || eval "$f() { echo $f; }"
+  done
+  "$2" | grep -E '^[a-z_]+$' | tr '\n' ' '
+)
+
+eq "fedora install" "ask_questions keep_sudo set_hostname system_install apps_install link_home shell_install git_install toolchains_install neovim_install vscodium_install godot_install unity_install claude_install gnome_install gaming_install llm_install " "$(order fedora os_install)"
+eq "fedora update" "keep_sudo system_update apps_update link_home shell_update toolchains_update neovim_update vscodium_update unity_update claude_update godot_update gnome_update gaming_update llm_update " "$(order fedora os_update)"
+eq "fedora uninstall" "unlink_home gaming_uninstall apps_uninstall neovim_uninstall godot_uninstall unity_uninstall " "$(order fedora os_uninstall)"
+ok "fedora's note survives" grep -q "the packages, Flatpaks and repos install added" <<<"$(load fedora && os_uninstall_notes)"
+
+for f in lib.sh install.sh update.sh uninstall.sh bin/dot; do ok "bash 3.2 parses $f" /bin/bash -n "$REPO/$f"; done
+for f in install.sh update.sh uninstall.sh; do
+  ok "$f starts by finding a new enough bash" grep -qx 'need_bash "$@"' "$REPO/$f"
+  no "$f names no os" grep -qE 'fedora|macos' <(grep -v '^#' "$REPO/$f" | grep -v 'die ')
+done
+
+# on a mac with only bash 3.2, a script hands itself to homebrew's bash
+if [[ $(/bin/bash -c 'echo ${BASH_VERSINFO[0]}') -lt 4 ]]; then
+  printf '#!/bin/sh\necho "re-exec $*"\n' >"$T/newbash"
+  chmod +x "$T/newbash"
+  out=$(DOT_OS=macos DOT_BREW_BASH="$T/newbash" /bin/bash -c "source '$REPO/lib.sh'; brew_bootstrap() { :; }; need_bash a b" script 2>&1)
+  eq "re-exec" "re-exec script a b" "$out"
+fi
+lib
+ok "a new enough bash carries on" need_bash
+
+# an update that pulled new commits starts again, as the new scripts
+cat >"$T/up.sh" <<EOF
+#!/usr/bin/env bash
+source "$REPO/lib.sh"
+PATH=$T/bin:\$PATH
+echo run >>"$T/runs"
+pull_dotfiles
+echo finished
+EOF
+chmod +x "$T/up.sh"
+stub git 'if [[ "$*" == *"rev-parse HEAD" ]]; then
+  n=$(cat "$T/n" 2>/dev/null || echo 0); echo $((n + 1)) >"$T/n"
+  if ((n < 1)); then echo before; else echo after; fi
+fi'
+eq "update finishes" finished "$("$T/up.sh" | tail -n 1)"
+eq "after starting again once" 2 "$(grep -c run "$T/runs")"
