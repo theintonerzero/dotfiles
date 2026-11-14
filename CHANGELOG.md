@@ -116,6 +116,16 @@ All notable changes to this project are documented here. The format is based on
   game's Steamworks can be tested there. Proton, Gamescope and GameMode stay Fedora's.
 - `tests/run.sh`, which runs the steps in a temp home folder with stand-ins for the system's
   commands, so it changes nothing on the machine it runs on.
+- Ubuntu Server support, for 24.04 and 26.04 on ARM and Intel: `dot install`, `dot update` and
+  `dot uninstall` work there, from an `ubuntu/` folder. A server gets the shell, git, tmux and
+  Neovim, and nothing else: no toolchains, apps or Claude Code, no computer name and no GitHub
+  sign-in, so git pulls there and doesn't commit. It links only the shared config
+  `ubuntu/home.txt` names. Each tool in `ubuntu/tools.txt` is Ubuntu's own package where that's new
+  enough and the project's latest release otherwise, in `~/.local/opt`, checked against the
+  checksum GitHub publishes; no other package source is added. Neovim is the same config with the
+  packs for Lua, shell, JSON, YAML, TOML and Markdown and only the tools Mason has as ready-made
+  programs, on a machine whose `lua/machine.lua` says it's a server, which only Ubuntu links.
+  Install won't run as root. `tests/container.sh` runs all of it for real in a Podman container.
 
 ### Changed
 
