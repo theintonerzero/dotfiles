@@ -20,8 +20,18 @@ tools_install() {
         continue
         ;;
     esac
-    tool_release "$cmd" "$repo" "$re" || todo "$cmd didn't install; dot install tries again"
+    tool_release "$cmd" "$repo" "$re" || tool_failed "$cmd"
   done < <(list "$TOOLS")
+}
+
+# tool_failed <cmd>: what's left for you when a release didn't go in: nothing to worry about where an
+# older copy still runs
+tool_failed() {
+  if [[ -x $HOME/.local/bin/$1 ]]; then
+    todo "$1 couldn't be updated, so the one you have stays; dot update tries again"
+  else
+    todo "$1 didn't install; dot install tries again"
+  fi
 }
 
 # dot update does the same: apt's are upgraded with the rest, and a release whose newest tag has changed
@@ -50,7 +60,7 @@ version_ge() {
 # apt_candidate <pkg>: the version apt would install, or nothing when it has no such package
 apt_candidate() {
   local v
-  v=$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ { print $2; exit }') || v=""
+  v=$(LC_ALL=C apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ && !seen { print $2; seen = 1 }') || v=""
   if [[ $v != "(none)" ]]; then echo "$v"; fi
 }
 
@@ -60,7 +70,7 @@ tool_apt() {
   local cmd=$1 pkg=$2 opt=$HOME/.local/opt/$1 link=$HOME/.local/bin/$1
   if [[ $(dpkg-query -W -f='${db:Status-Status}' "$pkg" 2>/dev/null) != installed ]]; then
     say "installing $pkg"
-    as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$pkg" || return 1
+    as_root env DEBIAN_FRONTEND=noninteractive apt-get "${APT_WAIT[@]}" install -y --no-install-recommends "$pkg" </dev/null || return 1
   fi
   if [[ -L $link && $(readlink "$link") == "$opt"/* ]]; then rm -f "$link"; fi
   if [[ -d $opt ]]; then
@@ -100,8 +110,12 @@ tool_release() {
   fi
   say "installing $cmd $tag"
   mkdir -p "$opt" "$HOME/.local/bin"
-  tmp=$(mktemp -d "$opt/.$cmd.XXXXXX")
-  mkdir "$tmp/new"
+  # what a run that was cut short left behind
+  rm -rf "$opt/.$cmd."*
+  if ! { tmp=$(mktemp -d "$opt/.$cmd.XXXXXX") && mkdir "$tmp/new"; }; then
+    warn "couldn't make room for $cmd in $opt"
+    return 1
+  fi
   if ! fetch "$url" "$tmp/$name"; then
     warn "couldn't download $cmd"
     status=1
@@ -112,7 +126,8 @@ tool_release() {
     warn "couldn't unpack $cmd"
     status=1
   else
-    bin=$(cd "$tmp/new" && find . -type f -name "$cmd" | head -n 1)
+    # the command is the file of that name in a bin folder, or else the one nearest the top
+    bin=$(cd "$tmp/new" && find . -type f -name "$cmd" | awk -F/ '{ print ($(NF - 1) == "bin" ? 0 : 1), NF, $0 }' | sort -n -k1,1 -k2,2 | head -n 1 | cut -d' ' -f3-)
     if [[ -z $bin ]]; then
       warn "$cmd's release has no $cmd in it"
       status=1
@@ -122,10 +137,18 @@ tool_release() {
     chmod +x "$tmp/new/$bin"
     echo "$tag" >"$tmp/new/.release"
     rm -rf "$dir.old"
-    if [[ -e $dir ]]; then mv "$dir" "$dir.old"; fi
-    mv "$tmp/new" "$dir"
-    rm -rf "$dir.old"
-    ln -sfn "$dir/${bin#./}" "$link"
+    if [[ -e $dir ]] && ! mv "$dir" "$dir.old"; then
+      warn "couldn't move the old $cmd aside"
+      status=1
+    elif ! mv "$tmp/new" "$dir"; then
+      # the old copy goes back where it was
+      if [[ -e $dir.old ]]; then mv "$dir.old" "$dir"; fi
+      warn "couldn't put the new $cmd in place, so the old one stays"
+      status=1
+    else
+      rm -rf "$dir.old"
+      ln -sfn "$dir/${bin#./}" "$link"
+    fi
   fi
   rm -rf "$tmp"
   return "$status"

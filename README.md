@@ -60,7 +60,7 @@ it's on the list of what's left, and running install again once you've signed in
 | Command | Does |
 | --- | --- |
 | `dot install` | Sets everything up |
-| `dot update` | Pulls the repo, then updates packages and apps, toolchains, Neovim, VSCodium, the Unity CLI and Claude Code. On Fedora it takes a snapshot of `/` first, and updates Flatpaks, LM Studio and Proton-GE too; on macOS, Homebrew's formulae and casks and the App Store's apps; on Ubuntu Server, apt's packages and the tools that came from their own releases, and it says when Ubuntu wants a restart but never restarts. Your settings stay as you left them |
+| `dot update` | Pulls the repo, then updates packages and apps, toolchains, Neovim, VSCodium, the Unity CLI and Claude Code. On Fedora it takes a snapshot of `/` first, and updates Flatpaks, LM Studio and Proton-GE too; on macOS, Homebrew's formulae and casks and the App Store's apps; on Ubuntu Server, apt's packages and the tools that came from their own releases, and it says when Ubuntu wants a restart but never restarts the computer, though services an upgrade touches are restarted. Your settings stay as you left them |
 | `dot uninstall` | Removes the links and restores the `.bak` files they replaced, gives Godot and Unity their own script editors back, and on macOS stops the bar and brings Apple's menu bar back |
 
 ## What you get

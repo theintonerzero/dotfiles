@@ -28,3 +28,5 @@ git-delta
 # a c compiler, for the parsers neovim's treesitter builds
 gcc
 libc6-dev
+# the pager git, delta and man use; a minimal image has none
+less

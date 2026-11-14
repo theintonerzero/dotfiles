@@ -13,6 +13,7 @@ os_install() {
 }
 
 os_update() {
+  not_root
   keep_sudo
   system_update
   tools_update
@@ -22,6 +23,7 @@ os_update() {
 }
 
 os_uninstall() {
+  not_root
   say "removing the links"
   unlink_home
   neovim_uninstall

@@ -4,6 +4,8 @@
 
 APT_LISTS=${APT_LISTS:-/var/lib/apt/lists}
 TERMINFO_SYSTEM=${TERMINFO_SYSTEM:-/etc/terminfo}
+# apt waits five minutes for its lock: as a server boots for the first time, its own updater holds it
+APT_WAIT=(-o DPkg::Lock::Timeout=300)
 REBOOT_FLAG=${REBOOT_FLAG:-/var/run/reboot-required}
 # when these dotfiles last fetched apt's lists; apt dates the lists themselves by when the archive
 # published them, which says nothing of how lately they were fetched
@@ -31,7 +33,7 @@ apt_refresh() {
     return 0
   fi
   say "fetching apt's package lists"
-  if quiet as_root apt-get update; then
+  if quiet as_root apt-get "${APT_WAIT[@]}" update; then
     mkdir -p "$(dirname "$APT_STAMP")" && touch "$APT_STAMP"
   else
     warn "apt couldn't fetch its package lists"
@@ -52,14 +54,14 @@ apt_packages() {
   mapfile -t missing < <(apt_missing)
   ((${#missing[@]})) || return 0
   say "installing ${#missing[@]} packages"
-  as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing[@]}"
+  as_root env DEBIAN_FRONTEND=noninteractive apt-get "${APT_WAIT[@]}" install -y --no-install-recommends "${missing[@]}"
 }
 
 # apt_upgrade: every package at its newest, restarting services without asking; a restart of the
 # computer is yours to do
 apt_upgrade() {
   say "upgrading apt's packages"
-  as_root env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get upgrade -y ||
+  as_root env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get "${APT_WAIT[@]}" upgrade -y ||
     warn "apt couldn't upgrade the packages"
   if [[ -e $REBOOT_FLAG ]]; then todo "restart the computer: Ubuntu says an update needs it"; fi
 }
@@ -74,6 +76,8 @@ debian_names() {
     found=$(command -v "$name" 2>/dev/null) || found=""
     [[ -z $found || $found == "$HOME/.local/bin/$name" ]] || continue
     [[ $(readlink "$HOME/.local/bin/$name" 2>/dev/null) == "$(command -v "$deb")" ]] && continue
+    # a file of your own by that name stays yours
+    [[ ! -e $HOME/.local/bin/$name || -L $HOME/.local/bin/$name ]] || continue
     mkdir -p "$HOME/.local/bin"
     ln -sfn "$(command -v "$deb")" "$HOME/.local/bin/$name"
   done

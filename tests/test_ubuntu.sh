@@ -46,9 +46,9 @@ ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubun
   load ubuntu
   stub dpkg-query '[[ ${*: -1} == zsh ]] && printf installed; exit 0'
   apt_packages >/dev/null
-  eq "one install" 1 "$(calls | grep -c 'apt-get install')"
-  called "sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends"
-  line=$(calls | grep 'apt-get install')
+  eq "one install" 1 "$(calls | grep -c 'apt-get -o DPkg::Lock::Timeout=300 install')"
+  called "sudo env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends"
+  line=$(calls | grep 'apt-get -o DPkg::Lock::Timeout=300 install')
   while read -r pkg; do
     if [[ $pkg == zsh ]]; then
       [[ " $line " != *" zsh "* ]] || fail "zsh is there already, so it isn't asked for"
@@ -61,7 +61,7 @@ ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubun
   load ubuntu
   stub dpkg-query 'printf installed'
   apt_packages
-  not_called "apt-get install"
+  not_called "apt-get -o DPkg::Lock::Timeout=300 install"
 )
 (
   load ubuntu
@@ -74,29 +74,29 @@ ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubun
   APT_LISTS=$T/lists APT_STAMP=$T/cache/apt-refreshed
   mkdir -p "$APT_LISTS"
   apt_refresh >/dev/null
-  called "sudo apt-get update"
+  called "sudo apt-get -o DPkg::Lock::Timeout=300 update"
   touch "$APT_LISTS/archive_dists_noble_main_binary-arm64_Packages"
   : >"$T/calls"
   apt_refresh
-  not_called "apt-get update"
+  not_called "apt-get -o DPkg::Lock::Timeout=300 update"
   # apt dates its lists by when the archive published them, not by when they were fetched: lists that
   # look old, fetched a moment ago, aren't fetched again
   touch -t 202001010000 "$APT_LISTS/archive_dists_noble_main_binary-arm64_Packages"
   apt_refresh
-  not_called "apt-get update"
+  not_called "apt-get -o DPkg::Lock::Timeout=300 update"
   # a day since the last fetch
   touch -t 202001010000 "$APT_STAMP"
   apt_refresh >/dev/null
-  called "sudo apt-get update"
+  called "sudo apt-get -o DPkg::Lock::Timeout=300 update"
   # fetched lately, but the lists are gone, as an image is shipped
   rm -f "$APT_LISTS"/*
   : >"$T/calls"
   apt_refresh >/dev/null
-  called "sudo apt-get update"
+  called "sudo apt-get -o DPkg::Lock::Timeout=300 update"
   touch "$APT_LISTS/archive_dists_noble_main_binary-arm64_Packages"
   : >"$T/calls"
   apt_refresh force >/dev/null
-  called "sudo apt-get update"
+  called "sudo apt-get -o DPkg::Lock::Timeout=300 update"
 )
 # a fetch that failed isn't remembered as one
 (
@@ -113,7 +113,7 @@ ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubun
   load ubuntu
   REBOOT_FLAG=$T/reboot-required
   apt_upgrade >/dev/null
-  called "apt-get upgrade -y"
+  called "apt-get -o DPkg::Lock::Timeout=300 upgrade -y"
   [[ ${#TODOS[@]} == 0 ]] || fail "no restart needed: no todo"
   touch "$REBOOT_FLAG"
   apt_upgrade >/dev/null
@@ -227,7 +227,7 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   stub dpkg-query 'exit 1'
   stub curl 'exit 1'
   one_tool "$NVIM" >/dev/null
-  called "apt-get install -y --no-install-recommends neovim"
+  called "apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends neovim"
   not_called "curl"
   [[ ${#TODOS[@]} == 0 ]] || fail "apt's neovim: no todo"
 )
@@ -240,7 +240,7 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   nvim_tar 0.12.6
   release v0.12.6 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
   one_tool "$NVIM" >/dev/null
-  not_called "apt-get install"
+  not_called "apt-get -o DPkg::Lock::Timeout=300 install"
   eq "runs" "NVIM 0.12.6" "$("$HOME/.local/bin/nvim")"
   [[ $(readlink -f "$HOME/.local/bin/nvim") == "$(readlink -f "$HOME/.local/opt/nvim")"/* ]] || fail "the link points into ~/.local/opt/nvim"
   ok "the rest of the release came too" test -d "$HOME/.local/opt/nvim/nvim-linux-arm64/share/nvim"
@@ -261,7 +261,7 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   stub dpkg-query 'exit 1'
   : >"$T/calls"
   one_tool "$NVIM" >/dev/null
-  called "apt-get install -y --no-install-recommends neovim"
+  called "apt-get -o DPkg::Lock::Timeout=300 install -y --no-install-recommends neovim"
   no "release copy gone" test -e "$HOME/.local/opt/nvim"
   no "its link gone" test -L "$HOME/.local/bin/nvim"
 )
@@ -280,7 +280,8 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   one_tool "$NVIM" >/dev/null 2>&1
   eq "a bad checksum: the old one still runs" "NVIM 0.12.6" "$("$HOME/.local/bin/nvim")"
   eq "a bad checksum: its tag stays" v0.12.6 "$(cat "$HOME/.local/opt/nvim/.release")"
-  [[ ${TODOS[*]} == *"nvim didn't install"* ]] || fail "a bad checksum: a todo"
+  [[ ${TODOS[*]} == *"nvim couldn't be updated"* ]] || fail "a bad checksum: a todo that says the old one stays: ${TODOS[*]}"
+  [[ ${TODOS[*]} != *"didn't install"* ]] || fail "a bad checksum: it isn't called missing"
   eq "a bad checksum: nothing left beside it" "nvim" "$(entries "$HOME/.local/opt")"
 )
 (
@@ -410,4 +411,103 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
 (
   load ubuntu
   eq "tree-sitter's floor" 0.26.1 "$(list "$REPO/ubuntu/tools.txt" | awk '$1 == "tree-sitter" { print $3 }')"
+)
+
+# --- a first run on a fresh cloud server ---
+
+# as a server boots for the first time its own updater holds apt's lock; every apt call waits for it
+(
+  load ubuntu
+  fresh_home
+  APT_LISTS=$T/lists9 APT_STAMP=$T/cache9/stamp
+  stub dpkg-query 'exit 1'
+  stub apt-cache 'echo "  Candidate: 0.11.6-1"'
+  apt_refresh >/dev/null
+  apt_packages >/dev/null
+  apt_upgrade >/dev/null
+  tool_apt nvim neovim >/dev/null
+  eq "every apt-get waits for the lock" "$(calls | grep -c 'apt-get ')" "$(calls | grep -c 'apt-get -o DPkg::Lock::Timeout=300 ')"
+  ok "and there were four of them" test "$(calls | grep -c 'apt-get ')" -eq 4
+)
+# the pager git and delta use isn't in a minimal image
+(
+  load ubuntu
+  ok "less is one of the packages" grep -qx less <(list "$REPO/ubuntu/packages.txt")
+)
+# apt answers in the machine's language; the version is read in plain c
+(
+  load ubuntu
+  stub apt-cache 'if [[ ${LC_ALL:-} == C ]]; then echo "  Candidate: 1.2.3-1"; else echo "  Installationskandidat: 1.2.3-1"; fi'
+  eq "apt's candidate, whatever the language" 1.2.3-1 "$(apt_candidate neovim)"
+)
+# apt reads nothing meant for the loop over the tools
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 9.9.9-1"'
+  stub dpkg-query 'exit 1'
+  stub sudo 'cat >/dev/null'
+  printf '%s\n' 'nvim neovim 0.11.0 a/b x y' 'fzf fzf 0.48.0 a/b x y' >"$T/tools.txt"
+  TOOLS=$T/tools.txt tools_install >/dev/null
+  called "--no-install-recommends neovim"
+  called "--no-install-recommends fzf"
+  stub sudo
+)
+# bat and fd: a file of your own by that name is left alone
+(
+  load ubuntu
+  fresh_home
+  stub batcat
+  mkdir -p "$HOME/.local/bin"
+  echo mine >"$HOME/.local/bin/bat"
+  PATH=$T/bin:/usr/bin:/bin debian_names
+  eq "your own bat stays" mine "$(cat "$HOME/.local/bin/bat")"
+  no "and isn't made a link" test -L "$HOME/.local/bin/bat"
+)
+# a release with another file named as the command: the one in bin is the command
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.9.5-6ubuntu2"'
+  nvim_tar 0.12.6
+  mkdir -p "$T/build/nvim-linux-arm64/aaa" && echo "not a program" >"$T/build/nvim-linux-arm64/aaa/nvim"
+  tar -czf "$T/nvim.tar.gz" -C "$T/build" nvim-linux-arm64
+  release v0.12.6 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  one_tool "$NVIM" >/dev/null
+  eq "the command is the one in bin" "NVIM 0.12.6" "$("$HOME/.local/bin/nvim")"
+)
+# the new copy can't be moved into place: the old one is back where it was and still runs, and a folder
+# left by a run that was cut short is cleared
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.9.5-6ubuntu2"'
+  nvim_tar 0.12.6
+  release v0.12.6 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  one_tool "$NVIM" >/dev/null
+  mkdir -p "$HOME/.local/opt/.nvim.stale1"
+  nvim_tar 0.13.0
+  release v0.13.0 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  stub mv 'if [[ "$*" == *"/new "* ]]; then exit 1; fi; exec /bin/mv "$@"'
+  # the shell remembers where it found mv a moment ago
+  hash -r
+  one_tool "$NVIM" >/dev/null 2>&1 || fail "a failed swap doesn't end the run"
+  rm -f "$T/bin/mv"
+  hash -r
+  eq "a failed swap: the old one still runs" "NVIM 0.12.6" "$("$HOME/.local/bin/nvim")"
+  eq "a failed swap: its tag stays" v0.12.6 "$(cat "$HOME/.local/opt/nvim/.release")"
+  eq "a failed swap: nothing left beside it" "nvim" "$(entries "$HOME/.local/opt")"
+  [[ ${TODOS[*]} == *"nvim couldn't be updated"* ]] || fail "a failed swap: a todo: ${TODOS[*]}"
+)
+# update and uninstall are for your own home too
+(
+  load ubuntu
+  for f in keep_sudo system_update tools_update link_home shell_update unlink_home neovim_uninstall with_neovim say; do eval "$f() { echo ran; }"; done
+  # shellcheck disable=SC2329  # the steps call it
+  not_root() { echo refused; return 1; }
+  eq "update asks who you are first" refused "$(os_update 2>/dev/null | head -n 1)"
+  eq "uninstall too" refused "$(os_uninstall 2>/dev/null | head -n 1)"
 )
