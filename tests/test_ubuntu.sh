@@ -127,3 +127,194 @@ ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubun
   not_called "tic"
 )
 ok "the terminfo source describes xterm-ghostty" grep -q '^xterm-ghostty|' "$REPO/ubuntu/xterm-ghostty.terminfo"
+
+# --- tools: from apt when apt's is new enough, else from the project's own release ---
+
+(
+  load ubuntu
+  ok "0.11.6-1 meets 0.11.0" version_ge 0.11.6-1 0.11.0
+  no "0.9.5-6ubuntu2 doesn't meet 0.11.0" version_ge 0.9.5-6ubuntu2 0.11.0
+  ok "an epoch is set aside" version_ge 1:2.53.0-1ubuntu1 2.40.0
+  ok "a +ds suffix is set aside" version_ge 0.57.0+ds1-1 0.40.0
+  no "0.44.1-1ubuntu0.3 doesn't meet 0.48.0" version_ge 0.44.1-1ubuntu0.3 0.48.0
+  ok "equal meets" version_ge 0.48.0-1 0.48.0
+  ok "0.10 is newer than 0.9" version_ge 0.10.0-1 0.9.9
+  stub uname 'echo aarch64'
+  eq "arm" arm64 "$(tool_arch)"
+  stub uname 'echo x86_64'
+  eq "intel" amd64 "$(tool_arch)"
+  stub uname 'echo riscv64'
+  eq "another" "" "$(tool_arch)"
+)
+# the table: six fields a line, each asset name anchored and a regex jq takes
+(
+  load ubuntu
+  eq "seven tools" "nvim tree-sitter fzf starship atuin lazygit sesh" "$(list "$REPO/ubuntu/tools.txt" | awk '{ print $1 }' | paste -sd' ' -)"
+  while read -r cmd pkg min repo arm amd rest; do
+    [[ -n $amd && -z $rest ]] || fail "tools.txt: $cmd has six fields"
+    [[ $repo == */* ]] || fail "tools.txt: $cmd names a github repo"
+    for re in "$arm" "$amd"; do
+      [[ $re == ^*$ ]] || fail "tools.txt: $cmd's asset name is anchored: $re"
+      jq -n --arg re "$re" '"x" | test($re)' >/dev/null || fail "tools.txt: $cmd's asset name is a regex: $re"
+    done
+    [[ $pkg == - || $min =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "tools.txt: $cmd's minimum is a version"
+  done < <(list "$REPO/ubuntu/tools.txt")
+  eq "arm and intel names differ" 0 "$(list "$REPO/ubuntu/tools.txt" | awk '$5 == $6 { n++ } END { print n + 0 }')"
+)
+
+# release <tag> <asset name> <file>: github's answer for a latest release with that one asset, and a curl
+# that gives it for an api address and the file for a download; gh isn't signed in
+release() {
+  jq -n --arg t "$1" --arg n "$2" --arg d "sha256:$(sha256sum "$3" | awk '{ print $1 }')" \
+    '{ tag_name: $t, assets: [{ name: $n, browser_download_url: ("https://example.invalid/" + $n), digest: $d }] }' >"$T/release.json"
+  cp "$3" "$T/asset"
+  stub gh 'exit 1'
+  stub curl 'out=""; url=""; while (($#)); do case $1 in -o) out=$2; shift ;; http*) url=$1 ;; esac; shift; done
+if [[ $url == https://api.github.com/* ]]; then cat "$T/release.json"; else cp "$T/asset" "$out"; fi'
+}
+# nvim_tar <version>: a tar.gz shaped like neovim's, whose nvim prints that version
+nvim_tar() {
+  rm -rf "$T/build"
+  mkdir -p "$T/build/nvim-linux-arm64/bin" "$T/build/nvim-linux-arm64/share/nvim"
+  printf '#!/bin/sh\necho "NVIM %s"\n' "$1" >"$T/build/nvim-linux-arm64/bin/nvim"
+  chmod +x "$T/build/nvim-linux-arm64/bin/nvim"
+  tar -czf "$T/nvim.tar.gz" -C "$T/build" nvim-linux-arm64
+}
+# entries <dir>: everything in a folder, hidden files too, on one line
+entries() { (cd "$1" && find . -mindepth 1 -maxdepth 1 | sed 's|^\./||' | sort | paste -sd' ' -); }
+# one_tool <line>: tools_install over a table of that one line
+one_tool() {
+  printf '%s\n' "$1" >"$T/tools.txt"
+  TOOLS=$T/tools.txt tools_install
+}
+NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x86_64\.tar\.gz$'
+
+# apt's neovim is new enough: apt installs it, and nothing is downloaded
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.11.6-1"'
+  stub dpkg-query 'exit 1'
+  stub curl 'exit 1'
+  one_tool "$NVIM" >/dev/null
+  called "apt-get install -y --no-install-recommends neovim"
+  not_called "curl"
+  [[ ${#TODOS[@]} == 0 ]] || fail "apt's neovim: no todo"
+)
+# apt's is too old: the release, unpacked whole, its command linked, its tag kept; a second run is quiet
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.9.5-6ubuntu2"'
+  nvim_tar 0.12.6
+  release v0.12.6 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  one_tool "$NVIM" >/dev/null
+  not_called "apt-get install"
+  eq "runs" "NVIM 0.12.6" "$("$HOME/.local/bin/nvim")"
+  [[ $(readlink -f "$HOME/.local/bin/nvim") == "$(readlink -f "$HOME/.local/opt/nvim")"/* ]] || fail "the link points into ~/.local/opt/nvim"
+  ok "the rest of the release came too" test -d "$HOME/.local/opt/nvim/nvim-linux-arm64/share/nvim"
+  eq "tag kept" v0.12.6 "$(cat "$HOME/.local/opt/nvim/.release")"
+  [[ ${#TODOS[@]} == 0 ]] || fail "installed: no todo"
+  : >"$T/calls"
+  eq "again: nothing said" "" "$(one_tool "$NVIM")"
+  no "again: nothing downloaded" grep -q 'example.invalid' "$T/calls"
+  # a newer release replaces it
+  nvim_tar 0.13.0
+  release v0.13.0 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  one_tool "$NVIM" >/dev/null
+  eq "updated" "NVIM 0.13.0" "$("$HOME/.local/bin/nvim")"
+  eq "no leftovers beside it" "nvim" "$(entries "$HOME/.local/opt")"
+
+  # ubuntu upgraded since: apt's is good now, so the release copy goes and apt's is what runs
+  stub apt-cache 'echo "  Candidate: 0.11.6-1"'
+  stub dpkg-query 'exit 1'
+  : >"$T/calls"
+  one_tool "$NVIM" >/dev/null
+  called "apt-get install -y --no-install-recommends neovim"
+  no "release copy gone" test -e "$HOME/.local/opt/nvim"
+  no "its link gone" test -L "$HOME/.local/bin/nvim"
+)
+# a download that doesn't match github's checksum, or is cut short: what's there stays, and a todo says so
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.9.5-6ubuntu2"'
+  nvim_tar 0.12.6
+  release v0.12.6 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  one_tool "$NVIM" >/dev/null
+  nvim_tar 0.13.0
+  release v0.13.0 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  echo tampered >>"$T/asset"
+  one_tool "$NVIM" >/dev/null 2>&1
+  eq "a bad checksum: the old one still runs" "NVIM 0.12.6" "$("$HOME/.local/bin/nvim")"
+  eq "a bad checksum: its tag stays" v0.12.6 "$(cat "$HOME/.local/opt/nvim/.release")"
+  [[ ${TODOS[*]} == *"nvim didn't install"* ]] || fail "a bad checksum: a todo"
+  eq "a bad checksum: nothing left beside it" "nvim" "$(entries "$HOME/.local/opt")"
+)
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.9.5-6ubuntu2"'
+  nvim_tar 0.12.6
+  head -c 100 "$T/nvim.tar.gz" >"$T/cut.tar.gz"
+  release v0.12.6 nvim-linux-arm64.tar.gz "$T/cut.tar.gz"
+  # github has no checksum for it, so only the unpacking can tell
+  jq 'del(.assets[].digest)' "$T/release.json" >"$T/r" && mv "$T/r" "$T/release.json"
+  one_tool "$NVIM" >/dev/null 2>&1 || fail "a cut-short download doesn't stop the run"
+  no "a cut-short download: nothing installed" test -e "$HOME/.local/bin/nvim"
+  [[ ${TODOS[*]} == *"nvim didn't install"* ]] || fail "a cut-short download: a todo"
+)
+# github can't be reached: the run goes on, and every tool that needed it is named
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: (none)"'
+  stub gh 'exit 1'
+  stub curl 'exit 22'
+  tools_install >/dev/null 2>&1 || fail "no github: the run goes on"
+  for cmd in nvim tree-sitter fzf starship atuin lazygit sesh; do
+    [[ ${TODOS[*]} == *"$cmd didn't install"* ]] || fail "no github: $cmd is named"
+  done
+  no "no github: nothing half-installed" bash -c "ls -A '$HOME/.local/opt' 2>/dev/null | grep -q ."
+)
+# an architecture the releases have no build for: nothing is downloaded, and each tool says so once
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo riscv64'
+  stub apt-cache 'echo "  Candidate: (none)"'
+  stub gh 'exit 1'
+  stub curl 'exit 1'
+  out=$(tools_install 2>&1)
+  not_called "curl"
+  eq "one warning a tool" 7 "$(grep -c 'no build for this machine' <<<"$out")"
+)
+# a single gzipped file, as tree-sitter ships
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo x86_64'
+  stub apt-cache 'echo "  Candidate: 0.20.8-5"'
+  printf '#!/bin/sh\necho tree-sitter 0.27.2\n' >"$T/ts"
+  gzip -c "$T/ts" >"$T/ts.gz"
+  release v0.27.2 tree-sitter-linux-x64.gz "$T/ts.gz"
+  one_tool 'tree-sitter tree-sitter-cli 0.25.0 tree-sitter/tree-sitter ^tree-sitter-linux-arm64\.gz$ ^tree-sitter-linux-x64\.gz$' >/dev/null
+  eq "a gzipped command runs" "tree-sitter 0.27.2" "$("$HOME/.local/bin/tree-sitter")"
+)
+# no apt package at all, as sesh has: always its release
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'exit 1'
+  mkdir -p "$T/s" && printf '#!/bin/sh\necho sesh\n' >"$T/s/sesh" && chmod +x "$T/s/sesh" && tar -czf "$T/sesh.tar.gz" -C "$T/s" sesh
+  release v2.34.0 sesh_Linux_arm64.tar.gz "$T/sesh.tar.gz"
+  one_tool 'sesh - - joshmedeski/sesh ^sesh_Linux_arm64\.tar\.gz$ ^sesh_Linux_x86_64\.tar\.gz$' >/dev/null
+  eq "sesh runs" sesh "$("$HOME/.local/bin/sesh")"
+  not_called "apt-cache"
+)
