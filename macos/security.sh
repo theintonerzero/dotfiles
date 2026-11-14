@@ -2,10 +2,14 @@
 # sent to apple
 # shellcheck shell=bash
 
-# the file apple keeps across macos updates for sudo's own additions, and homebrew's pam_reattach, which
-# lets touch id reach you from inside tmux
+# the file apple keeps across macos updates for sudo's own additions; homebrew's pam_reattach, which lets
+# touch id reach you from inside tmux; and the root-owned copy of it that sudo loads. sudo never loads
+# homebrew's own: you can write to that folder, so anything running as you could swap in a module that
+# sudo then runs as root, and macos's pam fails every sudo when a module it names is gone, as it would be
+# once the formula or homebrew is removed
 SUDO_LOCAL=${SUDO_LOCAL:-/etc/pam.d/sudo_local}
 PAM_REATTACH=${PAM_REATTACH:-/opt/homebrew/lib/pam/pam_reattach.so}
+PAM_REATTACH_COPY=${PAM_REATTACH_COPY:-/usr/local/lib/pam/pam_reattach.so}
 FIREWALL=${FIREWALL:-/usr/libexec/ApplicationFirewall/socketfilterfw}
 ANALYTICS=${ANALYTICS:-/Library/Application Support/CrashReporter/DiagnosticMessagesHistory.plist}
 
@@ -16,20 +20,37 @@ security_install() {
   analytics_off
 }
 
-# sudo_local_want: sudo_local as it should be: touch id is enough for sudo, with pam_reattach before it
-# only while its file is there, and optional, so sudo never fails for want of it
+# sudo_local_want: sudo_local as it should be: touch id is enough for sudo, with the copy of pam_reattach
+# before it only while that file is there
 sudo_local_want() {
   echo "# sudo_local: touch id answers sudo, inside tmux too; written by the dotfiles (macos/security.sh)"
-  if [[ -f $PAM_REATTACH ]]; then echo "auth       optional       $PAM_REATTACH ignore_ssh"; fi
+  if [[ -f $PAM_REATTACH_COPY ]]; then echo "auth       optional       $PAM_REATTACH_COPY ignore_ssh"; fi
   echo "auth       sufficient     pam_tid.so"
 }
 
-# touch_id: sudo_local written where it differs; your password still works where touch id can't
+# pam_reattach_copy: homebrew's pam_reattach copied where only root can change it, again when homebrew
+# has a newer one
+pam_reattach_copy() {
+  [[ -f $PAM_REATTACH ]] || return 0
+  cmp -s "$PAM_REATTACH" "$PAM_REATTACH_COPY" && return 0
+  say "copying pam_reattach where sudo can trust it"
+  if ! { as_root install -d -m 755 "${PAM_REATTACH_COPY%/*}" &&
+    as_root install -m 444 -o root -g wheel "$PAM_REATTACH" "$PAM_REATTACH_COPY"; }; then
+    warn "couldn't copy pam_reattach, so touch id won't reach you inside tmux"
+  fi
+}
+
+# touch_id: sudo_local written where it differs, and one that isn't the dotfiles' kept as sudo_local.bak;
+# your password still works where touch id can't
 touch_id() {
   local want
+  pam_reattach_copy
   want=$(sudo_local_want)
   [[ -f $SUDO_LOCAL && $(<"$SUDO_LOCAL") == "$want" ]] && return 0
   say "letting touch id answer sudo"
+  if [[ -f $SUDO_LOCAL ]] && ! grep -q 'written by the dotfiles' "$SUDO_LOCAL"; then
+    as_root cp -p "$SUDO_LOCAL" "$SUDO_LOCAL.bak" || true
+  fi
   printf '%s\n' "$want" | as_root tee "$SUDO_LOCAL" >/dev/null || warn "couldn't write $SUDO_LOCAL"
 }
 

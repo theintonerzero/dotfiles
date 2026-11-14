@@ -54,7 +54,8 @@ os_uninstall_notes() {
 
 These stay, so remove them yourself if you want them gone:
   - Homebrew, its formulae and casks, and Xcode
-  - macOS's settings and the Dock's apps, Touch ID for sudo (/etc/pam.d/sudo_local) and the firewall
+  - macOS's settings and the Dock's apps, Touch ID for sudo (/etc/pam.d/sudo_local, and
+    /usr/local/lib/pam/pam_reattach.so, which it names: remove sudo_local first) and the firewall
   - app data: Neovim's plugins, Claude Code's plugins and MCP servers (claude mcp remove takes
     blender_official away, as its launcher goes with the links), Claude's skill packs in
     ~/.local/share/claude-skills and their links in ~/.claude/skills, Blender's MCP add-ons and its

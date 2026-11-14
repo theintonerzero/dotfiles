@@ -89,9 +89,11 @@ All notable changes to this project are documented here. The format is based on
   you, tap to click, no mouse acceleration, screenshots in `~/Pictures/Screenshots`, and save
   dialogs opened in full. The Dock's apps come from `macos/dock.txt`, and High Power mode and an
   always-on display on the charger from `macos/power.txt`.
-- On macOS, Touch ID answers sudo, inside tmux too, the firewall is on, FileVault being off is
-  listed as left for you, and no analytics go to Apple. Firefox has the policies it has on Fedora,
-  and is made the default browser, which macOS has you confirm.
+- On macOS, Touch ID answers sudo, inside tmux too, through a root-owned copy of `pam_reattach` in
+  `/usr/local/lib/pam`, so nothing you can write to is loaded by sudo and removing Homebrew can't
+  break it, the firewall is on, FileVault being off is listed as left for you, and no analytics go
+  to Apple. Firefox has the policies it has on Fedora, and is made the default browser, which macOS
+  has you confirm.
 - On macOS, apps started from the Dock find the shell's tools, through a launch agent that hands
   them `~/.zshenv`'s PATH. Ghostty takes Option as Alt and blurs its see-through background. Godot
   opens scripts in Neovim in a new Ghostty window, as on Fedora, and Unity opens them in VSCodium,

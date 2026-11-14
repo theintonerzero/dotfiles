@@ -180,7 +180,8 @@ claude_blender() {
     mkdir -p "$(dirname "$consent")"
     echo '{"prompt_version": 2, "action": "decline", "consent": false}' >"$consent"
   fi
-  series=$(blender --version 2>/dev/null | sed -n 's/^Blender \([0-9]*\.[0-9]*\).*/\1/p' | head -n 1)
+  # on macos blender is a launcher that's linked whether or not the app is there
+  series=$(blender --version 2>/dev/null | sed -n 's/^Blender \([0-9]*\.[0-9]*\).*/\1/p' | head -n 1) || series=""
   [[ -n $series ]] || return 0
   config=$(app_dir blender Blender)/$series
   addons=$config/scripts/addons prefs=$config/config/userpref.blend

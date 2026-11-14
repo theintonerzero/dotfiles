@@ -10,11 +10,11 @@ export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 export ZDOTDIR=$XDG_CONFIG_HOME/zsh
 
 # on macos, homebrew: its programs, which come after yours, mise's and cargo's, no analytics or tips, and
-# where .net 10 lives
+# .net 10, which homebrew keeps in a folder of its own, off the path
 typeset -U path
 if [[ -d /opt/homebrew ]]; then
   export HOMEBREW_PREFIX=/opt/homebrew HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_ENV_HINTS=1
-  path=(/opt/homebrew/bin /opt/homebrew/sbin $path)
+  path=(/opt/homebrew/bin /opt/homebrew/sbin /opt/homebrew/opt/dotnet@10/bin(N/) $path)
   if [[ -d /opt/homebrew/opt/dotnet@10/libexec ]]; then export DOTNET_ROOT=/opt/homebrew/opt/dotnet@10/libexec; fi
 fi
 

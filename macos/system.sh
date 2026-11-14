@@ -100,7 +100,8 @@ xcode_setup() {
 }
 
 # the apps in remove.txt that are installed; garageband's sound library goes with it, unless logic pro
-# or mainstage, which share it, is there. an app macos won't let the terminal remove is left for you
+# or mainstage, which share it, is there. an app macos won't let the terminal remove is left for you,
+# its library with it
 system_removals() {
   local name app path
   while read -r name; do
@@ -108,7 +109,10 @@ system_removals() {
     [[ -e $app ]] || continue
     say "removing $name"
     as_root rm -rf "$app" || true
-    if [[ -e $app ]]; then todo "remove $name yourself: macOS wouldn't let the terminal"; fi
+    if [[ -e $app ]]; then
+      todo "remove $name yourself: macOS wouldn't let the terminal"
+      continue
+    fi
     [[ $name == GarageBand ]] || continue
     if [[ -e "$APPS/Logic Pro.app" || -e $APPS/MainStage.app ]]; then continue; fi
     for path in "${GARAGEBAND_FILES[@]}"; do

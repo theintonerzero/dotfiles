@@ -8,10 +8,11 @@ TODOS=()
 # shellcheck disable=SC2034
 DOT_LIB=2
 # what the steps install is on PATH for the steps after them, in ~/.zshenv's order; on macos homebrew's
-# programs come next, and homebrew sends nothing home, gives no tips and asks nothing mid-run
+# programs come next, with .net 10, which it keeps in a folder of its own, and homebrew sends nothing
+# home, gives no tips and asks nothing mid-run
 homebrew=""
 if [[ $(uname -s) == Darwin ]]; then
-  homebrew=/opt/homebrew/bin:/opt/homebrew/sbin:
+  homebrew=/opt/homebrew/bin:/opt/homebrew/sbin:/opt/homebrew/opt/dotnet@10/bin:
   export HOMEBREW_NO_ANALYTICS=1 HOMEBREW_NO_ENV_HINTS=1 HOMEBREW_NO_ASK=1
 fi
 export PATH=$HOME/.local/bin:${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:${CARGO_HOME:-$HOME/.cargo}/bin:$homebrew$PATH
@@ -174,9 +175,9 @@ packages() {
   done
 }
 
-# package_files <root> <pkg>: every file a package links, relative to home
+# package_files <root> <pkg>: every file a package links, relative to home; finder's .DS_Store isn't one
 package_files() {
-  (cd "$1/$2" && find . \( -type f -o -type l \) | sed 's|^\./||')
+  (cd "$1/$2" && find . \( -type f -o -type l \) ! -name .DS_Store | sed 's|^\./||')
 }
 
 # package_dirs <root> <pkg>: every folder a package's files sit in, relative to home
@@ -259,7 +260,7 @@ link_home() {
   for root in "${roots[@]}"; do
     mapfile -t pkgs < <(packages "$root")
     ((${#pkgs[@]})) || continue
-    stow --no-folding --restow -d "$root" -t "$HOME" "${pkgs[@]}"
+    stow --no-folding --restow --ignore='\.DS_Store' -d "$root" -t "$HOME" "${pkgs[@]}"
   done
   mkdir -p "$HOME/.local/bin"
   ln -sfn "$DOTFILES/bin/dot" "$HOME/.local/bin/dot"
@@ -290,7 +291,7 @@ unlink_home() {
   for root in "${roots[@]}"; do
     mapfile -t pkgs < <(packages "$root")
     ((${#pkgs[@]})) || continue
-    stow -D -d "$root" -t "$HOME" "${pkgs[@]}"
+    stow -D --ignore='\.DS_Store' -d "$root" -t "$HOME" "${pkgs[@]}"
   done
   for root in "${roots[@]}"; do
     while IFS= read -r pkg; do

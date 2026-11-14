@@ -1,7 +1,7 @@
 # functions: mkcd, oh, ffs and localhost
 
-# _open <path or address>: opens it in its desktop app, with xdg-open on linux and open on macos
-_open() {
+# open_app <path or address>: opens it in its desktop app, with xdg-open on linux and open on macos
+open_app() {
   if (( $+commands[xdg-open] )); then
     setsid -f xdg-open "$@" >/dev/null 2>&1
   else open "$@"
@@ -16,7 +16,7 @@ mkcd() {
 
 # oh [path]: opens a path, the current folder by default, in its desktop app
 oh() {
-  _open ${1:-.}
+  open_app ${1:-.}
 }
 
 # ffs <words>: searches duckduckgo for the words
@@ -24,10 +24,10 @@ ffs() {
   (( $# )) || { print -u2 'usage: ffs <words>'; return 2; }
   local query
   query=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote_plus(" ".join(sys.argv[1:])))' "$@")
-  _open "https://duckduckgo.com/?q=$query"
+  open_app "https://duckduckgo.com/?q=$query"
 }
 
 # localhost [port]: opens http://localhost:<port>, 3000 by default
 localhost() {
-  _open "http://localhost:${1:-3000}"
+  open_app "http://localhost:${1:-3000}"
 }

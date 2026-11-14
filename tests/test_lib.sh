@@ -38,3 +38,13 @@ echo "not restarted"
 EOF
 chmod +x "$T/old.sh"
 eq "stale lib restarts" restarted "$("$T/old.sh")"
+
+
+# finder's .DS_Store in a package is never linked into home
+mkdir -p "$T/ds/pkg/.config"
+touch "$T/ds/pkg/.DS_Store" "$T/ds/pkg/.config/.DS_Store" "$T/ds/pkg/.config/real"
+eq "no .DS_Store among a package's files" ".config/real" "$(package_files "$T/ds" pkg)"
+eq "stow told to leave it too" 2 "$(grep -c "stow .*--ignore='\\\\.DS_Store'" "$REPO/lib.sh")"
+if [[ $(uname -s) == Darwin ]]; then
+  [[ :$PATH: == *:/opt/homebrew/opt/dotnet@10/bin:* ]] || fail "the steps find homebrew's .net 10"
+fi

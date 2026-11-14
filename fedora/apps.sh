@@ -18,6 +18,8 @@ apps_install() {
 apps_update() {
   say "updating flatpaks"
   flatpak update --user -y --noninteractive || warn "flatpak couldn't update the flatpaks"
+  # an update can move the folder the css's links point into, as the one that brought macos in did
+  apps_gtk_css
   apps_releases
   font_install || true
 }

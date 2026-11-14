@@ -153,3 +153,25 @@ rm -rf "$short"
 called "nvim --server $short/.local/state/godot-nvim/${sum:0:16}.sock --remote-expr"
 not_called "open -na"
 ok "lua agrees on the socket" grep -qF 'XDG_RUNTIME_DIR or (vim.env.HOME .. "/.local/state")' "$REPO/home/nvim/.config/nvim/lua/godot.lua"
+
+
+# blender's launcher is linked on macos whether or not the app is there: without it the step stops
+# quietly, and the run goes on
+(
+  load macos
+  set -euo pipefail
+  stub blender 'exit 127'
+  claude_blender
+  echo reached >"$T/reached"
+)
+ok "no blender app: the run goes on" test -f "$T/reached"
+
+# fedora: an update that moved the gtk package gives flatpak apps the new folder, not only install
+(
+  load fedora
+  apps_releases() { :; }
+  font_install() { :; }
+  stub flatpak '[[ "$*" == "override --user --show" ]] && printf "%s\n" "filesystems=$DOTFILES/home/gtk:ro;xdg-config/gtk-4.0:ro;"; exit 0'
+  apps_update >/dev/null 2>&1
+  called "flatpak override --user --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=$DOTFILES/fedora/home/gtk:ro"
+)

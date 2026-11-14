@@ -85,15 +85,29 @@ rm -rf "$APPS/Xcode.app"
   load macos
   mkdir -p "$APPS/GarageBand.app" "$APPS/Pages.app" "$T/loops"
   GARAGEBAND_FILES=("$T/loops" "$T/absent")
+  # a sudo that does remove an app, as the real one does
+  stub sudo 'if [[ $1 == rm && $3 == *.app ]]; then rm -rf "$3"; fi'
   system_removals >/dev/null 2>&1
   called "sudo rm -rf $APPS/GarageBand.app"
   called "sudo rm -rf $APPS/Pages.app"
   called "sudo rm -rf $T/loops"
   not_called "$APPS/iMovie.app"
   not_called "$T/absent"
-  # sudo is a stub here, so the apps are still there, as when macos won't let the terminal remove them
+  [[ ${#TODOS[@]} == 0 ]] || fail "apps removed: no todo"
+)
+stub sudo
+# an app macos won't let the terminal remove (sudo is a stub here, so it stays): a todo, and its sound
+# library stays with it
+(
+  load macos
+  mkdir -p "$APPS/GarageBand.app" "$T/loops"
+  GARAGEBAND_FILES=("$T/loops")
+  system_removals >/dev/null 2>&1
+  called "sudo rm -rf $APPS/GarageBand.app"
+  not_called "rm -rf $T/loops"
   [[ ${TODOS[*]} == *"remove GarageBand yourself"* ]] || fail "an app that stays: a todo"
 )
+rm -rf "$APPS"/*.app
 # logic pro shares that library, so with it installed the library stays
 (
   load macos

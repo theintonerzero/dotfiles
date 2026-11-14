@@ -9,22 +9,43 @@
 source "$(dirname "$0")/helpers.sh"
 load macos
 
-# touch id: with no pam_reattach there, the file names pam_tid alone, so a missing module can't break sudo
-PAM_REATTACH="$T/absent.so"
-eq "tid alone" 1 "$(sudo_local_want | grep -c '^auth')"
-no "no reattach line" grep -q reattach <<<"$(sudo_local_want)"
-touch "$T/reattach.so"
-PAM_REATTACH="$T/reattach.so"
-eq "reattach first" "$T/reattach.so" "$(sudo_local_want | awk '/^auth/ { print $3; exit }')"
-eq "reattach can fail without failing sudo" optional "$(sudo_local_want | awk '/^auth/ { print $2; exit }')"
+# touch id: sudo loads pam_reattach from a root-owned copy outside homebrew, never from homebrew's own
+# folder, which you can write to and which goes when the formula does: macos's pam fails every sudo when
+# a module it names is missing, optional or not. with no copy there, the file names pam_tid alone
+PAM_REATTACH="$T/brew/pam_reattach.so" PAM_REATTACH_COPY="$T/pam/pam_reattach.so" SUDO_LOCAL="$T/sudo_local"
+mkdir -p "$T/brew" "$T/pam"
+echo module >"$PAM_REATTACH"
+eq "no copy: tid alone" 1 "$(sudo_local_want | grep -c '^auth')"
+no "no copy: no reattach line" grep -q reattach <<<"$(sudo_local_want)"
+: >"$T/calls"
+(touch_id >/dev/null)
+called "sudo install -d -m 755 $T/pam"
+called "sudo install -m 444 -o root -g wheel $PAM_REATTACH $PAM_REATTACH_COPY"
+cp "$PAM_REATTACH" "$PAM_REATTACH_COPY"
+eq "the copy first" "$PAM_REATTACH_COPY" "$(sudo_local_want | awk '/^auth/ { print $3; exit }')"
+no "homebrew's own path is never named" grep -qF "$PAM_REATTACH " <<<"$(sudo_local_want)"
 eq "tid last" pam_tid.so "$(sudo_local_want | awk '/^auth/ { m = $3 } END { print m }')"
-SUDO_LOCAL="$T/sudo_local"
 sudo_local_want >"$SUDO_LOCAL"
 : >"$T/calls"
 (touch_id)
-not_called "sudo tee"
-echo old >"$SUDO_LOCAL"
+not_called "sudo"
+# a newer module from homebrew is copied again
+echo newer >"$PAM_REATTACH"
+: >"$T/calls"
 (touch_id >/dev/null)
+called "sudo install -m 444 -o root -g wheel $PAM_REATTACH $PAM_REATTACH_COPY"
+echo newer >"$PAM_REATTACH_COPY"
+# a sudo_local that isn't the dotfiles' is kept beside the new one
+echo "auth sufficient pam_mine.so" >"$SUDO_LOCAL"
+: >"$T/calls"
+(touch_id >/dev/null)
+called "sudo cp -p $SUDO_LOCAL $SUDO_LOCAL.bak"
+called "sudo tee $SUDO_LOCAL"
+# the dotfiles' own older one is just replaced
+{ echo "# sudo_local: written by the dotfiles (macos/security.sh)"; echo "auth sufficient pam_tid.so"; } >"$SUDO_LOCAL"
+: >"$T/calls"
+(touch_id >/dev/null)
+not_called "sudo cp"
 called "sudo tee $SUDO_LOCAL"
 
 # the firewall

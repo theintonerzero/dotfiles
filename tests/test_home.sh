@@ -18,6 +18,10 @@ eq "then cargo" "$HOME/.cargo/bin" "$(sed -n 3p <<<"$paths")"
 if [[ -d /opt/homebrew ]]; then
   eq "then homebrew" /opt/homebrew/bin "$(sed -n 4p <<<"$paths")"
   eq "homebrew once" 1 "$(grep -cx /opt/homebrew/bin <<<"$paths")"
+  if [[ -d /opt/homebrew/opt/dotnet@10/bin ]]; then
+    # homebrew keeps dotnet@10 out of its bin folder, so nothing else puts dotnet on the path
+    ok ".net 10 is on the path" grep -qx '/opt/homebrew/opt/dotnet@10/bin' <<<"$paths"
+  fi
   ok "zshrc looks in homebrew for the plugins" grep -q 'HOMEBREW_PREFIX' "$REPO/home/zsh/.config/zsh/.zshrc"
 fi
 ok "functions open with macos's open too" grep -q 'else open ' "$REPO/home/zsh/.config/zsh/functions.zsh"
@@ -62,3 +66,23 @@ for os in fedora macos; do
   eq "$os: commits still signed" true "$(git config commit.gpgsign)"
   eq "$os: tags still signed" true "$(git config tag.gpgsign)"
 done
+
+
+# a login shell on macos: /etc/zprofile runs path_helper after .zshenv and puts apple's folders first, so
+# homebrew's git, bash and python would lose to apple's; the mac's .zprofile puts the order back
+if [[ -x /usr/libexec/path_helper ]]; then
+  fresh_home
+  (load macos && link_home) >/dev/null
+  # shellcheck disable=SC2016 # zsh expands $path, not this shell
+  paths=$(env -u ZDOTDIR -u XDG_CONFIG_HOME -u XDG_DATA_HOME zsh -l -c 'print -l $path')
+  eq "login shell: your scripts first" "$HOME/.local/bin" "$(sed -n 1p <<<"$paths")"
+  before() { awk -v a="$1" -v b="$2" '$0 == a && !x { x = NR } $0 == b && !y { y = NR } END { exit !(x && y && x < y) }' <<<"$paths"; }
+  ok "login shell: homebrew before apple's" before /opt/homebrew/bin /usr/bin
+  ok "login shell: mason's servers after apple's, as .zshenv has them" before /usr/bin "$HOME/.local/share/nvim/mason/bin"
+  eq "login shell: nothing twice" "" "$(sort <<<"$paths" | uniq -d)"
+  fresh_home
+  (load fedora && link_home) >/dev/null
+  no "fedora has no .zprofile" test -e "$HOME/.config/zsh/.zprofile"
+fi
+ok "the name zsh completes open with is left alone" bash -c "! grep -q '^_open()' '$REPO/home/zsh/.config/zsh/functions.zsh'"
+ok "myip where there's no ip command" grep -q 'ifconfig' "$REPO/home/zsh/.config/zsh/aliases.zsh"

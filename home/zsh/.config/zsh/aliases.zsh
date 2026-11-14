@@ -71,7 +71,9 @@ alias update='dot update'
 alias reload='exec zsh'
 alias please='sudo zsh -c "$(fc -ln -1)"'
 alias ports='lsof -iTCP -sTCP:LISTEN -n -P'
-alias myip='ip -brief address'
+if (( $+commands[ip] )); then alias myip='ip -brief address'
+else alias myip="ifconfig | awk '/^[a-z]/ { name = \$1 } \$1 == \"inet\" { print name, \$2 }'"
+fi
 alias pubip='curl -s https://ipecho.net/plain; echo'
 alias path='print -rl -- $path'
 alias c='clear'

@@ -5,7 +5,7 @@ shell_install() {
   local zsh shell
   if [[ $(os_id) == macos ]]; then
     # macos's own zsh, which is the login shell already unless you changed it
-    shell=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{ print $2 }')
+    shell=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{ print $2 }') || shell=""
     if [[ $shell != */zsh ]]; then
       say "making zsh your login shell"
       as_root chsh -s /bin/zsh "$USER"

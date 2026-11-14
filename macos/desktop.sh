@@ -99,7 +99,7 @@ dock_apply() {
     entries+=("<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$url</string><key>_CFURLStringType</key><integer>15</integer></dict></dict><key>tile-type</key><string>file-tile</string></dict>")
   done < <(list "$DOTFILES/macos/dock.txt")
   ((${#entries[@]})) || return 0
-  have=$(defaults read com.apple.dock persistent-apps 2>/dev/null | sed -n 's/.*"_CFURLString" = "\(.*\)";/\1/p')
+  have=$(defaults read com.apple.dock persistent-apps 2>/dev/null | sed -n 's/.*"_CFURLString" = "\(.*\)";/\1/p') || have=""
   [[ ${have,,} == "${want,,}" ]] && return 0
   say "setting the dock's apps"
   if defaults write com.apple.dock persistent-apps -array "${entries[@]}"; then
