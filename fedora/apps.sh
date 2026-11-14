@@ -135,13 +135,13 @@ firefox_prefs() {
   printf '%s\n' "$want" | as_root tee "$FIREFOX_PREFS" >/dev/null
 }
 
-# firefox_policies: firefox-policies.json as firefox's policies: ublock origin, https-only mode, and no
+# firefox_policies: shared/firefox-policies.json as firefox's policies: ublock origin, https-only mode, and no
 # ads, telemetry or ai features; telemetry and studies stay off, the rest you can change in firefox
 firefox_policies() {
   have firefox || return 0
-  cmp -s "$DOTFILES/fedora/firefox-policies.json" "$FIREFOX_POLICIES" && return 0
+  cmp -s "$DOTFILES/shared/firefox-policies.json" "$FIREFOX_POLICIES" && return 0
   say "setting firefox's policies"
-  as_root install -Dm644 "$DOTFILES/fedora/firefox-policies.json" "$FIREFOX_POLICIES"
+  as_root install -Dm644 "$DOTFILES/shared/firefox-policies.json" "$FIREFOX_POLICIES"
   todo "restart Firefox for its new policies; about:policies lists them"
 }
 
