@@ -148,9 +148,12 @@ root 'cat /tmp/health' >"$logs/health.txt"
 errors=$(awk '/^=+$/ { head = 1; next } head { section = $1; sub(/:$/, "", section); head = 0 }
   /ERROR/ && section != "lazy" && section != "snacks" { print section ": " $0 }' "$logs/health.txt")
 [[ -z $errors ]] || wrong "checkhealth has errors (all of it is in $logs/health.txt): $errors"
-# that report has only what neovim loads as it starts; treesitter and mason are asked by name
-user 'nvim --headless "+checkhealth nvim-treesitter mason" "+w! /tmp/health-tools" +qa' >>"$log" 2>&1
+# that report has only what neovim loads as it starts; treesitter and mason are loaded and asked by name
+user 'nvim --headless "+Lazy! load mason.nvim nvim-treesitter" "+checkhealth mason nvim-treesitter" "+w! /tmp/health-tools" +qa' >>"$log" 2>&1
 root 'cat /tmp/health-tools' >"$logs/health-tools.txt"
+for section in nvim-treesitter mason; do
+  grep -q "^$section:" "$logs/health-tools.txt" || wrong "$section's health wasn't run"
+done
 if grep -n 'ERROR' "$logs/health-tools.txt" >>"$log"; then wrong "treesitter's or mason's health has errors (all of it is in $logs/health-tools.txt)"; fi
 user 'ls ~/.local/share/nvim/mason/bin' >"$logs/mason.txt" 2>&1
 for tool in lua-language-server stylua shellcheck shfmt taplo marksman; do
