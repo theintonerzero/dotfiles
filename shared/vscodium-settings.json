@@ -35,7 +35,7 @@
     {"before": ["<leader>", "q"], "commands": ["workbench.action.closeEditorsAndGroup"]},
     {"before": ["<leader>", "Q"], "commands": ["workbench.action.closeWindow"]},
     {"before": ["<leader>", "n"], "commands": ["workbench.action.files.newUntitledFile"]},
-    {"before": ["<leader>", "h"], "commands": ["workbench.action.showWelcomePage"]},
+    {"before": ["<leader>", "h"], "commands": ["workbench.action.openWalkthrough"]},
     {"before": ["|"], "commands": ["workbench.action.splitEditorRight"]},
     {"before": ["\\"], "commands": ["workbench.action.splitEditorDown"]},
     {"before": ["<C-h>"], "commands": ["workbench.action.navigateLeft"]},
