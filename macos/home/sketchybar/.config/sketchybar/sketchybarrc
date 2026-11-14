@@ -1,0 +1,55 @@
+#!/bin/bash
+# sketchybarrc: the bar that stands in for apple's menu bar: pills like tmux's and the prompt's, in their
+# colours, on a bar with nothing behind it. workspaces and the front app on the left; on the right the
+# time, the date and the battery, and whatever else has something to say: spotify while it plays, sound
+# when it's muted, the network when there's none.
+#
+# nothing here can be clicked and nothing mirrors a menu-bar icon: on macos 27 a click on the bar brings
+# apple's bar down instead of reaching it, and mirrored icons stay blank. a bar with no background of its
+# own also has nothing to cover its items with, which a click on an empty part of it did there.
+# shellcheck source=colors.sh
+source "$CONFIG_DIR/colors.sh"
+plugins=$CONFIG_DIR/plugins
+
+sketchybar --bar position=top height=32 "color=$CLEAR" shadow=off blur_radius=0 sticky=on \
+  padding_left=7 padding_right=7
+
+# every item is a pill unless it says otherwise; one with an icon makes room for it itself
+sketchybar --default updates=on padding_left=3 padding_right=3 \
+  background.height=22 background.corner_radius=11 "background.color=$SURFACE" \
+  icon.drawing=off "icon.font=$FONT:Regular:15.0" "icon.color=$BRANCH" icon.padding_left=9 icon.padding_right=0 \
+  "label.font=$FONT:Regular:13.0" "label.color=$TEXT" label.padding_left=10 label.padding_right=10
+with_icon=(icon.drawing=on label.padding_left=6)
+
+# the left: macos's own workspaces, as many as there are up to ten, then the app in front
+for n in 1 2 3 4 5 6 7 8 9 10; do
+  sketchybar --add space "space.$n" left \
+    --set "space.$n" "space=$n" "label=$n" label.width=24 label.align=center label.padding_left=0 label.padding_right=0 \
+    "script=$plugins/space.sh" \
+    --subscribe "space.$n" space_windows_change
+done
+sketchybar --add item front_app left \
+  --set front_app "script=$plugins/front_app.sh" \
+  --subscribe front_app front_app_switched
+
+# the right, from the edge inwards
+sketchybar --add item clock right \
+  --set clock update_freq=10 "label.font=$FONT:Bold:13.0" "script=$plugins/clock.sh" \
+  --subscribe clock system_woke
+sketchybar --add item date right
+sketchybar --add item battery right \
+  --set battery "${with_icon[@]}" update_freq=120 "script=$plugins/battery.sh" \
+  --subscribe battery power_source_change system_woke
+sketchybar --add item network right \
+  --set network "${with_icon[@]}" drawing=off update_freq=30 "script=$plugins/network.sh" \
+  --subscribe network wifi_change system_woke
+sketchybar --add item volume right \
+  --set volume "${with_icon[@]}" drawing=off "script=$plugins/volume.sh" \
+  --subscribe volume volume_change
+# spotify tells every app that's listening when what it plays changes
+sketchybar --add event spotify_change com.spotify.client.PlaybackStateChanged
+sketchybar --add item spotify right \
+  --set spotify "${with_icon[@]}" drawing=off "icon=󰝚" update_freq=30 "script=$plugins/spotify.sh" \
+  --subscribe spotify spotify_change
+
+sketchybar --update
