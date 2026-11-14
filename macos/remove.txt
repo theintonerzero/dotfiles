@@ -1,0 +1,6 @@
+# apple's apps to remove, by their name in /Applications; delete a line to keep that app
+GarageBand   # its sound library goes too, unless logic pro or mainstage, which share it, is there
+iMovie
+Keynote
+Numbers
+Pages

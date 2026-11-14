@@ -1,0 +1,13 @@
+# homebrew casks, one a line, from homebrew's main repo: the apps, and the font
+
+ghostty
+vscodium
+blender
+godot
+unity-hub
+obs
+firefox
+vesktop
+spotify
+lm-studio
+font-jetbrains-mono-nerd-font

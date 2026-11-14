@@ -1,0 +1,54 @@
+# homebrew formulae, one a line, from homebrew's main repo
+
+# what the dotfiles' own scripts run on
+bash
+stow
+jq
+
+# shell
+zsh-autosuggestions
+zsh-syntax-highlighting
+starship
+atuin
+zoxide
+fzf
+eza
+bat
+fd
+ripgrep
+
+# terminal
+tmux
+btop
+
+# git
+git
+git-lfs
+git-delta
+lazygit
+gh
+
+# toolchains (mise brings node, bun, go, java, kotlin, zig and sesh; rust comes from rustup's own
+# installer, as homebrew has no rustup-init; the c and c++ compilers are apple's)
+mise
+uv
+dotnet@10
+
+# neovim
+neovim
+tree-sitter-cli
+
+# what the blender skills' image scripts use (shared/claude-skills.txt)
+opencv
+numpy
+scipy
+pillow
+
+# claude's reverse-engineering server (rea) and its engines; the debugger is xcode's lldb
+rizin
+binwalk
+
+# what the steps themselves use: app store installs, the default browser, and touch id for sudo in tmux
+mas
+defaultbrowser
+pam-reattach

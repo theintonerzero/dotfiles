@@ -1,0 +1,2 @@
+# app store apps: the app's id, then its name; installing one needs you signed in to the app store
+497799835 Xcode
