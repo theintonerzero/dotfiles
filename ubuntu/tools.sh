@@ -79,6 +79,11 @@ tool_release() {
   json=$(gh_release "$repo" 2>/dev/null) || json=""
   tag=$(jq -r '.tag_name // empty' <<<"$json" 2>/dev/null) || tag=""
   if [[ -z $tag ]]; then
+    # github out of reach, or over its hourly limit for lookups without a sign-in: what's there stays
+    if [[ -x $link && -s $dir/.release ]]; then
+      warn "couldn't check for a newer $cmd, so the one you have stays"
+      return 0
+    fi
     warn "couldn't look up $cmd's newest release"
     return 1
   fi

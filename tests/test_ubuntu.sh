@@ -282,6 +282,22 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   done
   no "no github: nothing half-installed" bash -c "ls -A '$HOME/.local/opt' 2>/dev/null | grep -q ."
 )
+# github can't be reached, and the tool is there from an earlier run: it stays, and isn't said to be missing
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.9.5-6ubuntu2"'
+  nvim_tar 0.12.6
+  release v0.12.6 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  one_tool "$NVIM" >/dev/null
+  stub curl 'exit 22'
+  out=$(one_tool "$NVIM" 2>&1) || fail "no github, tool there: the run goes on"
+  [[ $out == *"couldn't check for a newer nvim"* ]] || fail "no github, tool there: says it couldn't check: $out"
+  one_tool "$NVIM" >/dev/null 2>&1
+  [[ ${#TODOS[@]} == 0 ]] || fail "no github, tool there: no todo, got: ${TODOS[*]}"
+  eq "no github, tool there: it still runs" "NVIM 0.12.6" "$("$HOME/.local/bin/nvim")"
+)
 # an architecture the releases have no build for: nothing is downloaded, and each tool says so once
 (
   load ubuntu
