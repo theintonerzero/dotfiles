@@ -93,7 +93,9 @@ All notable changes to this project are documented here. The format is based on
 - On macOS, apps started from the Dock find the shell's tools, through a launch agent that hands
   them `~/.zshenv`'s PATH. Ghostty takes Option as Alt and blurs its see-through background. Godot
   opens scripts in Neovim in a new Ghostty window, as on Fedora, and Unity opens them in VSCodium,
-  as its Neovim package doesn't support macOS yet. ArtCraft Launcher comes from its dmg.
+  as its Neovim package doesn't support macOS yet. Unity is pointed at VSCodium through a link in
+  `~/.local/share/unity/code`: it writes the `.csproj` files C# completion needs only for an editor
+  with "code" in its path. ArtCraft Launcher comes from its dmg.
 - `tests/run.sh`, which runs the steps in a temp home folder with stand-ins for the system's
   commands, so it changes nothing on the machine it runs on.
 

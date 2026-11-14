@@ -16,20 +16,34 @@ unity_editor() {
   if [[ $(os_id) == macos ]]; then unity_vscodium; else unity_neovim; fi
 }
 
+# unity_code_link: where unity finds vscodium. unity's visual studio package writes a project's .csproj
+# files, which the c# extension reads, only for an editor it takes for vs code, and it tells by the path
+# alone: one with "code" in it, ending in .app. vscodium's own path has no "code", so unity is given a
+# link to it that does
+unity_code_link() { echo "${XDG_DATA_HOME:-$HOME/.local/share}/unity/code/VSCodium.app"; }
+
 # unity_vscodium: vscodium as unity's script editor on macos, where unity keeps its editor prefs in a
-# preferences domain; an editor you chose stays, and it waits for unity to be closed, as unity writes
-# the prefs it holds back when it quits
+# preferences domain; an editor you chose stays, vscodium by its own path among them moved to the link,
+# and it waits for unity to be closed, as unity writes the prefs it holds back when it quits
 unity_vscodium() {
-  local domain=com.unity3d.UnityEditor5.x app=$APPS/VSCodium.app current
+  local domain=com.unity3d.UnityEditor5.x app=$APPS/VSCodium.app link current
   [[ -d $app ]] || return 0
+  link=$(unity_code_link)
   current=$(defaults read "$domain" kScriptsDefaultApp 2>/dev/null) || current=""
-  [[ -z $current ]] || return 0
+  [[ -z $current || $current == "$app" || $current == "$link" ]] || return 0
+  if [[ $(readlink "$link" 2>/dev/null) != "$app" ]]; then
+    if ! { mkdir -p "${link%/*}" && ln -sfn "$app" "$link"; }; then
+      warn "couldn't link vscodium for unity"
+      return 0
+    fi
+  fi
+  [[ $current != "$link" ]] || return 0
   if unity_running; then
     todo "close Unity and run dot install again, so Unity opens scripts in VSCodium"
     return 0
   fi
   say "setting unity to open scripts in vscodium"
-  defaults write "$domain" kScriptsDefaultApp -string "$app" || warn "couldn't set unity's script editor"
+  defaults write "$domain" kScriptsDefaultApp -string "$link" || warn "couldn't set unity's script editor"
 }
 
 # unity_analytics: unity's usage analytics off; the cli and the hub share the choice, and the UNITY_NO_*
@@ -58,16 +72,19 @@ unity_ready() {
 # unity_uninstall: unity's own script editor and terminal again, where install set neovim and
 # x-terminal-emulator, as uninstall removes x-terminal-emulator; only while unity is closed
 unity_uninstall() {
-  local prefs=${XDG_DATA_HOME:-$HOME/.local/share}/unity3d/prefs json term app
+  local prefs=${XDG_DATA_HOME:-$HOME/.local/share}/unity3d/prefs json term app link
   if [[ $(os_id) == macos ]]; then
+    link=$(unity_code_link)
     app=$(defaults read com.unity3d.UnityEditor5.x kScriptsDefaultApp 2>/dev/null) || app=""
-    [[ $app == "$APPS/VSCodium.app" ]] || return 0
+    [[ $app == "$link" ]] || return 0
     if unity_running; then
       warn "Unity is open, so it still opens scripts in VSCodium: close it and run dot uninstall again"
       return 0
     fi
     say "giving unity its own script editor back"
     defaults delete com.unity3d.UnityEditor5.x kScriptsDefaultApp || true
+    rm -f "$link"
+    rmdir "${link%/*}" "${link%/*/*}" 2>/dev/null || true
     return 0
   fi
   [[ -s $prefs ]] || return 0
