@@ -295,3 +295,17 @@ export WALLPAPER="$T/Pro Black.heic" WALLPAPER_PLAIN="$T/Black.png"
   not_called "brew services"
   not_called "set autohide"
 )
+
+# homebrew has named its services two ways over the years; the bar is found under either
+for label in sh.brew.sketchybar homebrew.mxcl.sketchybar; do
+  (
+    load macos
+    mac stopped true "$T/Pro Black.heic"
+    stub launchctl "[[ \"\$*\" == \"print gui/\$UID/$label\" ]]"
+    eq "$label: running, so nothing said" "" "$(bar_install)"
+    not_called "brew services start"
+    called "sketchybar --reload"
+    bar_uninstall >/dev/null
+    called "brew services stop sketchybar"
+  )
+done

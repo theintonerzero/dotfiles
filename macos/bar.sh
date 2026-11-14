@@ -3,7 +3,8 @@
 # shellcheck shell=bash
 
 BAR=${BAR:-sketchybar}
-BAR_SERVICE=homebrew.mxcl.sketchybar
+# what launchd knows the bar's service as: homebrew's name for it now, and the one it had before
+BAR_SERVICES=(sh.brew.sketchybar homebrew.mxcl.sketchybar)
 # pro black, which macos fetches the first time it's chosen, and plain black for a mac that hasn't yet
 WALLPAPER=${WALLPAPER:-$HOME/Library/Application Support/com.apple.mobileAssetDesktop/Pro Black.heic}
 WALLPAPER_PLAIN=${WALLPAPER_PLAIN:-/System/Library/Desktop Pictures/Solid Colors/Black.png}
@@ -39,7 +40,13 @@ bar_uninstall() {
 }
 
 # bar_running: whether launchd has the bar's service, which homebrew starts at each login
-bar_running() { launchctl print "gui/$UID/$BAR_SERVICE" >/dev/null 2>&1; }
+bar_running() {
+  local service
+  for service in "${BAR_SERVICES[@]}"; do
+    if launchctl print "gui/$UID/$service" >/dev/null 2>&1; then return 0; fi
+  done
+  return 1
+}
 
 # bar_start: the service, started where launchd hasn't it; a bar that's running reads its config again
 bar_start() {
