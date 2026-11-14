@@ -61,4 +61,7 @@ ok "macos says what uninstall leaves" grep -q "Homebrew" <<<"$(load macos && os_
 ok "readme has the mac's steps" grep -q 'brew install gh' "$REPO/README.md"
 no "readme no longer says not yet for macos" grep -q '| macOS | Not yet |' "$REPO/README.md"
 ok "readme lists the mac's lists" grep -q 'macos/defaults.txt' "$REPO/README.md"
+ok "readme has the mac's bar" grep -q '^| Bar, on macOS |' "$REPO/README.md"
+ok "readme lists the taps" grep -q 'macos/taps.txt' "$REPO/README.md"
+ok "changelog says sketchybar" grep -q 'sketchybar' <(sed -n '/^## \[Unreleased\]/,/^## \[1\./p' "$REPO/CHANGELOG.md")
 ok "changelog says macos" grep -q 'macOS' <(sed -n '/^## \[Unreleased\]/,/^## \[1\./p' "$REPO/CHANGELOG.md")
