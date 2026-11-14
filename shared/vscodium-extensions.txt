@@ -15,3 +15,4 @@ golang.go
 llvm-vs-code-extensions.vscode-clangd
 muhammad-sammy.csharp
 ziglang.vscode-zig
+vscodevim.vim

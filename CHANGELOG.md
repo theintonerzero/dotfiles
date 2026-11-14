@@ -96,6 +96,13 @@ All notable changes to this project are documented here. The format is based on
   as its Neovim package doesn't support macOS yet. Unity is pointed at VSCodium through a link in
   `~/.local/share/unity/code`: it writes the `.csproj` files C# completion needs only for an editor
   with "code" in its path. ArtCraft Launcher comes from its dmg.
+- VSCodium has the Vim extension (`vscodevim.vim`), on Fedora and macOS alike, with AstroNvim's
+  keys: Space as the leader and its file, buffer, find, LSP, git and debugger mappings on the
+  VSCodium commands that do the same, `jj` and `jk` out of insert mode, Ctrl+H/J/K/L between
+  splits, surround, the system clipboard, and relative line numbers. Outside the editor, where the
+  extension doesn't reach, `shared/vscodium-keybindings.json` gives the explorer Neo-tree's keys
+  and F7 and Ctrl+' the terminal. What VSCodium has no match for is left out: AstroNvim's own
+  pickers and toggles, and `Space gg`, which opens Source Control in place of lazygit.
 - `tests/run.sh`, which runs the steps in a temp home folder with stand-ins for the system's
   commands, so it changes nothing on the machine it runs on.
 
@@ -119,6 +126,8 @@ All notable changes to this project are documented here. The format is based on
 - What Claude is told about the machine it's on is a file per OS, `~/.claude/machine.md`, which
   `CLAUDE.md` reads.
 
+- VSCodium's C# extension uses its Roslyn server in place of OmniSharp, which can't open the
+  `.slnx` solutions Unity 6.6 writes. It needs the .NET 10 these dotfiles install.
 - Firefox is hardened further, on Fedora and macOS alike: tracking protection on Strict, DNS over
   HTTPS with the system's DNS to fall back on, DuckDuckGo as the default search engine, no search
   suggestions, no prompts for notifications or your location (a site can still be allowed), the

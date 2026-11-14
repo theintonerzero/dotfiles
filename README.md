@@ -66,6 +66,7 @@ it's on the list of what's left, and running install again once you've signed in
 | Git | delta, SSH-signed commits, Git LFS, HTTPS logins (GitLab's, say) in GNOME's keyring or macOS's Keychain, and GitHub's through `gh` alone |
 | Toolchains | mise (Node, Bun, Go, Java, Kotlin, Zig), rustup, uv, .NET 10, GCC, or Apple's clang on macOS |
 | Neovim | AstroNvim v6, 17 language packs, Copilot, claudecode.nvim, Discord presence |
+| VSCodium | Kanagawa Dragon, JetBrains Mono, 17 extensions from Open VSX, and the Vim extension with AstroNvim's keys: Space as the leader (`Space w` saves, `Space e` the explorer, `Space ff` finds files, `Space fw` words, `Space la` code actions, and the rest of its buffer, LSP, git and debugger keys), `jj` or `jk` to leave insert mode, Ctrl+H/J/K/L between splits, the explorer's `a`, `r`, `d`, `h` and `l` as in Neo-tree, the system clipboard, relative line numbers |
 | Godot | Neovim as the external editor, `gdscript-formatter` on save; `godot-toolkit` adds the MCP plugin to a project |
 | Unity | Unity Hub from Unity's dnf repo, opening its terminal in Ghostty; the Unity CLI with no usage analytics, crash reports, plugin tips or update check; Neovim, in Ghostty, as Unity's script editor, brought forward by Activate Window By Title; `unity-project [path]` adds Unity's Pipeline package, for the CLI and Claude, and the Neovim IDE package, which writes the `.sln` for its C# server, and puts the project on Vulkan. On macOS, Unity Hub comes from Homebrew and Unity's script editor is VSCodium, as the Neovim package doesn't support macOS yet; Unity reaches it through a link with "code" in its path, which is what makes Unity write the project files C# completion reads |
 | LLMs | LM Studio in the Development folder, `lms` on the PATH, Developer Mode and its resource monitor, and no models downloaded; on AMD GPUs, Fedora's ROCm, and LM Studio's ROCm engine beside its default Vulkan one. On macOS, LM Studio from Homebrew's cask, with the same settings |
@@ -98,6 +99,7 @@ Edit a list, then run `dot install`.
 | Firefox policy | `shared/firefox-policies.json` |
 | VSCodium setting | `shared/vscodium-settings.json` |
 | VSCodium extension | `shared/vscodium-extensions.txt` |
+| VSCodium key | `shared/vscodium-settings.json` for Vim's, in the editor; `shared/vscodium-keybindings.json` for the explorer, terminal and panels |
 | Claude plugin | `shared/claude-plugins.txt` |
 | Claude setting | `shared/claude-settings.json` |
 | LM Studio setting | `shared/lmstudio-settings.json` |
