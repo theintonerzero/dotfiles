@@ -80,16 +80,18 @@ All notable changes to this project are documented here. The format is based on
   App Store (`macos/appstore.txt`) once you're signed in there, with its licence accepted, and
   GarageBand, iMovie, Keynote, Numbers and Pages are removed (`macos/remove.txt`). Install starts
   from the bash 3.2 macOS ships and hands itself to Homebrew's.
+- VSCodium has Unity's code snippets (`kleber-swf.unity-code-snippets`): `Start`, `Update`,
+  `OnTriggerEnter` and the rest of Unity's messages.
 - macOS's settings, in `macos/defaults.txt`, set by `dot install` where they differ and left alone
-  by `dot update`: dark mode, a Dock that hides, at 48px, with no recent apps, no hot corners,
-  Finder in list view with the path bar, status bar, hidden files and every extension showing, the
-  fastest key repeat with held keys repeating, nothing you type changed for you, tap to click, no
-  mouse acceleration, screenshots in `~/Pictures/Screenshots`, and save dialogs opened in full. The
-  Dock's apps come from `macos/dock.txt`, and High Power mode and an always-on display on the
-  charger from `macos/power.txt`.
-- On macOS, Touch ID answers sudo, inside tmux too, the firewall is on, FileVault being off is listed
-  as left for you, and no analytics go to Apple. Firefox has the policies it has on Fedora, and is
-  made the default browser, which macOS has you confirm.
+  by `dot update`: dark mode with the Graphite accent, a Dock that hides, at 48px, with no recent
+  apps, no hot corners, Finder in list view with the path bar, status bar, hidden files and every
+  extension showing, the fastest key repeat with held keys repeating, nothing you type changed for
+  you, tap to click, no mouse acceleration, screenshots in `~/Pictures/Screenshots`, and save
+  dialogs opened in full. The Dock's apps come from `macos/dock.txt`, and High Power mode and an
+  always-on display on the charger from `macos/power.txt`.
+- On macOS, Touch ID answers sudo, inside tmux too, the firewall is on, FileVault being off is
+  listed as left for you, and no analytics go to Apple. Firefox has the policies it has on Fedora,
+  and is made the default browser, which macOS has you confirm.
 - On macOS, apps started from the Dock find the shell's tools, through a launch agent that hands
   them `~/.zshenv`'s PATH. Ghostty takes Option as Alt and blurs its see-through background. Godot
   opens scripts in Neovim in a new Ghostty window, as on Fedora, and Unity opens them in VSCodium,

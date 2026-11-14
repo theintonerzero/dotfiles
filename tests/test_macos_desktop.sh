@@ -49,9 +49,17 @@ called "defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -
 called "defaults write com.apple.screencapture location -string $HOME/Pictures/Screenshots"
 called "defaults write NSGlobalDomain com.apple.mouse.scaling -float 0.6875"
 called "defaults write com.apple.dock wvous-br-corner -int 1"
+called "defaults write NSGlobalDomain AppleAccentColor -int -1"
+called "defaults write NSGlobalDomain AppleAquaColorVariant -int 6"
 eq "every setting written" "$(want | grep -c .)" "$(calls | grep -c 'defaults.* write ')"
 eq "dock restarted once" 1 "$(calls | grep -c 'killall Dock')"
 eq "the menu bar restarted once" 1 "$(calls | grep -c 'killall SystemUIServer')"
+
+# graphite's highlight is the accent's own, so one chosen by hand is unset, by the real list
+echo "NSGlobalDomain AppleHighlightColor 0.9 0.5 0.1 Orange" >"$T/have"
+: >"$T/calls"
+(defaults_apply >/dev/null)
+called "defaults delete NSGlobalDomain AppleHighlightColor"
 
 # a key the list says to unset
 echo "NSGlobalDomain AppleAccentColor delete" >"$T/list"

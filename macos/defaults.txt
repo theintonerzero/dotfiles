@@ -5,6 +5,11 @@
 
 # as this mac was set by hand: appearance and the desktop
 NSGlobalDomain AppleInterfaceStyle string Dark
+# graphite as the accent, which sits with kanagawa dragon where the colours don't; the highlight is
+# left to follow it
+NSGlobalDomain AppleAccentColor int -1
+NSGlobalDomain AppleAquaColorVariant int 6
+NSGlobalDomain AppleHighlightColor delete
 com.apple.WindowManager StandardHideDesktopIcons bool true
 com.apple.WindowManager HideDesktop bool true
 com.apple.WindowManager StandardHideWidgets bool true

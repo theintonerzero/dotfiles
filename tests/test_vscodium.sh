@@ -8,6 +8,7 @@ S=$REPO/shared/vscodium-settings.json
 K=$REPO/shared/vscodium-keybindings.json
 
 ok "the vim extension is listed" grep -qx 'vscodevim.vim' "$REPO/shared/vscodium-extensions.txt"
+ok "unity's snippets are listed" grep -qx 'kleber-swf.unity-code-snippets' "$REPO/shared/vscodium-extensions.txt"
 # json <filter> <file>: whether the file is json that the filter holds for, saying nothing
 json() { jq -e "$1" "$2" >/dev/null 2>&1; }
 ok "settings are json" json 'type == "object"' "$S"
