@@ -94,6 +94,10 @@ tool_release() {
     warn "$cmd's release $tag has no file for this machine"
     return 1
   fi
+  if [[ ${digest:-} != sha256:* ]]; then
+    warn "github publishes no checksum for $cmd's $name, so it isn't installed"
+    return 1
+  fi
   say "installing $cmd $tag"
   mkdir -p "$opt" "$HOME/.local/bin"
   tmp=$(mktemp -d "$opt/.$cmd.XXXXXX")
@@ -127,10 +131,10 @@ tool_release() {
   return "$status"
 }
 
-# release_verify <sha256:digest> <file>: whether the file is the one github's api describes; a release
-# file github gives no checksum for passes
+# release_verify <sha256:digest> <file>: whether the file is the one github's api describes; one it gives
+# no checksum for is not
 release_verify() {
-  [[ $1 == sha256:* ]] || return 0
+  [[ $1 == sha256:* ]] || return 1
   [[ $(sha256sum "$2" | awk '{ print $1 }') == "${1#sha256:}" ]]
 }
 

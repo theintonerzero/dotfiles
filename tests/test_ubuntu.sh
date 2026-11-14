@@ -262,8 +262,7 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   nvim_tar 0.12.6
   head -c 100 "$T/nvim.tar.gz" >"$T/cut.tar.gz"
   release v0.12.6 nvim-linux-arm64.tar.gz "$T/cut.tar.gz"
-  # github has no checksum for it, so only the unpacking can tell
-  jq 'del(.assets[].digest)' "$T/release.json" >"$T/r" && mv "$T/r" "$T/release.json"
+  # the checksum github has is the cut file's own, so only the unpacking can tell
   one_tool "$NVIM" >/dev/null 2>&1 || fail "a cut-short download doesn't stop the run"
   no "a cut-short download: nothing installed" test -e "$HOME/.local/bin/nvim"
   [[ ${TODOS[*]} == *"nvim didn't install"* ]] || fail "a cut-short download: a todo"
@@ -347,4 +346,33 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   stub nvim 'echo "no network"; exit 1'
   out=$(neovim_parsers 2>&1) || fail "parsers that didn't install don't end the run"
   [[ $out == *"no network"* && $out == *"warning"* ]] || fail "parsers that didn't install are said: $out"
+)
+
+# neovim didn't install, as when github couldn't be asked for its release: its steps wait, the rest of
+# install is done, and what's left is said at the end rather than lost to a command that isn't there
+(
+  load ubuntu
+  for f in not_root keep_sudo system_install tools_install link_home shell_install system_update tools_update shell_update; do eval "$f() { :; }"; done
+  for f in neovim_install neovim_parsers neovim_update; do eval "$f() { echo ran-$f; }"; done
+  out=$(NEOVIM_CMD=no-such-nvim os_install) || fail "no neovim: install goes on"
+  eq "no neovim: its steps wait" "" "$out"
+  NEOVIM_CMD=no-such-nvim os_install
+  [[ ${TODOS[*]} == *"Neovim"* ]] || fail "no neovim: a todo says so"
+  out=$(NEOVIM_CMD=no-such-nvim os_update) || fail "no neovim: update goes on"
+  eq "no neovim: update's steps wait too" "" "$out"
+  eq "with neovim: all of them run" "ran-neovim_install ran-neovim_parsers" "$(NEOVIM_CMD=true os_install | paste -sd' ' -)"
+)
+# a release file github publishes no checksum for isn't installed, and isn't even fetched
+(
+  load ubuntu
+  fresh_home
+  stub uname 'echo aarch64'
+  stub apt-cache 'echo "  Candidate: 0.9.5-6ubuntu2"'
+  nvim_tar 0.12.6
+  release v0.12.6 nvim-linux-arm64.tar.gz "$T/nvim.tar.gz"
+  jq 'del(.assets[].digest)' "$T/release.json" >"$T/r" && mv "$T/r" "$T/release.json"
+  out=$(one_tool "$NVIM" 2>&1) || fail "no checksum: the run goes on"
+  [[ $out == *"no checksum"* ]] || fail "no checksum: says so: $out"
+  no "no checksum: nothing installed" test -e "$HOME/.local/bin/nvim"
+  no "no checksum: nothing fetched" grep -q 'example.invalid' "$T/calls"
 )

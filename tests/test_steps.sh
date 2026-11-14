@@ -64,8 +64,8 @@ ok "readme lists the mac's lists" grep -q 'macos/defaults.txt' "$REPO/README.md"
 ok "changelog says macos" grep -q 'macOS' <(sed -n '/^## \[Unreleased\]/,/^## \[1\./p' "$REPO/CHANGELOG.md")
 
 # ubuntu server's order: it asks nothing, signs in to nothing, and sets up no desktop
-eq "ubuntu install" "not_root keep_sudo system_install tools_install link_home shell_install neovim_install neovim_parsers " "$(order ubuntu os_install)"
-eq "ubuntu update" "keep_sudo system_update tools_update link_home shell_update neovim_update neovim_parsers " "$(order ubuntu os_update)"
+eq "ubuntu install" "not_root keep_sudo system_install tools_install link_home shell_install neovim_install neovim_parsers " "$(NEOVIM_CMD=true order ubuntu os_install)"
+eq "ubuntu update" "keep_sudo system_update tools_update link_home shell_update neovim_update neovim_parsers " "$(NEOVIM_CMD=true order ubuntu os_update)"
 eq "ubuntu uninstall" "unlink_home neovim_uninstall " "$(order ubuntu os_uninstall)"
 ok "readme has ubuntu's steps" grep -q 'sudo apt-get install -y git' "$REPO/README.md"
 ok "readme clones over https on ubuntu, with no sign-in" grep -qF 'git clone https://github.com/theintonerzero/dotfiles ~/dotfiles' "$REPO/README.md"

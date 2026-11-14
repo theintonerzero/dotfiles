@@ -9,8 +9,7 @@ os_install() {
   tools_install
   link_home
   shell_install
-  neovim_install
-  neovim_parsers
+  with_neovim neovim_install neovim_parsers
 }
 
 os_update() {
@@ -19,14 +18,24 @@ os_update() {
   tools_update
   link_home
   shell_update
-  neovim_update
-  neovim_parsers
+  with_neovim neovim_update neovim_parsers
 }
 
 os_uninstall() {
   say "removing the links"
   unlink_home
   neovim_uninstall
+}
+
+# with_neovim <step...>: neovim's steps, on a machine that has neovim. one where it didn't install, as when
+# github couldn't be asked for its release, is told so at the end, and the next run does them
+with_neovim() {
+  local step
+  if ! have "${NEOVIM_CMD:-nvim}"; then
+    todo "Neovim isn't installed yet, so its plugins and tools wait; run dot install again"
+    return 0
+  fi
+  for step; do "$step"; done
 }
 
 # not_root [uid]: install sets up the home of whoever runs it, so it stops for root before doing anything
