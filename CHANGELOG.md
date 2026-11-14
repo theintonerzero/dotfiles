@@ -76,7 +76,7 @@ All notable changes to this project are documented here. The format is based on
 - macOS support, for Apple Silicon Macs on macOS 27: `dot install`, `dot update` and `dot uninstall`
   work there as on Fedora, from a `macos/` folder beside `fedora/`. Homebrew is installed if it's
   missing, and installs what `macos/formulae.txt` and `macos/casks.txt` list: the same shell, git,
-  toolchains, Neovim and apps as Fedora, without Steam and the gaming tools. Xcode comes from the
+  toolchains, Neovim and apps as Fedora, without the gaming tools. Xcode comes from the
   App Store (`macos/appstore.txt`) once you're signed in there, with its licence accepted, and
   GarageBand, iMovie, Keynote, Numbers and Pages are removed (`macos/remove.txt`). Install starts
   from the bash 3.2 macOS ships and hands itself to Homebrew's.
@@ -110,6 +110,8 @@ All notable changes to this project are documented here. The format is based on
 - On macOS, Ctrl+Cmd+Enter opens a new Ghostty window from any app, as Super+Enter does on Fedora.
   Ghostty has to be running, and macOS asks once to let it see keys (Privacy & Security >
   Accessibility).
+- On macOS, Steam, from Homebrew's cask, second in the Dock as on Fedora: the client alone, so a
+  game's Steamworks can be tested there. Proton, Gamescope and GameMode stay Fedora's.
 - `tests/run.sh`, which runs the steps in a temp home folder with stand-ins for the system's
   commands, so it changes nothing on the machine it runs on.
 

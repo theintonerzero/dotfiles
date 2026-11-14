@@ -1,6 +1,7 @@
 # the dock's apps, in order, each by its name in /Applications, or by its full path; one that isn't
 # installed is left out. dot install sets them when they differ; dot update leaves the dock alone
 Firefox
+Steam
 Vesktop
 Godot
 VSCodium

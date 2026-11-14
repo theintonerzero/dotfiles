@@ -117,3 +117,7 @@ called "chflags nohidden $HOME/Library"
 : >"$T/calls"
 (desktop_folders)
 not_called chflags
+
+# steam is on the mac too, for testing a game's steamworks, and sits in the dock where fedora has it
+ok "steam is a cask" grep -qx steam <(list "$REPO/macos/casks.txt")
+eq "the dock's first three, as fedora's" "Firefox Steam Vesktop" "$(list "$REPO/macos/dock.txt" | head -n 3 | paste -sd' ' -)"
