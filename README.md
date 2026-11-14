@@ -6,7 +6,7 @@ and Claude Code.
 | OS | Status |
 | --- | --- |
 | Fedora 44 Workstation (GNOME) | Done |
-| macOS 27 (Apple Silicon) | In testing |
+| macOS 27 (Apple Silicon) | Done |
 | Ubuntu Server | Not yet |
 
 ## Install
