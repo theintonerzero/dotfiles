@@ -1,5 +1,5 @@
-# macos/apps.sh: the apps homebrew has no cask for, firefox's policies, the default browser, and the
-# environment of apps started from the dock
+# macos/apps.sh: the apps homebrew has no cask for, firefox's policies, the default browser, podman's
+# linux vm, and the environment of apps started from the dock
 # shellcheck shell=bash
 
 # firefox reads its policies from this settings domain, outside the app, so they outlast its updates and
@@ -11,6 +11,7 @@ apps_install() {
   apps_releases
   firefox_policies
   default_browser
+  podman_machine
 }
 
 apps_update() {
@@ -24,6 +25,15 @@ apps_uninstall() {
     launchctl bootout "gui/$UID/$GUI_ENV" 2>/dev/null || true
     rm -f "$agent"
   fi
+}
+
+# podman_machine: fedora's podman runs containers on its own kernel; on macos it needs a linux vm, made
+# once here, and started when you want it with podman machine start
+podman_machine() {
+  have podman || return 0
+  [[ -z $(podman machine list -q 2>/dev/null </dev/null) ]] || return 0
+  say "making podman's linux vm"
+  quiet podman machine init || todo "podman's linux vm wasn't made: run podman machine init"
 }
 
 # artcraft launcher, from the dmg on its github releases

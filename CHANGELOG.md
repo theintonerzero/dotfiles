@@ -105,6 +105,11 @@ All notable changes to this project are documented here. The format is based on
   extension doesn't reach, `shared/vscodium-keybindings.json` gives the explorer Neo-tree's keys
   and F7 and Ctrl+' the terminal. What VSCodium has no match for is left out: AstroNvim's own
   pickers and toggles, and `Space gg`, which opens Source Control in place of lazygit.
+- On macOS, `wget` and Podman, which Fedora ships: `dot install` makes Podman's Linux VM, and
+  `podman machine start` runs it when you want containers.
+- On macOS, Ctrl+Cmd+Enter opens a new Ghostty window from any app, as Super+Enter does on Fedora.
+  Ghostty has to be running, and macOS asks once to let it see keys (Privacy & Security >
+  Accessibility).
 - `tests/run.sh`, which runs the steps in a temp home folder with stand-ins for the system's
   commands, so it changes nothing on the machine it runs on.
 
@@ -130,6 +135,9 @@ All notable changes to this project are documented here. The format is based on
 
 - VSCodium's C# extension uses its Roslyn server in place of OmniSharp, which can't open the
   `.slnx` solutions Unity 6.6 writes. It needs the .NET 10 these dotfiles install.
+- Git lists the newest branches and tags first, stashes your changes around a rebase, squashes
+  `fixup!` commits and moves stacked branches with it, shows the diff under the commit message as
+  you write it, and asks before running its guess at a mistyped command. On Fedora and macOS alike.
 - Firefox is hardened further, on Fedora and macOS alike: tracking protection on Strict, DNS over
   HTTPS with the system's DNS to fall back on, DuckDuckGo as the default search engine, no search
   suggestions, no prompts for notifications or your location (a site can still be allowed), the

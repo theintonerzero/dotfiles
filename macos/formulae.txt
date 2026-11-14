@@ -21,6 +21,10 @@ ripgrep
 tmux
 btop
 
+# what fedora ships and macos doesn't: wget, and podman for containers, whose linux vm install makes
+wget
+podman
+
 # git
 git
 git-lfs

@@ -1,6 +1,7 @@
-# git: delta for diffs, commits signed with your ssh key, https logins where this os keeps them, and your name
-# and email from ~/.config/git/local, which dot install writes; what tools add with --global goes in
-# ~/.gitconfig
+# git: delta for diffs, the newest branches and tags first, rebases that stash, squash fixups and
+# move stacked branches, commits signed with your ssh key, https logins where this os keeps them, and
+# your name and email from ~/.config/git/local, which dot install writes; what tools add with
+# --global goes in ~/.gitconfig
 [core]
 	editor = nvim
 	pager = delta
@@ -35,8 +36,18 @@
 	allowedSignersFile = ~/.config/git/allowed_signers
 [commit]
 	gpgsign = true
+	verbose = true
 [tag]
 	gpgsign = true
+	sort = -version:refname
+[branch]
+	sort = -committerdate
+[rebase]
+	autoStash = true
+	autoSquash = true
+	updateRefs = true
+[help]
+	autocorrect = prompt
 # https passwords and tokens, such as gitlab's, kept where ~/.config/git/credential says, which is each
 # os's own file: gnome's keyring, or macos's keychain; github and its gists sign in through gh alone, as
 # each one's empty helper clears that one, so gh's token never lands in it

@@ -147,3 +147,31 @@ echo '{}' >"$HOME/.lmstudio/settings.json"
 stub pgrep 'exit 1'
 (llm_install >/dev/null && [[ ${#TODOS[@]} == 0 ]])
 ok "lm studio's settings merged" jq -e '.developerMode == true' "$HOME/.lmstudio/settings.json" >/dev/null
+
+# podman: fedora's runs containers on its own kernel; on macos it needs a linux vm, made once
+(
+  stub podman '[[ "$*" == "machine list -q" ]] && exit 0; exit 0'
+  podman_machine >/dev/null
+  called "podman machine init"
+)
+(
+  stub podman '[[ "$*" == "machine list -q" ]] && echo podman-machine-default; exit 0'
+  : >"$T/calls"
+  podman_machine
+  not_called "podman machine init"
+)
+(
+  stub podman '[[ "$*" == "machine list -q" ]] && exit 0; echo "no disk space" >&2; exit 1'
+  : >"$T/calls"
+  podman_machine >/dev/null 2>&1 || fail "a vm that can't be made doesn't stop install"
+  [[ ${TODOS[*]} == *"podman machine init"* ]] || fail "a vm that can't be made: a todo"
+)
+(
+  rm -f "$T/bin/podman"
+  : >"$T/calls"
+  PATH=$T/bin:/usr/bin:/bin podman_machine
+  not_called "podman"
+)
+ok "podman is listed" grep -qx 'podman' <(list "$REPO/macos/formulae.txt")
+ok "wget is listed" grep -qx 'wget' <(list "$REPO/macos/formulae.txt")
+ok "install makes podman's vm" grep -qx '  podman_machine' "$REPO/macos/apps.sh"
