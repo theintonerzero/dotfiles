@@ -137,6 +137,8 @@ All notable changes to this project are documented here. The format is based on
 
 ### Changed
 
+- The prompt names the computer on every machine, in a pill before the folder, and no longer only
+  over SSH.
 - Claude Code asks before `rm -rf` however its flags are written (`-rf`, `-fr`, `-Rf`, `-fR`), and
   still before force-pushing or deleting a GitHub repo, and before the Unity CLI uninstalls an
   Editor or itself (`unity u` included), installs an Editor or modules (`unity i` and `unity im`

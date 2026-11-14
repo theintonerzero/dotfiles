@@ -86,3 +86,10 @@ if [[ -x /usr/libexec/path_helper ]]; then
 fi
 ok "the name zsh completes open with is left alone" bash -c "! grep -q '^_open()' '$REPO/home/zsh/.config/zsh/functions.zsh'"
 ok "myip where there's no ip command" grep -q 'ifconfig' "$REPO/home/zsh/.config/zsh/aliases.zsh"
+
+# the prompt names the computer everywhere, not only over ssh
+ok "the prompt's computer name isn't for ssh alone" grep -qx 'ssh_only = false' <(sed -n '/^\[hostname\]/,/^\[/p' "$REPO/home/starship/.config/starship.toml")
+if command -v starship >/dev/null; then
+  name=$(STARSHIP_CONFIG=$REPO/home/starship/.config/starship.toml env -u SSH_CONNECTION -u SSH_CLIENT -u SSH_TTY starship module hostname)
+  [[ -n $name ]] || fail "the prompt shows the computer's name with no ssh"
+fi
