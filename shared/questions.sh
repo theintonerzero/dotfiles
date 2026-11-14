@@ -41,16 +41,39 @@ ask_questions() {
   fi
 }
 
-# current_hostname: the static name, or the one the computer has now when none is set (a fresh fedora)
+# current_hostname: the static name, or the one the computer has now when none is set (a fresh fedora);
+# on macos, the computer's name, as system settings shows it
 current_hostname() {
   local name
-  name=$(hostnamectl --static 2>/dev/null) || name=""
+  if [[ $(os_id) == macos ]]; then
+    name=$(scutil --get ComputerName 2>/dev/null) || name=""
+  else
+    name=$(hostnamectl --static 2>/dev/null) || name=""
+  fi
   printf '%s\n' "${name:-$(uname -n)}"
 }
 
-# set_hostname: names the computer NEW_HOSTNAME, when that's a change
+# hostname_local <name>: the name as a network takes it: spaces as hyphens, and letters, digits and
+# hyphens only
+hostname_local() {
+  local name=${1// /-}
+  printf '%s\n' "${name//[^A-Za-z0-9-]/}"
+}
+
+# set_hostname: names the computer NEW_HOSTNAME, when that's a change; macos has three names: the
+# computer's, as typed, and its local network and host names, which take hostname_local's form of it
 set_hostname() {
+  local net
   [[ -n ${NEW_HOSTNAME:-} && $NEW_HOSTNAME != "$(current_hostname)" ]] || return 0
   say "naming this computer $NEW_HOSTNAME"
+  if [[ $(os_id) == macos ]]; then
+    net=$(hostname_local "$NEW_HOSTNAME")
+    as_root scutil --set ComputerName "$NEW_HOSTNAME" || warn "couldn't name this computer $NEW_HOSTNAME"
+    if [[ -n $net ]]; then
+      { as_root scutil --set LocalHostName "$net" && as_root scutil --set HostName "$net"; } ||
+        warn "couldn't set this computer's network name to $net"
+    fi
+    return 0
+  fi
   as_root hostnamectl set-hostname "$NEW_HOSTNAME" || warn "couldn't name this computer $NEW_HOSTNAME"
 }

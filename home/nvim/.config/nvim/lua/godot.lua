@@ -2,12 +2,14 @@
 -- and ~/.local/bin/godot-nvim, godot's external editor, opens each script there at godot's line and column
 local M = {}
 
--- the socket for <project>: $XDG_RUNTIME_DIR/godot-nvim/, then the first 16 hex digits of the sha-256 of
--- the project's real path, as godot-nvim names it; nil without XDG_RUNTIME_DIR or the folder
+-- the socket for <project>: $XDG_RUNTIME_DIR/godot-nvim/, or ~/.local/state/godot-nvim/ where there's no
+-- XDG_RUNTIME_DIR, as on macos, then the first 16 hex digits of the sha-256 of the project's real path,
+-- as godot-nvim names it; nil without the folder
 function M.socket(project)
-  local runtime = vim.env.XDG_RUNTIME_DIR
+  local runtime = vim.env.XDG_RUNTIME_DIR or (vim.env.HOME .. "/.local/state")
+  if runtime == "" then runtime = vim.env.HOME .. "/.local/state" end
   local real = project and vim.uv.fs_realpath(project)
-  if not runtime or runtime == "" or not real then return nil end
+  if not real then return nil end
   return runtime .. "/godot-nvim/" .. vim.fn.sha256(real):sub(1, 16) .. ".sock"
 end
 

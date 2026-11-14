@@ -121,7 +121,9 @@ claude_skills() {
 # claude_servers: the mcp servers, at user scope, and what each needs; one claude already has by that
 # name stays as it is
 claude_servers() {
-  local cargo=${CARGO_HOME:-$HOME/.cargo}
+  local cargo=${CARGO_HOME:-$HOME/.cargo} browsers=$HOME/.cache/ms-playwright
+  # where playwright keeps its browsers on macos
+  if [[ $(os_id) == macos ]]; then browsers=$HOME/Library/Caches/ms-playwright; fi
   if ! claude mcp get github >/dev/null 2>&1 </dev/null; then
     say "adding the github mcp server, signed in through gh"
     claude mcp add-json --scope user github "$(jq -nc --arg helper "$HOME/.local/bin/claude-github-headers" \
@@ -143,11 +145,11 @@ claude_servers() {
   claude_blender
   claude_server blender -e DISABLE_TELEMETRY=true -- uvx mcp-for-blender@latest
   # blender lab's own server, beside it, on the port its add-on is set to (claude_blender_lab)
-  if compgen -G "${XDG_CONFIG_HOME:-$HOME/.config}/blender/*/extensions/blender_lab/mcp" >/dev/null; then
+  if compgen -G "$(app_dir blender Blender)/*/extensions/blender_lab/mcp" >/dev/null; then
     claude_server blender_official -e BLENDER_MCP_HOST=127.0.0.1 -e BLENDER_MCP_PORT=9877 \
       -- "$HOME/.local/bin/blender-lab-mcp"
   fi
-  if ! compgen -G "$HOME/.cache/ms-playwright/chromium-*" >/dev/null; then
+  if ! compgen -G "$browsers/chromium-*" >/dev/null; then
     say "installing chromium for playwright"
     quiet npx -y @playwright/mcp@latest install-browser chromium || warn "couldn't install playwright's chromium"
   fi
@@ -180,7 +182,7 @@ claude_blender() {
   fi
   series=$(blender --version 2>/dev/null | sed -n 's/^Blender \([0-9]*\.[0-9]*\).*/\1/p' | head -n 1)
   [[ -n $series ]] || return 0
-  config=${XDG_CONFIG_HOME:-$HOME/.config}/blender/$series
+  config=$(app_dir blender Blender)/$series
   addons=$config/scripts/addons prefs=$config/config/userpref.blend
   if [[ ! -f $addons/blender_mcp.py || ${1:-} == update ]]; then
     [[ -f $addons/blender_mcp.py ]] || say "installing the mcp for blender add-on"
@@ -192,13 +194,13 @@ claude_blender() {
   if [[ $(printf '%s\n' 5.1 "$series" | sort -V | head -n 1) == 5.1 ]]; then
     if [[ ! -d $config/extensions/blender_lab/mcp ]] || ! grep -qa bl_ext.blender_lab.mcp "$prefs" 2>/dev/null; then
       lab=1
-    elif [[ ${1:-} == update ]] && ! pgrep -x blender >/dev/null; then
+    elif [[ ${1:-} == update ]] && ! running blender Blender; then
       # --sync fetches the repos' listings first; without it, nothing newer is ever seen
       blender --online-mode -c extension update --sync >/dev/null 2>&1 </dev/null || warn "couldn't update blender's extensions"
     fi
   fi
   ((community || lab)) || return 0
-  if pgrep -x blender >/dev/null; then
+  if running blender Blender; then
     todo "close Blender and run dot install again, so its MCP add-ons get turned on"
     return 0
   fi

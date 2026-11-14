@@ -7,7 +7,10 @@ set -euo pipefail
 
 repo=https://projects.blender.org/lab/blender_mcp.git
 version=1.0.3
-manifest=$(printf '%s\n' "${XDG_CONFIG_HOME:-$HOME/.config}"/blender/*/extensions/blender_lab/mcp/blender_manifest.toml |
+config=${XDG_CONFIG_HOME:-$HOME/.config}/blender
+# where blender keeps its settings on macos
+if [[ $(uname -s) == Darwin ]]; then config="$HOME/Library/Application Support/Blender"; fi
+manifest=$(printf '%s\n' "$config"/*/extensions/blender_lab/mcp/blender_manifest.toml |
   sort -V | tail -n 1)
 if [[ -f $manifest ]]; then
   found=$(sed -n 's/^version = "\([0-9.]*\)"$/\1/p' "$manifest" | head -n 1)

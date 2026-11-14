@@ -2,12 +2,22 @@
 # shellcheck shell=bash
 
 shell_install() {
-  local zsh
-  zsh=$(command -v zsh)
-  if [[ $(getent passwd "$USER" | cut -d: -f7) != "$zsh" ]]; then
-    say "making zsh your login shell"
-    as_root usermod -s "$zsh" "$USER"
-    todo "log out and back in, so new terminals start zsh"
+  local zsh shell
+  if [[ $(os_id) == macos ]]; then
+    # macos's own zsh, which is the login shell already unless you changed it
+    shell=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{ print $2 }')
+    if [[ $shell != */zsh ]]; then
+      say "making zsh your login shell"
+      as_root chsh -s /bin/zsh "$USER"
+      todo "log out and back in, so new terminals start zsh"
+    fi
+  else
+    zsh=$(command -v zsh)
+    if [[ $(getent passwd "$USER" | cut -d: -f7) != "$zsh" ]]; then
+      say "making zsh your login shell"
+      as_root usermod -s "$zsh" "$USER"
+      todo "log out and back in, so new terminals start zsh"
+    fi
   fi
   fzf_tab
   atuin_import

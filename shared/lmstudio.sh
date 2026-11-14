@@ -11,7 +11,7 @@ lmstudio_settings() {
     return 0
   fi
   [[ $merged == "$(jq . "$file")" ]] && return 0
-  if pgrep -x lm-studio >/dev/null; then
+  if running lm-studio "LM Studio"; then
     todo "quit LM Studio, then run dot install again for its settings"
     return 0
   fi

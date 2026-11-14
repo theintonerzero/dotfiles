@@ -17,7 +17,7 @@ godot_formatter() {
   [[ -n $tag ]] || { warn "couldn't look up gdscript-formatter's newest release"; return 0; }
   if [[ -x $bin ]]; then have=$("$bin" --version 2>/dev/null) || have=""; fi
   [[ -n $have && $have == *"${tag#v}"* ]] && return 0
-  url=$(gh_asset GDQuest/GDScript-formatter '^gdscript-formatter-.*-linux-x86_64\.zip$') || url=""
+  url=$(gh_asset GDQuest/GDScript-formatter "$(godot_formatter_asset)") || url=""
   tmp=$(mktemp -d)
   say "installing gdscript-formatter $tag"
   if [[ -n $url ]] && fetch "$url" "$tmp/formatter.zip" && unzip -q "$tmp/formatter.zip" -d "$tmp/zip"; then
@@ -34,11 +34,21 @@ godot_formatter() {
   rm -rf "$tmp"
 }
 
+# godot_formatter_asset: the name of gdscript-formatter's release file for this os, as a regex
+godot_formatter_asset() {
+  if [[ $(os_id) == macos ]]; then
+    echo '^gdscript-formatter-.*-macos-aarch64\.zip$'
+  else
+    echo '^gdscript-formatter-.*-linux-x86_64\.zip$'
+  fi
+}
+
 # godot_settings: godot's external editor set to godot-nvim, while godot is closed
 godot_settings() {
-  local dir=${XDG_CONFIG_HOME:-$HOME/.config}/godot files f version
+  local dir files f version
+  dir=$(app_dir godot Godot)
   have godot || return 0
-  if pgrep -x godot >/dev/null; then
+  if running godot Godot; then
     todo "close Godot and run dot install again, so Godot opens scripts in Neovim"
     return 0
   fi
@@ -54,12 +64,13 @@ godot_settings() {
 
 # godot_uninstall: godot's own script editor again, in each settings file where install set godot-nvim
 godot_uninstall() {
-  local f
-  if pgrep -x godot >/dev/null; then
+  local f dir
+  dir=$(app_dir godot Godot)
+  if running godot Godot; then
     warn "Godot is open, so it still opens scripts with godot-nvim: close it and run dot uninstall again"
     return 0
   fi
-  for f in "${XDG_CONFIG_HOME:-$HOME/.config}"/godot/editor_settings-*.tres; do
+  for f in "$dir"/editor_settings-*.tres; do
     [[ -f $f ]] || continue
     grep -qE '^text_editor/external/exec_path = ".*/godot-nvim"$' "$f" || continue
     say "giving godot its own script editor back in $(basename "$f")"
