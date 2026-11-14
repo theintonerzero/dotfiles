@@ -1,5 +1,9 @@
 -- godot: neovim serves the godot project it's in, for godot-nvim (lua/godot.lua), and gdscript-formatter
 -- formats on save when it's installed; the pack's godot-server.nvim serves a pipe in .godot instead, so it's off
+-- a server (one with a lua/machine.lua that says so) has neither
+local on_server, machine = pcall(require, "machine")
+if on_server and type(machine) == "table" and machine.server == true then return {} end
+
 ---@type LazySpec
 return {
   { "Cretezy/godot-server.nvim", enabled = false },

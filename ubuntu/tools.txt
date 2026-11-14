@@ -1,0 +1,19 @@
+# the tools ubuntu's packages lack or have too old on some releases, one a line:
+#   command  apt-package  minimum-version  github-repo  arm64-asset  amd64-asset
+# ubuntu's own package is used when its version meets the minimum, so its security updates cover it;
+# otherwise the project's latest release is unpacked in ~/.local/opt and its command linked in
+# ~/.local/bin, after its checksum is checked against the one github publishes for each release file.
+# - stands for no apt package. the asset names are regexes over the release's file names, as they were
+# for the releases of november 2026; the static (musl) build where a project has both
+
+# neovim: astronvim needs 0.11
+nvim         neovim           0.11.0  neovim/neovim            ^nvim-linux-arm64\.tar\.gz$                       ^nvim-linux-x86_64\.tar\.gz$
+# nvim-treesitter asks for tree-sitter 0.26.1, and its health check calls anything older an error
+tree-sitter  tree-sitter-cli  0.26.1  tree-sitter/tree-sitter  ^tree-sitter-linux-arm64\.gz$                     ^tree-sitter-linux-x64\.gz$
+# .zshrc runs fzf --zsh, which came with 0.48
+fzf          fzf              0.48.0  junegunn/fzf             ^fzf-[0-9.]+-linux_arm64\.tar\.gz$                ^fzf-[0-9.]+-linux_amd64\.tar\.gz$
+starship     starship         1.0.0   starship/starship        ^starship-aarch64-unknown-linux-musl\.tar\.gz$    ^starship-x86_64-unknown-linux-musl\.tar\.gz$
+atuin        atuin            18.0.0  atuinsh/atuin            ^atuin-aarch64-unknown-linux-musl\.tar\.gz$       ^atuin-x86_64-unknown-linux-musl\.tar\.gz$
+lazygit      lazygit          0.40.0  jesseduffield/lazygit    ^lazygit_[0-9.]+_linux_arm64\.tar\.gz$            ^lazygit_[0-9.]+_linux_x86_64\.tar\.gz$
+# tmux's session picker; ubuntu has no package for it
+sesh         -                -       joshmedeski/sesh         ^sesh_Linux_arm64\.tar\.gz$                       ^sesh_Linux_x86_64\.tar\.gz$

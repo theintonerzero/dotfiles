@@ -1,13 +1,13 @@
 # dotfiles
 
 One command to set up a fresh machine: apps, desktop, gaming, shell, toolchains, Neovim, VSCodium
-and Claude Code.
+and Claude Code. A headless Ubuntu Server gets the shell, git, tmux and Neovim, and nothing else.
 
 | OS | Status |
 | --- | --- |
 | Fedora 44 Workstation (GNOME) | Done |
 | macOS 27 (Apple Silicon) | Done |
-| Ubuntu Server | Not yet |
+| Ubuntu Server 24.04 and 26.04 (ARM and Intel) | Done |
 
 ## Install
 
@@ -31,8 +31,19 @@ gh repo clone theintonerzero/dotfiles ~/dotfiles
 ~/dotfiles/install.sh
 ```
 
-Install asks for the computer's name and your sudo password. The rest comes from your GitHub
-sign-in:
+On Ubuntu Server, as yourself and not as root:
+
+```sh
+sudo apt-get install -y git
+git clone https://github.com/theintonerzero/dotfiles ~/dotfiles
+~/dotfiles/install.sh
+```
+
+There, install asks for nothing but your sudo password, where sudo wants one, and signs in to
+nothing: git can clone and pull, and has no name or key to commit with.
+
+On Fedora and macOS, install asks for the computer's name and your sudo password. The rest comes
+from your GitHub sign-in:
 
 - git's name and email, from your GitHub profile (the no-reply address if your email is private)
 - an SSH key, added to GitHub for login and commit signing
@@ -49,7 +60,7 @@ it's on the list of what's left, and running install again once you've signed in
 | Command | Does |
 | --- | --- |
 | `dot install` | Sets everything up |
-| `dot update` | Pulls the repo, then updates packages and apps, toolchains, Neovim, VSCodium, the Unity CLI and Claude Code. On Fedora it takes a snapshot of `/` first, and updates Flatpaks, LM Studio and Proton-GE too; on macOS, Homebrew's formulae and casks and the App Store's apps. Your settings stay as you left them |
+| `dot update` | Pulls the repo, then updates packages and apps, toolchains, Neovim, VSCodium, the Unity CLI and Claude Code. On Fedora it takes a snapshot of `/` first, and updates Flatpaks, LM Studio and Proton-GE too; on macOS, Homebrew's formulae and casks and the App Store's apps; on Ubuntu Server, apt's packages and the tools that came from their own releases, and it says when Ubuntu wants a restart but never restarts. Your settings stay as you left them |
 | `dot uninstall` | Removes the links and restores the `.bak` files they replaced, gives Godot and Unity their own script editors back, and on macOS stops the bar and brings Apple's menu bar back |
 
 ## What you get
@@ -63,6 +74,7 @@ it's on the list of what's left, and running install again once you've signed in
 | macOS's settings | Dark mode with the Graphite accent; a Dock that hides, at 48px, with no recent apps, holding Firefox, Steam, Vesktop, Godot, VSCodium, Ghostty, Blender and Spotify; no hot corners; Finder in list view with the path bar, status bar, hidden files and every extension showing, folders first; the fastest key repeat, held keys repeating, and nothing you type changed for you; tap to click, no mouse acceleration; screenshots in `~/Pictures/Screenshots`; save dialogs opened in full; High Power mode and an always-on display on the charger |
 | Bar, on macOS | A [sketchybar](https://github.com/FelixKratz/SketchyBar) bar in place of Apple's menu bar, which hides until the pointer reaches the top of the screen: pills like tmux's and the prompt's, in their colours, on a bar with nothing behind it, with Pro Black as the wallpaper. Workspaces, the current one filled and empty ones dimmed, and the front app on the left; the time, the date, the battery (red at a fifth or less, green on the charger), memory in use and how busy the processors are (each red from nine tenths up) on the right; and, only while they have something to say, what Spotify is playing, muted sound, a missing network and a disk that's nine tenths full. Nothing on it can be clicked and it mirrors no menu-bar icon, which keeps it clear of sketchybar's open bugs on macOS 27. sketchybar comes from its author's Homebrew tap, the one tap added, with only that formula trusted |
 | Gaming, on Fedora | Steam games named in GNOME, FSR4 on RDNA 4, Proton-GE as Steam's default, Steam's performance monitor in full detail at the top left, no GPU rendering in Steam's web views, GameMode, Gamescope, ProtonTricks |
+| On Ubuntu Server | zsh as the login shell, with the prompt, plugins, aliases and history search the other two have: Starship, atuin, zoxide, fzf, eza, bat, fd, ripgrep and btop; tmux with sesh; git with delta and lazygit; Neovim; `dot`; and Ghostty's terminal description, so tmux and Neovim work over SSH from Ghostty. Each tool is Ubuntu's own package where that's new enough, as all but sesh and tree-sitter are on 26.04, and otherwise the project's latest release, in `~/.local/opt`, checked against the checksum GitHub publishes for it; no PPA, snap or other package source is added. Neovim is the same AstroNvim config with the packs for Lua, shell, JSON, YAML, TOML and Markdown, and without Copilot, claudecode.nvim, Discord presence, the test runner and the other languages' packs. Shell, JSON and YAML get highlighting, and shell gets shellcheck and shfmt, but no completion from a language server, as theirs need Node; on ARM, selene, a Lua linter, has no build and is left out. No toolchains, apps or Claude Code, no computer name set, and nothing about what the server is for or how it's locked down |
 | Shell | zsh, Starship, atuin, zoxide, fzf, eza, bat, fd, ripgrep, Ghostty, tmux with sesh and pills, lazygit. On macOS, Ghostty takes Option as Alt and blurs its background, Ctrl+Cmd+Enter opens a new Ghostty window from any app while Ghostty is running, as Super+Enter does on Fedora, and apps started from the Dock find the shell's tools |
 | Git | delta, SSH-signed commits, the newest branches and tags listed first, rebases that stash your changes, squash fixups and move stacked branches, the diff under the commit message as you write it, a prompt when a command is mistyped, Git LFS, HTTPS logins (GitLab's, say) in GNOME's keyring or macOS's Keychain, and GitHub's through `gh` alone |
 | Toolchains | mise (Node, Bun, Go, Java, Kotlin, Zig), rustup, uv, .NET 10, GCC, or Apple's clang on macOS |
@@ -99,6 +111,9 @@ Edit a list, then run `dot install`.
 | macOS setting | `macos/defaults.txt` |
 | Dock app | `macos/dock.txt` |
 | Power setting, on macOS | `macos/power.txt` |
+| Package, on Ubuntu Server | `ubuntu/packages.txt` |
+| Tool from apt or its own release, on Ubuntu Server | `ubuntu/tools.txt` |
+| Shared config a server links | `ubuntu/home.txt` |
 | Firefox policy | `shared/firefox-policies.json` |
 | VSCodium setting | `shared/vscodium-settings.json` |
 | VSCodium extension | `shared/vscodium-extensions.txt` |
@@ -106,7 +121,7 @@ Edit a list, then run `dot install`.
 | Claude plugin | `shared/claude-plugins.txt` |
 | Claude setting | `shared/claude-settings.json` |
 | LM Studio setting | `shared/lmstudio-settings.json` |
-| Config file | `home/<app>/`, laid out as in `~`; `fedora/home/<app>/` or `macos/home/<app>/` for one that only that OS links |
+| Config file | `home/<app>/`, laid out as in `~`; `fedora/home/<app>/`, `macos/home/<app>/` or `ubuntu/home/<app>/` for one that only that OS links |
 
 ## Undoing an update
 
@@ -123,3 +138,8 @@ Fedora's window buttons, which use macOS's red, yellow and green (`fedora/home/g
 
 `tests/run.sh` runs the steps in a temp home folder, with stand-ins for the system's commands, so it
 changes nothing on the machine it runs on.
+
+`tests/container.sh [image]` is a real install: with Podman, as a user with sudo in a fresh Ubuntu
+container (`ubuntu:24.04` unless you name another; `--arch amd64` for Intel), it installs twice,
+starts a login zsh and Neovim, updates and uninstalls. It needs the network and takes a few minutes,
+so `run.sh` leaves it out.

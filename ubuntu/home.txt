@@ -1,0 +1,8 @@
+# the packages in home/ that ubuntu server links: the shell, git, tmux, neovim, the prompt, and the small
+# tools' config; the rest of home/ is for machines with a desktop or development tools
+zsh
+git
+tmux
+nvim
+starship
+cli
