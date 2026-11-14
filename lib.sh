@@ -125,10 +125,21 @@ load_steps() {
   done
 }
 
-# packages: the stow packages in home/
+# home_roots: the folders of stow packages this os links: home/, which every os links, then its own,
+# <os>/home/
+home_roots() {
+  local own
+  own=$DOTFILES/$(os_id)/home
+  echo "$DOTFILES/home"
+  if [[ -d $own ]]; then echo "$own"; fi
+}
+
+# packages <root>: the stow packages in a root
 packages() {
   local d
-  for d in "$DOTFILES"/home/*/; do basename "$d"; done
+  for d in "$1"/*/; do
+    if [[ -d $d ]]; then basename "$d"; fi
+  done
 }
 
 # package_files <root> <pkg>: every file a package links, relative to home
@@ -161,34 +172,60 @@ link_dest() {
   printf '%s\n' "${out:-/}"
 }
 
-# link_home: links every package into ~, moving anything in the way to <file>.bak first
+# prune_links: the links into the dotfiles that name a file no longer there, as a package moved to
+# another folder leaves behind; stow stops at one, as it isn't from the folder stow is linking
+prune_links() {
+  local root pkg rel target
+  while IFS= read -r root; do
+    while IFS= read -r pkg; do
+      while IFS= read -r rel; do
+        target=$HOME/$rel
+        if [[ -L $target && ! -e $target && $(link_dest "$target") == "$DOTFILES"/* ]]; then
+          say "removing a stale link, $target"
+          rm -f "$target"
+        fi
+      done < <(package_files "$root" "$pkg")
+    done < <(packages "$root")
+  done < <(home_roots)
+}
+
+# link_home: links every package of every root into ~, moving anything in the way to <file>.bak first
 link_home() {
-  local pkg rel target bak
-  local -a pkgs
-  mapfile -t pkgs < <(packages)
+  local root pkg rel target bak
+  local -a roots pkgs
+  mapfile -t roots < <(home_roots)
+  prune_links
   # a folder linked in from elsewhere, like another dotfiles setup, would have its files moved aside in
   # that other tree before stow refuses it, so stop before anything moves
-  for pkg in "${pkgs[@]}"; do
-    while IFS= read -r rel; do
-      target=$HOME/$rel
-      if [[ -L $target && $(readlink -f "$target") != "$DOTFILES"/* ]]; then
-        die "$target is a link to $(readlink -f "$target"): move it aside, then run dot install again"
-      fi
-    done < <(package_dirs "$DOTFILES/home" "$pkg")
+  for root in "${roots[@]}"; do
+    while IFS= read -r pkg; do
+      while IFS= read -r rel; do
+        target=$HOME/$rel
+        if [[ -L $target && $(readlink -f "$target") != "$DOTFILES"/* ]]; then
+          die "$target is a link to $(readlink -f "$target"): move it aside, then run dot install again"
+        fi
+      done < <(package_dirs "$root" "$pkg")
+    done < <(packages "$root")
   done
-  for pkg in "${pkgs[@]}"; do
-    while IFS= read -r rel; do
-      target=$HOME/$rel
-      if [[ -e $target || -L $target ]] && [[ $(readlink -f "$target") != "$(readlink -f "$DOTFILES/home/$pkg/$rel")" ]]; then
-        # an earlier backup stays as it is; a newer one goes beside it
-        bak=$target.bak
-        if [[ -e $bak || -L $bak ]]; then bak=$target.bak.$(date +%Y%m%d%H%M%S); fi
-        say "moving $target aside to $bak"
-        mv "$target" "$bak"
-      fi
-    done < <(package_files "$DOTFILES/home" "$pkg")
+  for root in "${roots[@]}"; do
+    while IFS= read -r pkg; do
+      while IFS= read -r rel; do
+        target=$HOME/$rel
+        if [[ -e $target || -L $target ]] && [[ $(readlink -f "$target") != "$(readlink -f "$root/$pkg/$rel")" ]]; then
+          # an earlier backup stays as it is; a newer one goes beside it
+          bak=$target.bak
+          if [[ -e $bak || -L $bak ]]; then bak=$target.bak.$(date +%Y%m%d%H%M%S); fi
+          say "moving $target aside to $bak"
+          mv "$target" "$bak"
+        fi
+      done < <(package_files "$root" "$pkg")
+    done < <(packages "$root")
   done
-  stow --no-folding --restow -d "$DOTFILES/home" -t "$HOME" "${pkgs[@]}"
+  for root in "${roots[@]}"; do
+    mapfile -t pkgs < <(packages "$root")
+    ((${#pkgs[@]})) || continue
+    stow --no-folding --restow -d "$root" -t "$HOME" "${pkgs[@]}"
+  done
   mkdir -p "$HOME/.local/bin"
   ln -sfn "$DOTFILES/bin/dot" "$HOME/.local/bin/dot"
 }
@@ -205,15 +242,21 @@ pull_dotfiles() {
 
 # unlink_home: removes the links and puts the .bak files back
 unlink_home() {
-  local pkg rel target
-  local -a pkgs
-  mapfile -t pkgs < <(packages)
-  stow -D -d "$DOTFILES/home" -t "$HOME" "${pkgs[@]}"
-  for pkg in "${pkgs[@]}"; do
-    while IFS= read -r rel; do
-      target=$HOME/$rel
-      if [[ -e $target.bak && ! -e $target && ! -L $target ]]; then mv "$target.bak" "$target"; fi
-    done < <(package_files "$DOTFILES/home" "$pkg")
+  local root pkg rel target
+  local -a roots pkgs
+  mapfile -t roots < <(home_roots)
+  for root in "${roots[@]}"; do
+    mapfile -t pkgs < <(packages "$root")
+    ((${#pkgs[@]})) || continue
+    stow -D -d "$root" -t "$HOME" "${pkgs[@]}"
+  done
+  for root in "${roots[@]}"; do
+    while IFS= read -r pkg; do
+      while IFS= read -r rel; do
+        target=$HOME/$rel
+        if [[ -e $target.bak && ! -e $target && ! -L $target ]]; then mv "$target.bak" "$target"; fi
+      done < <(package_files "$root" "$pkg")
+    done < <(packages "$root")
   done
   if [[ -L $HOME/.local/bin/dot ]]; then rm -f "$HOME/.local/bin/dot"; fi
 }

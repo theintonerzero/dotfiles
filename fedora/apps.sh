@@ -31,10 +31,10 @@ apps_uninstall() {
 apps_gtk_css() {
   local show
   show=$(flatpak override --user --show 2>/dev/null)
-  [[ $show == *"$DOTFILES/home/gtk:ro"* && $show == *"xdg-config/gtk-4.0:ro"* ]] && return 0
+  [[ $show == *"$DOTFILES/fedora/home/gtk:ro"* && $show == *"xdg-config/gtk-4.0:ro"* ]] && return 0
   say "letting flatpak apps use the window buttons' css"
   flatpak override --user --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/gtk-3.0:ro \
-    --filesystem="$DOTFILES/home/gtk:ro"
+    --filesystem="$DOTFILES/fedora/home/gtk:ro"
 }
 
 # apps_spotify: spotify's flatpak on x11, not wayland, where it draws a blue title bar of its own; on
