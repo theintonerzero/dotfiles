@@ -318,3 +318,17 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   eq "sesh runs" sesh "$("$HOME/.local/bin/sesh")"
   not_called "apt-cache"
 )
+
+# neovim's parsers are waited for, as a run with no screen is over before neovim has fetched them by itself
+(
+  load ubuntu
+  stub nvim
+  neovim_parsers
+  called "nvim --headless +luafile $REPO/shared/neovim-parsers.lua +qa"
+)
+(
+  load ubuntu
+  stub nvim 'echo "no network"; exit 1'
+  out=$(neovim_parsers 2>&1) || fail "parsers that didn't install don't end the run"
+  [[ $out == *"no network"* && $out == *"warning"* ]] || fail "parsers that didn't install are said: $out"
+)

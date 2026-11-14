@@ -15,6 +15,13 @@ neovim_update() {
   neovim_kotlin
 }
 
+# neovim_parsers: treesitter's parsers, waited for, where a machine wants them there before neovim is first
+# opened; without this they arrive as neovim starts, and a run with no screen is over before they have
+neovim_parsers() {
+  quiet nvim --headless "+luafile $DOTFILES/shared/neovim-parsers.lua" +qa ||
+    warn "Neovim's treesitter parsers didn't all install; opening Neovim fetches the rest"
+}
+
 neovim_uninstall() {
   local link=$HOME/.local/bin/kotlin-lsp
   if [[ -L $link && $(readlink "$link") == */mason/bin/intellij-server ]]; then rm -f "$link"; fi

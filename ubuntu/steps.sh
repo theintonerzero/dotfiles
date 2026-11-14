@@ -10,6 +10,7 @@ os_install() {
   link_home
   shell_install
   neovim_install
+  neovim_parsers
 }
 
 os_update() {
@@ -19,6 +20,7 @@ os_update() {
   link_home
   shell_update
   neovim_update
+  neovim_parsers
 }
 
 os_uninstall() {

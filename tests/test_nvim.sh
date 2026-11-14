@@ -77,3 +77,23 @@ if [[ $(uname -s) == Darwin ]]; then
   (load macos && link_home) >/dev/null
   no "macos doesn't" test -e "$HOME/.config/nvim/lua/machine.lua"
 fi
+
+# --- the parsers a run with no screen waits for ---
+
+# parsers <ensure_installed, as lua> <what wait does, as lua>: runs shared/neovim-parsers.lua against a
+# stand-in nvim-treesitter that prints what it's asked to install and how long it's waited for
+parsers() {
+  cat >"$T/probe.lua" <<LUA
+package.loaded.astrocore = { config = { treesitter = { ensure_installed = $1 } } }
+package.loaded["nvim-treesitter"] = { install = function(langs)
+  io.write(table.concat(langs, " "))
+  return { wait = function(_, ms) io.write(" for " .. ms) $2 end }
+end }
+dofile("$REPO/shared/neovim-parsers.lua")
+LUA
+  nvim --clean -l "$T/probe.lua" 2>/dev/null
+}
+eq "every parser the config asks for, waited for" "lua bash for 600000" "$(parsers '{ "lua", "bash" }' 'return true')"
+no "a parser that didn't install is a failure" parsers '{ "lua" }' 'return false' >/dev/null
+no "one that never finished is too" parsers '{ "lua" }' 'error("timeout")' >/dev/null
+eq "a config that names none asks for none" "" "$(parsers '"auto"' 'return true')"
