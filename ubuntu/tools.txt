@@ -8,8 +8,8 @@
 
 # neovim: astronvim needs 0.11
 nvim         neovim           0.11.0  neovim/neovim            ^nvim-linux-arm64\.tar\.gz$                       ^nvim-linux-x86_64\.tar\.gz$
-# the parsers neovim's treesitter builds need tree-sitter 0.25
-tree-sitter  tree-sitter-cli  0.25.0  tree-sitter/tree-sitter  ^tree-sitter-linux-arm64\.gz$                     ^tree-sitter-linux-x64\.gz$
+# nvim-treesitter asks for tree-sitter 0.26.1, and its health check calls anything older an error
+tree-sitter  tree-sitter-cli  0.26.1  tree-sitter/tree-sitter  ^tree-sitter-linux-arm64\.gz$                     ^tree-sitter-linux-x64\.gz$
 # .zshrc runs fzf --zsh, which came with 0.48
 fzf          fzf              0.48.0  junegunn/fzf             ^fzf-[0-9.]+-linux_arm64\.tar\.gz$                ^fzf-[0-9.]+-linux_amd64\.tar\.gz$
 starship     starship         1.0.0   starship/starship        ^starship-aarch64-unknown-linux-musl\.tar\.gz$    ^starship-x86_64-unknown-linux-musl\.tar\.gz$

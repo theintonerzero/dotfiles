@@ -7,7 +7,7 @@ return {
     local on_server, machine = pcall(require, "machine")
     if on_server and type(machine) == "table" and machine.server == true then
       -- a server has no node, python, go or rust to install a tool with, so of what the packs ask for
-      -- it gets the ones mason has as a ready-made program for linux on arm and intel alike
+      -- it gets the ones mason has as a ready-made program for linux (selene on intel only)
       local standalone = { "lua-language-server", "stylua", "selene", "shellcheck", "shfmt", "taplo", "marksman" }
       opts.ensure_installed = vim.tbl_filter(
         function(tool) return vim.tbl_contains(standalone, tool) end,

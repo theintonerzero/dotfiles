@@ -71,21 +71,42 @@ ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubun
 # the package lists are fetched when there are none or they're a day old, and always for an update
 (
   load ubuntu
-  APT_LISTS=$T/lists
+  APT_LISTS=$T/lists APT_STAMP=$T/cache/apt-refreshed
   mkdir -p "$APT_LISTS"
   apt_refresh >/dev/null
   called "sudo apt-get update"
-  touch "$APT_LISTS/archive_dists_noble_InRelease"
+  touch "$APT_LISTS/archive_dists_noble_main_binary-arm64_Packages"
   : >"$T/calls"
   apt_refresh
   not_called "apt-get update"
-  touch -t 202001010000 "$APT_LISTS/archive_dists_noble_InRelease"
+  # apt dates its lists by when the archive published them, not by when they were fetched: lists that
+  # look old, fetched a moment ago, aren't fetched again
+  touch -t 202001010000 "$APT_LISTS/archive_dists_noble_main_binary-arm64_Packages"
+  apt_refresh
+  not_called "apt-get update"
+  # a day since the last fetch
+  touch -t 202001010000 "$APT_STAMP"
   apt_refresh >/dev/null
   called "sudo apt-get update"
-  touch "$APT_LISTS/archive_dists_noble_InRelease"
+  # fetched lately, but the lists are gone, as an image is shipped
+  rm -f "$APT_LISTS"/*
+  : >"$T/calls"
+  apt_refresh >/dev/null
+  called "sudo apt-get update"
+  touch "$APT_LISTS/archive_dists_noble_main_binary-arm64_Packages"
   : >"$T/calls"
   apt_refresh force >/dev/null
   called "sudo apt-get update"
+)
+# a fetch that failed isn't remembered as one
+(
+  load ubuntu
+  APT_LISTS=$T/lists2 APT_STAMP=$T/cache2/apt-refreshed
+  mkdir -p "$APT_LISTS"
+  stub sudo 'exit 1'
+  apt_refresh >/dev/null 2>&1
+  no "a failed fetch leaves no mark" test -e "$APT_STAMP"
+  stub sudo
 )
 # an upgrade that needs a restart says so, and restarts nothing
 (
@@ -375,4 +396,10 @@ NVIM='nvim neovim 0.11.0 neovim/neovim ^nvim-linux-arm64\.tar\.gz$ ^nvim-linux-x
   [[ $out == *"no checksum"* ]] || fail "no checksum: says so: $out"
   no "no checksum: nothing installed" test -e "$HOME/.local/bin/nvim"
   no "no checksum: nothing fetched" grep -q 'example.invalid' "$T/calls"
+)
+
+# nvim-treesitter itself asks for tree-sitter 0.26.1, and says so as an error in its health check
+(
+  load ubuntu
+  eq "tree-sitter's floor" 0.26.1 "$(list "$REPO/ubuntu/tools.txt" | awk '$1 == "tree-sitter" { print $3 }')"
 )

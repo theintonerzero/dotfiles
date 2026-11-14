@@ -4,6 +4,9 @@
 
 APT_LISTS=${APT_LISTS:-/var/lib/apt/lists}
 REBOOT_FLAG=${REBOOT_FLAG:-/var/run/reboot-required}
+# when these dotfiles last fetched apt's lists; apt dates the lists themselves by when the archive
+# published them, which says nothing of how lately they were fetched
+APT_STAMP=${APT_STAMP:-${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/apt-refreshed}
 
 system_install() {
   apt_refresh
@@ -18,15 +21,20 @@ system_update() {
   debian_names
 }
 
-# apt_refresh [force]: apt's package lists, fetched when there are none or the newest is a day old, as on a
-# fresh server, or always when forced
+# apt_refresh [force]: apt's package lists, fetched when there are none, as on a fresh server, when a day
+# has gone by since these dotfiles last fetched them, or always when forced
 apt_refresh() {
   if [[ ${1:-} != force ]] &&
-    find "$APT_LISTS" -maxdepth 1 -type f \( -name '*InRelease' -o -name '*_Packages*' \) -mtime -1 2>/dev/null | grep -q .; then
+    find "$APT_STAMP" -mtime -1 2>/dev/null | grep -q . &&
+    find "$APT_LISTS" -maxdepth 1 -type f -name '*_Packages*' 2>/dev/null | grep -q .; then
     return 0
   fi
   say "fetching apt's package lists"
-  quiet as_root apt-get update || warn "apt couldn't fetch its package lists"
+  if quiet as_root apt-get update; then
+    mkdir -p "$(dirname "$APT_STAMP")" && touch "$APT_STAMP"
+  else
+    warn "apt couldn't fetch its package lists"
+  fi
 }
 
 # apt_missing: the packages in packages.txt that aren't installed
