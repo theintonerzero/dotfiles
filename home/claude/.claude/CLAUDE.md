@@ -19,9 +19,8 @@
 
 ## This machine
 
-- Fedora Workstation with GNOME.
-- Packages come from dnf: Fedora's repos, then RPM Fusion and COPR. Avoid Flathub unless I ask
-  for it.
+@~/.claude/machine.md
+
 - Toolchains: mise for Node, Go, Java and the like, rustup for Rust, uv for Python.
 - My dotfiles are in `~/dotfiles`, managed by its `dot` command
   (`dot install`, `dot update`, `dot uninstall`). The config files in `~` are links into it, so

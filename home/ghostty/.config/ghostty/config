@@ -12,5 +12,8 @@ cursor-style = block
 cursor-style-blink = false
 shell-integration-features = no-cursor,sudo,title
 
+# what only one os needs, in a file of its own, where it has one
+config-file = ?os.conf
+
 copy-on-select = clipboard
 mouse-hide-while-typing = true

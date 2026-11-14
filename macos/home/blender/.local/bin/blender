@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# blender: blender by name, as homebrew's cask puts no blender on the path, and claude's blender step and
+# the blender skills run it that way
+exec /Applications/Blender.app/Contents/MacOS/Blender "$@"

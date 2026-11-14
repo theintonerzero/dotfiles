@@ -30,7 +30,9 @@ bindkey '^[[3~' delete-char
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
-# completion; the full check for new completions runs once a day
+# completion; the full check for new completions runs once a day; homebrew keeps its tools' completions
+# in a folder of its own
+if [[ -n $HOMEBREW_PREFIX ]]; then fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath); fi
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*'
 zstyle ':completion:*' menu no
 zstyle ':completion:*:descriptions' format '[%d]'
@@ -63,11 +65,19 @@ fi
 source $ZDOTDIR/aliases.zsh
 source $ZDOTDIR/functions.zsh
 
-# suggestions, then highlighting, last: it wraps every widget made before it
-if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
-  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-  ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-fi
-if [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
+# suggestions, then highlighting, last: it wraps every widget made before it; fedora keeps them in
+# /usr/share, homebrew in its own share
+for share in /usr/share ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/share}; do
+  if [[ -r $share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source $share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+    break
+  fi
+done
+for share in /usr/share ${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/share}; do
+  if [[ -r $share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    source $share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    break
+  fi
+done
+unset share
