@@ -48,6 +48,11 @@ os_uninstall() {
   unity_uninstall
 }
 
+# os_signins: what only you can sign in to, said last
+os_signins() {
+  todo "sign in to Claude (claude), Copilot (:Copilot auth in Neovim), Spotify and Vesktop"
+}
+
 # os_uninstall_notes: what uninstall leaves behind, said once it's done
 os_uninstall_notes() {
   cat <<'NOTES'

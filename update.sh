@@ -5,7 +5,7 @@ source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 need_bash "$@"
 
 os=$(os_id)
-[[ -f $DOTFILES/$os/steps.sh ]] || die "these dotfiles support Fedora and macOS"
+[[ -f $DOTFILES/$os/steps.sh ]] || die "these dotfiles support Fedora, macOS and Ubuntu Server"
 pull_dotfiles "$@"
 load_steps "$os"
 

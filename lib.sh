@@ -167,9 +167,17 @@ home_roots() {
   if [[ -d $own ]]; then echo "$own"; fi
 }
 
-# packages <root>: the stow packages in a root
+# packages <root>: the stow packages in a root; of home/'s, which every os shares, an os with a home.txt
+# links only the ones it lists
 packages() {
-  local d
+  local d only
+  only=$DOTFILES/$(os_id)/home.txt
+  if [[ $1 == "$DOTFILES/home" && -f $only ]]; then
+    while read -r d; do
+      if [[ -d $1/$d ]]; then echo "$d"; fi
+    done < <(list "$only")
+    return 0
+  fi
   for d in "$1"/*/; do
     if [[ -d $d ]]; then basename "$d"; fi
   done

@@ -8,7 +8,7 @@ source "$(dirname "$0")/helpers.sh"
 order() (
   load "$1"
   for f in $(declare -F | awk '{ print $3 }' |
-    grep -E '_(install|update|uninstall)$|^(ask_questions|keep_sudo|set_hostname|link_home|unlink_home|system_first|gui_env)$'); do
+    grep -E '_(install|update|uninstall)$|^(ask_questions|keep_sudo|set_hostname|link_home|unlink_home|system_first|gui_env|not_root)$'); do
     [[ $f == os_* ]] || eval "$f() { echo $f; }"
   done
   "$2" | grep -E '^[a-z_]+$' | tr '\n' ' '
@@ -62,3 +62,24 @@ ok "readme has the mac's steps" grep -q 'brew install gh' "$REPO/README.md"
 no "readme no longer says not yet for macos" grep -q '| macOS | Not yet |' "$REPO/README.md"
 ok "readme lists the mac's lists" grep -q 'macos/defaults.txt' "$REPO/README.md"
 ok "changelog says macos" grep -q 'macOS' <(sed -n '/^## \[Unreleased\]/,/^## \[1\./p' "$REPO/CHANGELOG.md")
+
+# ubuntu server's order: it asks nothing, signs in to nothing, and sets up no desktop
+eq "ubuntu install" "not_root keep_sudo system_install tools_install link_home shell_install neovim_install " "$(order ubuntu os_install)"
+eq "ubuntu update" "keep_sudo system_update tools_update link_home shell_update neovim_update " "$(order ubuntu os_update)"
+eq "ubuntu uninstall" "unlink_home neovim_uninstall " "$(order ubuntu os_uninstall)"
+notes=$(load ubuntu && os_uninstall_notes)
+ok "ubuntu says apt's packages stay" grep -q "apt" <<<"$notes"
+ok "ubuntu says the release tools stay" grep -qF '.local/opt' <<<"$notes"
+
+# the sign-ins install ends on are each desktop os's own; a server has none
+for os in fedora macos; do
+  (load "$os" && os_signins && [[ ${TODOS[*]} == *"sign in to Claude (claude), Copilot (:Copilot auth in Neovim), Spotify and Vesktop"* ]]) ||
+    fail "$os still ends on its sign-ins"
+done
+no "ubuntu has no sign-ins" bash -c "source '$REPO/tests/helpers.sh'; trap - ERR; load ubuntu; declare -F os_signins >/dev/null"
+ok "install asks the os for its sign-ins" grep -q 'os_signins' "$REPO/install.sh"
+no "install names no app itself" grep -q 'Spotify' "$REPO/install.sh"
+for f in install.sh update.sh uninstall.sh; do
+  out=$(DOT_OS=unknown "$BASH" "$REPO/$f" 2>&1) && fail "$f on an os it doesn't know: stops"
+  [[ $out == *"these dotfiles support Fedora, macOS and Ubuntu Server"* ]] || fail "$f names the three it supports: $out"
+done
