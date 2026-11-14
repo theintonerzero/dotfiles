@@ -1,0 +1,3 @@
+# power settings: charger or battery, then a pmset setting and its value
+charger powermode 2      # high power mode, on the macs that have one
+charger displaysleep 0   # the display never sleeps

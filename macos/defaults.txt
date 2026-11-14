@@ -1,0 +1,80 @@
+# macos settings: domain, key, type (bool, int, float or string), then the value; a ~ at the start of a
+# value is your home folder; `delete` as the type unsets the key; -currentHost first is for a setting
+# macos keeps per machine
+# dot install sets each one that differs; dot update leaves them alone
+
+# as this mac was set by hand: appearance and the desktop
+NSGlobalDomain AppleInterfaceStyle string Dark
+com.apple.WindowManager StandardHideDesktopIcons bool true
+com.apple.WindowManager HideDesktop bool true
+com.apple.WindowManager StandardHideWidgets bool true
+com.apple.WindowManager StageManagerHideWidgets bool true
+com.apple.WindowManager EnableTiledWindowMargins bool false
+
+# the dock: hidden until the pointer reaches it, small, no recent apps
+com.apple.dock autohide bool true
+com.apple.dock tilesize int 48
+com.apple.dock show-recents bool false
+
+# finder: list view, the path bar, every extension, new windows on your home folder, the trash emptied
+# after 30 days
+com.apple.finder FXPreferredViewStyle string Nlsv
+com.apple.finder ShowPathbar bool true
+NSGlobalDomain AppleShowAllExtensions bool true
+com.apple.finder NewWindowTarget string PfHm
+com.apple.finder FXRemoveOldTrashItems bool true
+
+# keyboard, trackpad and mouse: the fastest key repeat system settings offers, tap to click, natural
+# scrolling, no mouse acceleration, and a globe key that does nothing
+NSGlobalDomain KeyRepeat int 2
+NSGlobalDomain InitialKeyRepeat int 15
+com.apple.AppleMultitouchTrackpad Clicking bool true
+com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking bool true
+-currentHost NSGlobalDomain com.apple.mouse.tapBehavior int 1
+NSGlobalDomain com.apple.swipescrolldirection bool true
+NSGlobalDomain com.apple.mouse.linear bool true
+NSGlobalDomain com.apple.mouse.scaling float 0.6875
+com.apple.HIToolbox AppleFnUsageType int 0
+
+# as on fedora: no hot corners (1 is "nothing")
+com.apple.dock wvous-tl-corner int 1
+com.apple.dock wvous-tr-corner int 1
+com.apple.dock wvous-bl-corner int 1
+com.apple.dock wvous-br-corner int 1
+
+# for development: finder shows hidden files, the status bar and the full path in its title, sorts
+# folders first, searches the folder it's in, doesn't warn about changing an extension, and leaves no
+# .DS_Store on network or usb drives
+com.apple.finder AppleShowAllFiles bool true
+com.apple.finder ShowStatusBar bool true
+com.apple.finder _FXShowPosixPathInTitle bool true
+com.apple.finder _FXSortFoldersFirst bool true
+com.apple.finder FXDefaultSearchScope string SCcf
+com.apple.finder FXEnableExtensionChangeWarning bool false
+com.apple.desktopservices DSDontWriteNetworkStores bool true
+com.apple.desktopservices DSDontWriteUSBStores bool true
+
+# typing: a held key repeats, nothing typed is changed for you, and tab reaches every control
+NSGlobalDomain ApplePressAndHoldEnabled bool false
+NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled bool false
+NSGlobalDomain NSAutomaticDashSubstitutionEnabled bool false
+NSGlobalDomain NSAutomaticSpellingCorrectionEnabled bool false
+NSGlobalDomain NSAutomaticCapitalizationEnabled bool false
+NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled bool false
+NSGlobalDomain NSAutomaticInlinePredictionEnabled bool false
+NSGlobalDomain AppleKeyboardUIMode int 2
+
+# the dock appears at once, and spaces stay in the order you put them
+com.apple.dock autohide-delay float 0
+com.apple.dock mru-spaces bool false
+
+# screenshots as png in their own folder, which dot install makes
+com.apple.screencapture location string ~/Pictures/Screenshots
+com.apple.screencapture type string png
+
+# save and print dialogs open in full, and new documents save to the disk, not icloud
+NSGlobalDomain NSNavPanelExpandedStateForSaveMode bool true
+NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 bool true
+NSGlobalDomain PMPrintingExpandedStateForPrint bool true
+NSGlobalDomain PMPrintingExpandedStateForPrint2 bool true
+NSGlobalDomain NSDocumentSaveNewDocumentsToCloud bool false
