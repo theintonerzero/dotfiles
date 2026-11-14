@@ -63,7 +63,8 @@ user() { podman exec -e TERM=xterm-ghostty "$name" su -l tester -s /bin/bash -c 
 # quiet_run: ends the run if the stage's log has a warning, but for the ones a copy with no upstream earns
 quiet_run() {
   local warnings
-  warnings=$(plain <"$log" | grep '^warning: ' | grep -v 'no upstream to pull from' || true)
+  # and atuin's, which has no history to import on a machine nobody has used yet
+  warnings=$(plain <"$log" | grep '^warning: ' | grep -v -e 'no upstream to pull from' -e "atuin couldn't import your history" || true)
   [[ -z $warnings ]] || wrong "it warned: $warnings"
 }
 # wrong <what>: ends the run at this stage

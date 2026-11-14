@@ -80,20 +80,29 @@ fi
 
 # --- the parsers a run with no screen waits for ---
 
-# parsers <ensure_installed, as lua> <what wait does, as lua>: runs shared/neovim-parsers.lua against a
-# stand-in nvim-treesitter that prints what it's asked to install and how long it's waited for
+# parsers <ensure_installed, as lua> <what install's wait gives, as lua> <the parsers there afterwards, as
+# lua>: runs shared/neovim-parsers.lua against a stand-in nvim-treesitter that prints what it's asked to
+# install; waiting for anything is over at once
 parsers() {
   cat >"$T/probe.lua" <<LUA
 package.loaded.astrocore = { config = { treesitter = { ensure_installed = $1 } } }
-package.loaded["nvim-treesitter"] = { install = function(langs)
-  io.write(table.concat(langs, " "))
-  return { wait = function(_, ms) io.write(" for " .. ms) $2 end }
-end }
+package.loaded["nvim-treesitter"] = {
+  install = function(langs)
+    io.write(table.concat(langs, " "))
+    return { wait = function() $2 end }
+  end,
+  get_installed = function() return $3 end,
+}
+vim.wait = function(_, done) return done() end
 dofile("$REPO/shared/neovim-parsers.lua")
 LUA
   nvim --clean -l "$T/probe.lua" 2>/dev/null
 }
-eq "every parser the config asks for, waited for" "lua bash for 600000" "$(parsers '{ "lua", "bash" }' 'return true')"
-no "a parser that didn't install is a failure" parsers '{ "lua" }' 'return false' >/dev/null
-no "one that never finished is too" parsers '{ "lua" }' 'error("timeout")' >/dev/null
-eq "a config that names none asks for none" "" "$(parsers '"auto"' 'return true')"
+eq "every parser the config asks for is asked for" "lua bash" "$(parsers '{ "lua", "bash" }' 'return true' '{ "bash", "lua", "c" }')"
+# neovim's own pass may be installing the same parsers, and then the wait here comes back early saying
+# no: what counts is whether the parsers are there
+ok "an install that says no, with the parsers there, is fine" parsers '{ "lua" }' 'return false' '{ "lua" }' >/dev/null
+ok "so is one that fell over, with the parsers there" parsers '{ "lua" }' 'error("busy")' '{ "lua" }' >/dev/null
+no "a parser that isn't there is a failure" parsers '{ "lua", "bash" }' 'return true' '{ "lua" }' >/dev/null
+no "none there is too" parsers '{ "lua" }' 'return false' '{}' >/dev/null
+eq "a config that names none asks for none" "" "$(parsers '"auto"' 'return true' '{}')"
