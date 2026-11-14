@@ -51,3 +51,14 @@ stub git 'if [[ "$*" == *"rev-parse HEAD" ]]; then
 fi'
 eq "update finishes" finished "$("$T/up.sh" | tail -n 1)"
 eq "after starting again once" 2 "$(grep -c run "$T/runs")"
+
+# macos's order; dot update sets none of the system's settings
+eq "macos install" "system_first ask_questions keep_sudo set_hostname system_install apps_install link_home gui_env shell_install git_install toolchains_install neovim_install vscodium_install godot_install unity_install claude_install desktop_install security_install llm_install " "$(order macos os_install)"
+eq "macos update" "keep_sudo system_update apps_update link_home shell_update toolchains_update neovim_update vscodium_update unity_update claude_update godot_update llm_update " "$(order macos os_update)"
+eq "macos uninstall" "unlink_home apps_uninstall neovim_uninstall godot_uninstall unity_uninstall " "$(order macos os_uninstall)"
+ok "macos says what uninstall leaves" grep -q "Homebrew" <<<"$(load macos && os_uninstall_notes)"
+
+ok "readme has the mac's steps" grep -q 'brew install gh' "$REPO/README.md"
+no "readme no longer says not yet for macos" grep -q '| macOS | Not yet |' "$REPO/README.md"
+ok "readme lists the mac's lists" grep -q 'macos/defaults.txt' "$REPO/README.md"
+ok "changelog says macos" grep -q 'macOS' <(sed -n '/^## \[Unreleased\]/,/^## \[1\./p' "$REPO/CHANGELOG.md")

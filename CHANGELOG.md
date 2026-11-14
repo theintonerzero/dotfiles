@@ -73,6 +73,30 @@ All notable changes to this project are documented here. The format is based on
   git config, so a token never lands in the keyring even before `gh auth setup-git` has run; Unity
   Hub's GitHub sign-in uses `gh`'s too.
 
+- macOS support, for Apple Silicon Macs on macOS 27: `dot install`, `dot update` and `dot uninstall`
+  work there as on Fedora, from a `macos/` folder beside `fedora/`. Homebrew is installed if it's
+  missing, and installs what `macos/formulae.txt` and `macos/casks.txt` list: the same shell, git,
+  toolchains, Neovim and apps as Fedora, without Steam and the gaming tools. Xcode comes from the
+  App Store (`macos/appstore.txt`) once you're signed in there, with its licence accepted, and
+  GarageBand, iMovie, Keynote, Numbers and Pages are removed (`macos/remove.txt`). Install starts
+  from the bash 3.2 macOS ships and hands itself to Homebrew's.
+- macOS's settings, in `macos/defaults.txt`, set by `dot install` where they differ and left alone
+  by `dot update`: dark mode, a Dock that hides, at 48px, with no recent apps, no hot corners,
+  Finder in list view with the path bar, status bar, hidden files and every extension showing, the
+  fastest key repeat with held keys repeating, nothing you type changed for you, tap to click, no
+  mouse acceleration, screenshots in `~/Pictures/Screenshots`, and save dialogs opened in full. The
+  Dock's apps come from `macos/dock.txt`, and High Power mode and an always-on display on the
+  charger from `macos/power.txt`.
+- On macOS, Touch ID answers sudo, inside tmux too, the firewall is on, FileVault being off is listed
+  as left for you, and no analytics go to Apple. Firefox has the policies it has on Fedora, and is
+  made the default browser, which macOS has you confirm.
+- On macOS, apps started from the Dock find the shell's tools, through a launch agent that hands
+  them `~/.zshenv`'s PATH. Ghostty takes Option as Alt and blurs its see-through background. Godot
+  opens scripts in Neovim in a new Ghostty window, as on Fedora, and Unity opens them in VSCodium,
+  as its Neovim package doesn't support macOS yet. ArtCraft Launcher comes from its dmg.
+- `tests/run.sh`, which runs the steps in a temp home folder with stand-ins for the system's
+  commands, so it changes nothing on the machine it runs on.
+
 ### Changed
 
 - Claude Code asks before `rm -rf` however its flags are written (`-rf`, `-fr`, `-Rf`, `-fR`), and
@@ -81,6 +105,17 @@ All notable changes to this project are documented here. The format is based on
   included), accepts an Editor's terms, closes an Editor (which doesn't save), prunes Editors,
   returns a licence or sends a bug report. It no longer has to ask before Godot's MCP tools run
   code, call methods or write scripts.
+- Config packages only one OS uses live in `fedora/home/` or `macos/home/`, and `home/` is linked on
+  both. The GTK window-button CSS, the gaming files, the default-terminal list with
+  `x-terminal-emulator`, and the `environment.d` file moved to `fedora/home/`. A home linked by the
+  older layout relinks itself: the next `dot update` starts again once after pulling, as any update
+  that pulls new commits now does, and removes the links the move left pointing nowhere.
+- Firefox's policies are in `shared/firefox-policies.json` and VSCodium's settings in
+  `shared/vscodium-settings.json`, each linked or applied where the OS's app reads it.
+- Git reads where HTTPS logins are kept from `~/.config/git/credential`, a file per OS: GNOME's
+  keyring on Fedora, the Keychain on macOS.
+- What Claude is told about the machine it's on is a file per OS, `~/.claude/machine.md`, which
+  `CLAUDE.md` reads.
 
 ## [1.2.0] - 2026-10-31
 
