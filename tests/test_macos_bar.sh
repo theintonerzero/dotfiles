@@ -115,7 +115,7 @@ call=$(cd "$T" && plugin spotify SENDER=spotify_change INFO="$(playing Playing X
 no "and nothing in it is run" test -e "$T/p1"
 no "by backticks either" test -e "$T/p2"
 call=$(plugin spotify SENDER=spotify_change INFO="$(playing Playing 'An Artist With A Long Name' 'And A Track Whose Name Goes On And On')")
-[[ $call == *"label=An Artist With A Long Name · And A Trac… "* ]] || fail "a long name is cut to 40 letters: $call"
+[[ $call == *"label=An Artist With A Long Name · An… "* ]] || fail "a long name is cut to 32 letters, to fit beside the notch: $call"
 eq "no track name: the artist alone" "label=Bonobo" "$(plugin spotify SENDER=spotify_change INFO="$(playing Playing Bonobo '')" | grep -o 'label=[^ ]*')"
 stub pgrep 'exit 1'
 has "spotify quit: gone at the next look" "$(plugin spotify SENDER=routine)" drawing=off
@@ -151,6 +151,35 @@ has "current on the second" "$(pill "$call" 5)" "background.color=$ACCENT"
 has "neither" "$(pill "$call" 1)" background.drawing=off
 # it's quick because it starts nothing but the one sketchybar call
 no "no other program is run on a switch" grep -qE '\$\(|`|[^|]\|[^|]' <(sed -n '/^[^#]/p' "$B/plugins/spaces.sh" | grep -v '^source ')
+
+# the vitals: how busy the processors are and how full memory is, always; the disk only when it's nearly
+# full. one script reads all three and answers in one call
+vitals() {
+  stub ps "printf '%s\n' '%CPU' $1"
+  stub sysctl 'case "$*" in *hw.ncpu*) echo 16 ;; *hw.memsize*) echo 51539607552 ;; esac'
+  stub vm_stat "printf '%s\n' 'Mach Virtual Memory Statistics: (page size of 16384 bytes)' 'Pages free: 83175.' 'Pages wired down: $2.' 'Pages purgeable: 41631.' 'Anonymous pages: 1157178.' 'Pages occupied by compressor: 37145.'"
+  stub df "printf '%s\n' 'Filesystem 1024-blocks Used Available Capacity iused ifree %iused Mounted on' '/dev/disk3s5 971350180 598524628 346928336 $3% 4276573 3469283360 0% /System/Volumes/Data'"
+  plugin vitals
+}
+# item <call> <name>: what the call sets on that item
+item() { grep "^$2 " <<<"${1// --set /$'\n'}" || true; }
+call=$(vitals "'100.0' '60.0'" 256500 64)
+eq "one call for all three" 1 "$(grep -c . <<<"$call")"
+has "processors, as a share of all of them" "$(item "$call" cpu)" label=10% "background.color=$SURFACE"
+has "memory: apps, wired and compressed, of what's fitted" "$(item "$call" memory)" label=45% "background.color=$SURFACE"
+has "a disk with room says nothing" "$(item "$call" disk)" drawing=off
+call=$(vitals "'1500.0'" 1741378 93)
+has "processors flat out" "$(item "$call" cpu)" label=94% "background.color=$ERR"
+has "memory nearly full" "$(item "$call" memory)" label=92% "background.color=$ERR"
+has "a disk nearly full" "$(item "$call" disk)" drawing=on label=93% "background.color=$ERR"
+call=$(vitals "'1440.0'" 256500 90)
+has "processors at nine tenths" "$(item "$call" cpu)" label=90% "background.color=$ERR"
+has "a disk at nine tenths" "$(item "$call" disk)" drawing=on
+call=$(vitals "'1424.0'" 256500 89)
+has "just under" "$(item "$call" cpu)" label=89% "background.color=$SURFACE"
+has "a disk just under" "$(item "$call" disk)" drawing=off
+# more work than there are processors to do it still reads as all of them
+has "never more than all of it" "$(item "$(vitals "'2000.0'" 256500 64)" cpu)" label=100%
 
 # the front app, the date and the time
 has "front app" "$(plugin front_app SENDER=front_app_switched INFO=Ghostty)" label=Ghostty

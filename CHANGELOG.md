@@ -118,8 +118,9 @@ All notable changes to this project are documented here. The format is based on
   commands, so it changes nothing on the machine it runs on.
 - On macOS, a sketchybar bar in place of Apple's menu bar, which now hides until the pointer reaches
   the top of the screen: pills in the prompt's Kanagawa Dragon colours on a bar with nothing behind
-  it, showing workspaces, the front app, the battery, the date and the time, and Spotify's track,
-  muted sound and a missing network only while they have something to say. Nothing on it can be
+  it, showing workspaces, the front app, memory, the processors, the battery, the date and the time,
+  and Spotify's track, muted sound, a missing network and a nearly full disk only while they have
+  something to say. Nothing on it can be
   clicked, as sketchybar's clicks don't arrive on macOS 27. sketchybar comes from its author's
   Homebrew tap, named in `macos/taps.txt` with the one formula trusted from it. Pro Black is the
   wallpaper, or plain black until macOS has fetched it. `dot uninstall` stops the bar and brings

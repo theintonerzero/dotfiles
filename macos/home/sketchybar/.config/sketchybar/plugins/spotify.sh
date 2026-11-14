@@ -21,8 +21,8 @@ artist=$(jq -r '.Artist // empty' <<<"$INFO")
 track=$(jq -r '.Name // empty' <<<"$INFO")
 text=$artist
 if [[ -n $artist && -n $track ]]; then text="$artist · $track"; elif [[ -n $track ]]; then text=$track; fi
-if ((${#text} > 40)); then
-  text=${text:0:39}
+if ((${#text} > 32)); then
+  text=${text:0:31}
   text="${text%% }…"
 fi
 sketchybar --set "$NAME" drawing=on label="$text" "${PLAIN[@]}"

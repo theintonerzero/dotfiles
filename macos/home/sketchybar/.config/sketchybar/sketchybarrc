@@ -1,8 +1,8 @@
 #!/bin/bash
 # sketchybarrc: the bar that stands in for apple's menu bar: pills like tmux's and the prompt's, in their
 # colours, on a bar with nothing behind it. workspaces and the front app on the left; on the right the
-# time, the date and the battery, and whatever else has something to say: spotify while it plays, sound
-# when it's muted, the network when there's none.
+# time, the date, the battery, memory and the processors, and whatever else has something to say: spotify
+# while it plays, sound when it's muted, the network when there's none, the disk when it's nearly full.
 #
 # nothing here can be clicked and nothing mirrors a menu-bar icon: on macos 27 a click on the bar brings
 # apple's bar down instead of reaching it, and mirrored icons stay blank. a bar with no background of its
@@ -43,6 +43,14 @@ sketchybar --add item date right
 sketchybar --add item battery right \
   --set battery "${with_icon[@]}" update_freq=120 "script=$plugins/battery.sh" \
   --subscribe battery power_source_change system_woke
+# the vitals: one script, on the first of them, sets all three
+sketchybar --add item memory right \
+  --set memory "${with_icon[@]}" "icon=󰍛" update_freq=5 "script=$plugins/vitals.sh" \
+  --subscribe memory system_woke
+sketchybar --add item cpu right \
+  --set cpu "${with_icon[@]}" "icon=󰊚"
+sketchybar --add item disk right \
+  --set disk "${with_icon[@]}" drawing=off "icon=󰋊"
 sketchybar --add item network right \
   --set network "${with_icon[@]}" drawing=off update_freq=30 "script=$plugins/network.sh" \
   --subscribe network wifi_change system_woke
