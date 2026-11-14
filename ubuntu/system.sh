@@ -3,6 +3,7 @@
 # shellcheck shell=bash
 
 APT_LISTS=${APT_LISTS:-/var/lib/apt/lists}
+TERMINFO_SYSTEM=${TERMINFO_SYSTEM:-/etc/terminfo}
 REBOOT_FLAG=${REBOOT_FLAG:-/var/run/reboot-required}
 # when these dotfiles last fetched apt's lists; apt dates the lists themselves by when the archive
 # published them, which says nothing of how lately they were fetched
@@ -78,11 +79,13 @@ debian_names() {
   done
 }
 
-# terminfo_install: ghostty's terminal description in ~/.terminfo, where the system has none, so tmux and
-# neovim know the terminal you ssh in from
+# terminfo_install: ghostty's terminal description, where the system has none, so tmux and neovim know
+# the terminal you ssh in from. it goes in /etc/terminfo, for every user: sudo keeps TERM but not your
+# home, so with a copy in ~/.terminfo alone, sudo nano and sudo visudo couldn't open the terminal
 terminfo_install() {
-  infocmp xterm-ghostty >/dev/null 2>&1 && return 0
+  # asked with no home, so a copy of your own doesn't answer for the system
+  env -u TERMINFO HOME=/var/empty infocmp xterm-ghostty >/dev/null 2>&1 && return 0
   have tic || return 0
   say "adding ghostty's terminal description"
-  tic -x -o "$HOME/.terminfo" "$DOTFILES/ubuntu/xterm-ghostty.terminfo" || warn "couldn't add ghostty's terminal description"
+  as_root tic -x -o "$TERMINFO_SYSTEM" "$DOTFILES/ubuntu/xterm-ghostty.terminfo" || warn "couldn't add ghostty's terminal description"
 }

@@ -50,7 +50,7 @@ os_uninstall_notes() {
 These stay, so remove them yourself if you want them gone:
   - the packages apt installed
   - the tools that came from their own releases, in ~/.local/opt, and their links in ~/.local/bin
-  - zsh as your login shell, fzf-tab in ~/.local/share/zsh, and ghostty's terminfo in ~/.terminfo
+  - zsh as your login shell, fzf-tab in ~/.local/share/zsh, and ghostty's terminal description in /etc/terminfo
   - app data: Neovim's plugins and tools in ~/.local/share/nvim, atuin's history
 NOTES
 }

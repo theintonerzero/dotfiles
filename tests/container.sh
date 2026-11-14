@@ -128,6 +128,8 @@ ZSH
   [[ $(grep -c . "$log") == $(wc -w <<<"$tools" | tr -d ' ') ]] || wrong "not every tool answered"
   nvim=$(awk '$1 == "nvim" { sub(/^v/, "", $4); print $4 }' "$log")
   [[ $(printf '%s\n' 0.11 "$nvim" | sort -V | head -n 1) == 0.11 ]] || wrong "neovim $nvim is older than 0.11"
+  # root knows the terminal too, as sudo nano or sudo visudo over ssh from ghostty need it to
+  user 'sudo infocmp xterm-ghostty >/dev/null 2>&1' || wrong "root doesn't know ghostty's terminal"
   # ubuntu 26.04 has all of them new enough but sesh, which it hasn't at all, and tree-sitter; 24.04 none
   local want="atuin fzf lazygit nvim sesh starship tree-sitter"
   # shellcheck disable=SC2016 # the container's shell expands it

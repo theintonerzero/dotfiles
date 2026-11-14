@@ -141,11 +141,19 @@ ok "as yourself: carries on" bash -c "source '$REPO/tests/helpers.sh'; load ubun
   stub infocmp 'exit 1'
   stub tic
   terminfo_install >/dev/null
-  called "tic -x -o $HOME/.terminfo $REPO/ubuntu/xterm-ghostty.terminfo"
+  # for every user, root among them: sudo keeps TERM and not your home, so a copy in ~/.terminfo alone
+  # leaves sudo nano and sudo visudo unable to open the terminal
+  called "sudo tic -x -o /etc/terminfo $REPO/ubuntu/xterm-ghostty.terminfo"
   stub infocmp 'exit 0'
   : >"$T/calls"
   terminfo_install
   not_called "tic"
+  # a copy in your own home doesn't count as the system having it
+  mkdir -p "$HOME/.terminfo/x" && touch "$HOME/.terminfo/x/xterm-ghostty"
+  stub infocmp '[[ -e $HOME/.terminfo/x/xterm-ghostty ]]'
+  : >"$T/calls"
+  terminfo_install >/dev/null
+  called "sudo tic -x -o /etc/terminfo"
 )
 ok "the terminfo source describes xterm-ghostty" grep -q '^xterm-ghostty|' "$REPO/ubuntu/xterm-ghostty.terminfo"
 
