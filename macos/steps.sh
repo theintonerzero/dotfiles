@@ -19,16 +19,19 @@ os_install() {
   unity_install
   claude_install
   desktop_install
+  bar_install
   security_install
   llm_install
 }
 
-# macos's settings stay as you left them: desktop_install and security_install are install's alone
+# macos's settings stay as you left them: desktop_install, bar_install and security_install are install's
+# alone; a running bar only reads its config again
 os_update() {
   keep_sudo
   system_update
   apps_update
   link_home
+  bar_update
   shell_update
   toolchains_update
   neovim_update
@@ -43,6 +46,7 @@ os_uninstall() {
   say "removing the links"
   unlink_home
   apps_uninstall
+  bar_uninstall
   neovim_uninstall
   godot_uninstall
   unity_uninstall
@@ -54,7 +58,7 @@ os_uninstall_notes() {
 
 These stay, so remove them yourself if you want them gone:
   - Homebrew, its formulae and casks, and Xcode
-  - macOS's settings and the Dock's apps, Touch ID for sudo (/etc/pam.d/sudo_local, and
+  - macOS's settings, the wallpaper and the Dock's apps, Touch ID for sudo (/etc/pam.d/sudo_local, and
     /usr/local/lib/pam/pam_reattach.so, which it names: remove sudo_local first) and the firewall
   - app data: Neovim's plugins, Claude Code's plugins and MCP servers (claude mcp remove takes
     blender_official away, as its launcher goes with the links), Claude's skill packs in

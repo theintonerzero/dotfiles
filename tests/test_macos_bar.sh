@@ -162,3 +162,90 @@ ok "and its plugins" test -x "$HOME/.config/sketchybar/plugins/battery.sh"
 rm -rf "$HOME" && mkdir -p "$HOME"
 (load fedora && link_home) >/dev/null
 no "fedora doesn't" test -e "$HOME/.config/sketchybar"
+
+# --- the step: the bar running at login, apple's menu bar hidden, and the wallpaper it was drawn on ---
+
+# mac <loaded|stopped> <hidden: true|false> <picture>: a mac whose launchd has the bar's service or not,
+# whose menu bar hides or not, and whose wallpaper is that file
+mac() {
+  echo "$2" >"$T/hidden"
+  echo "$3" >"$T/picture"
+  stub launchctl "[[ $1 == loaded ]]"
+  stub brew
+  stub osascript 'case "$*" in *"get autohide menu bar"*) cat "$T/hidden" ;; *"get picture"*) cat "$T/picture" ;; esac'
+}
+touch "$T/Pro Black.heic" "$T/Black.png"
+export WALLPAPER="$T/Pro Black.heic" WALLPAPER_PLAIN="$T/Black.png"
+
+# a fresh mac: the service started, apple's bar hidden, the wallpaper set
+(
+  load macos
+  mac stopped false /somewhere/else.heic
+  bar_install >/dev/null
+  called "brew services start sketchybar"
+  called "set autohide menu bar of dock preferences to true"
+  called "set picture to (item 1 of argv)"
+  called "$T/Pro Black.heic"
+  [[ ${#TODOS[@]} == 0 ]] || fail "a fresh mac: nothing left for you: ${TODOS[*]}"
+)
+# all of it there already: nothing started, set or said; the bar reloads its config
+(
+  load macos
+  mac loaded true "$T/Pro Black.heic"
+  eq "again: nothing said" "" "$(bar_install)"
+  not_called "brew services"
+  not_called "set autohide"
+  not_called "set picture"
+  called "sketchybar --reload"
+)
+# no sketchybar, as when its formula didn't install: apple's bar stays, and a todo says why
+(
+  load macos
+  mac stopped false /somewhere/else.heic
+  BAR=no-such-bar bar_install >/dev/null
+  not_called "set autohide"
+  not_called "brew services"
+  [[ ${TODOS[*]} == *"bar"* ]] || fail "no sketchybar: a todo"
+)
+# the service won't start: apple's bar stays
+(
+  load macos
+  mac stopped false /somewhere/else.heic
+  stub brew 'exit 1'
+  bar_install >/dev/null 2>&1 || fail "the service not starting doesn't end install"
+  not_called "set autohide"
+  [[ ${TODOS[*]} == *"bar"* ]] || fail "no service: a todo"
+)
+# pro black not fetched yet, as on a fresh macos: plain black, and how to get the real one
+(
+  load macos
+  mac loaded true /somewhere/else.heic
+  WALLPAPER="$T/not-there.heic" bar_install >/dev/null
+  called "$T/Black.png"
+  [[ ${TODOS[*]} == *"Pro Black"* ]] || fail "no pro black: a todo says how to get it"
+)
+# update reloads a bar that's running, and leaves one that isn't alone
+(
+  load macos
+  mac loaded true "$T/Pro Black.heic"
+  bar_update >/dev/null
+  called "sketchybar --reload"
+  not_called "set autohide"
+  mac stopped true "$T/Pro Black.heic"
+  : >"$T/calls"
+  bar_update >/dev/null
+  not_called "sketchybar --reload"
+)
+# uninstall stops it and brings apple's bar back
+(
+  load macos
+  mac loaded true "$T/Pro Black.heic"
+  bar_uninstall >/dev/null
+  called "brew services stop sketchybar"
+  called "set autohide menu bar of dock preferences to false"
+  mac stopped false "$T/Pro Black.heic"
+  : >"$T/calls"
+  eq "uninstall again: nothing said" "" "$(bar_uninstall)"
+  not_called "brew services"
+  not_called "set autohide"
+)
