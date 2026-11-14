@@ -18,9 +18,15 @@ local function missing()
   return lacking
 end
 
-pcall(function() treesitter.install(wanted):wait(600000) end)
-vim.wait(180000, function() return #missing() == 0 end, 500)
-local lacking = missing()
+-- an install can fall over on what an earlier neovim left half done, which that same install clears
+-- away as it starts: so what's still missing is asked for again, three times at most
+local lacking = wanted
+for _ = 1, 3 do
+  pcall(function() treesitter.install(lacking):wait(600000) end)
+  vim.wait(60000, function() return #missing() == 0 end, 500)
+  lacking = missing()
+  if #lacking == 0 then break end
+end
 if #lacking > 0 then
   io.stderr:write("no parser for: " .. table.concat(lacking, " ") .. "\n")
   vim.cmd "cquit"

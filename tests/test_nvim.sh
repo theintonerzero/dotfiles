@@ -88,7 +88,7 @@ parsers() {
 package.loaded.astrocore = { config = { treesitter = { ensure_installed = $1 } } }
 package.loaded["nvim-treesitter"] = {
   install = function(langs)
-    io.write(table.concat(langs, " "))
+    io.write(table.concat(langs, " "), "\n")
     return { wait = function() $2 end }
   end,
   get_installed = function() return $3 end,
@@ -106,3 +106,9 @@ ok "so is one that fell over, with the parsers there" parsers '{ "lua" }' 'error
 no "a parser that isn't there is a failure" parsers '{ "lua", "bash" }' 'return true' '{ "lua" }' >/dev/null
 no "none there is too" parsers '{ "lua" }' 'return false' '{}' >/dev/null
 eq "a config that names none asks for none" "" "$(parsers '"auto"' 'return true' '{}')"
+# a parser whose install fell over, as one does when a download an earlier neovim left half done is in
+# its way, is asked for again by itself, and the run is fine once it's there
+eq "what's still missing is asked for again" $'lua python\npython' \
+  "$(parsers '{ "lua", "python" }' 'tries = (tries or 0) + 1' '(tries or 0) >= 2 and { "lua", "python" } or { "lua" }')"
+ok "and a second try that lands is fine" parsers '{ "lua", "python" }' 'tries = (tries or 0) + 1' '(tries or 0) >= 2 and { "lua", "python" } or { "lua" }' >/dev/null
+eq "three tries, then it gives up" 3 "$({ parsers '{ "lua" }' 'return false' '{}' || true; } | grep -c lua)"
