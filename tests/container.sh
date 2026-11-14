@@ -156,7 +156,24 @@ root 'cat /tmp/health-tools' >"$logs/health-tools.txt"
 for section in nvim-treesitter mason; do
   grep -q "^$section:" "$logs/health-tools.txt" || wrong "$section's health wasn't run"
 done
-if grep -n 'ERROR' "$logs/health-tools.txt" >>"$log"; then wrong "treesitter's or mason's health has errors (all of it is in $logs/health-tools.txt)"; fi
+# on neovim 0.11 treesitter's health says its parser folder "is not in runtimepath" when it is: it compares
+# the folder with a / on the end against the path without one. so that line is set aside, and what it's
+# about is checked for real instead: the folder is on the path, and a lua file opened here is highlighted
+if grep -n 'ERROR' "$logs/health-tools.txt" | grep -v 'ERROR is not in runtimepath\.$' >>"$log"; then
+  wrong "treesitter's or mason's health has errors (all of it is in $logs/health-tools.txt)"
+fi
+podman exec -i "$name" tee /tmp/highlight.lua >/dev/null <<'LUA'
+vim.wait(1500)
+local site = vim.fs.normalize(vim.fn.stdpath "data" .. "/site")
+local on_path = false
+for _, path in ipairs(vim.api.nvim_list_runtime_paths()) do
+  if vim.fs.normalize(path) == site then on_path = true end
+end
+if not on_path then io.write "the parser folder isn't on the runtime path\n" end
+if not vim.treesitter.highlighter.active[vim.api.nvim_get_current_buf()] then io.write "a lua file isn't highlighted\n" end
+LUA
+user 'printf "local x = 1\n" >/tmp/sample.lua && nvim --headless /tmp/sample.lua "+luafile /tmp/highlight.lua" +qa' >"$logs/highlight.txt" 2>&1
+[[ ! -s $logs/highlight.txt ]] || wrong "treesitter isn't working: $(cat "$logs/highlight.txt")"
 user 'ls ~/.local/share/nvim/mason/bin' >"$logs/mason.txt" 2>&1
 for tool in lua-language-server stylua shellcheck shfmt taplo marksman; do
   grep -qx "$tool" "$logs/mason.txt" || wrong "mason didn't install $tool"
