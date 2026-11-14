@@ -11,6 +11,7 @@ system_first() {
 
 system_install() {
   say "checking homebrew's formulae and casks"
+  system_taps
   system_formulae
   system_casks
   system_appstore
@@ -50,6 +51,28 @@ brew_install() {
     say "installing $name"
     brew install "${flag[@]}" "$name" </dev/null || todo "$name didn't install; run dot install again"
   done
+}
+
+# system_taps: each tap in taps.txt added, and its one formula trusted, where homebrew hasn't that yet; a
+# tap that can't be added is said at the end, and its formula then fails to install by itself
+system_taps() {
+  local tap formula name tapped trusted
+  tapped=$(brew tap 2>/dev/null) || tapped=""
+  trusted=$(brew trust --json v1 2>/dev/null | jq -r '.formulae[]?' 2>/dev/null) || trusted=""
+  while read -r tap formula; do
+    name=$(tr '[:upper:]' '[:lower:]' <<<"$tap/$formula")
+    if ! grep -qixF "$tap" <<<"$tapped"; then
+      say "adding homebrew's $tap tap"
+      if ! brew tap "$tap" </dev/null; then
+        todo "homebrew couldn't add the $tap tap; run dot install again"
+        continue
+      fi
+    fi
+    if ! grep -qxF "$name" <<<"$trusted"; then
+      say "trusting $formula from $tap, and nothing else in it"
+      brew trust --formula "$name" </dev/null || todo "homebrew couldn't trust $name; run dot install again"
+    fi
+  done < <(list "$DOTFILES/macos/taps.txt")
 }
 
 # the formulae in formulae.txt that aren't installed yet

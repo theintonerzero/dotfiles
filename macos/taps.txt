@@ -1,0 +1,6 @@
+# homebrew taps outside its own repos, one a line: the tap, then the one formula in it that's trusted.
+# homebrew loads nothing from such a tap until it's trusted, and only the formula named here is: the rest
+# of the tap stays shut. the formula itself goes in formulae.txt
+
+# the status bar, from its author
+FelixKratz/formulae sketchybar

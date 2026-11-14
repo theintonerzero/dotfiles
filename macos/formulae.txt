@@ -52,6 +52,9 @@ pillow
 rizin
 binwalk
 
+# the status bar that stands in for apple's menu bar; from the tap in taps.txt
+sketchybar
+
 # what the steps themselves use: app store installs, the default browser, and touch id for sudo in tmux
 mas
 defaultbrowser
