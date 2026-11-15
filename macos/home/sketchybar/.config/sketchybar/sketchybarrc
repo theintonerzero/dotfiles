@@ -11,6 +11,18 @@
 source "$CONFIG_DIR/colors.sh"
 plugins=$CONFIG_DIR/plugins
 
+# nothing is set until the font is there. at login the bar starts seconds after the service that hands
+# out fonts, before that has the ones in ~/Library/Fonts; a font asked for then comes back as helvetica,
+# its symbols as boxed question marks, and sketchybar keeps what it got until it reloads. half a minute
+# at most, so a mac that hasn't the font gets its bar all the same
+font_there() {
+  [[ $(osascript -l JavaScript -e 'function run(argv) { ObjC.import("AppKit"); return !$.NSFontManager.sharedFontManager.availableMembersOfFontFamily(argv[0]).isNil() }' "$FONT" 2>/dev/null) == true ]]
+}
+for ((looks = 0; looks < 60; looks++)); do
+  if font_there; then break; fi
+  sleep 0.5
+done
+
 sketchybar --bar position=top height=32 "color=$CLEAR" shadow=off blur_radius=0 sticky=on \
   padding_left=7 padding_right=7
 

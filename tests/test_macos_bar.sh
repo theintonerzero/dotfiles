@@ -188,8 +188,14 @@ call=$(plugin clock)
 [[ $call =~ --set\ date\ label=[A-Z][a-z][a-z]\ [0-9]{1,2}\ [A-Z][a-z][a-z]( |$) ]] || fail "the date, as Sat 14 Nov: $call"
 
 # the config itself: a bar with nothing behind it and nothing to click
-: >"$T/calls"
-env CONFIG_DIR="$B" "$B/sketchybarrc" >/dev/null
+# config: runs the config as sketchybar would, on a mac whose osascript answers whether the font is there
+config() {
+  : >"$T/calls"
+  env CONFIG_DIR="$B" "$B/sketchybarrc" >/dev/null
+}
+stub sleep
+stub osascript 'echo true'
+config
 bar=$(grep '^sketchybar --bar ' "$T/calls")
 has "the bar" "$bar" color=0x00000000 height=32 position=top
 no "nothing to click" grep -rqE 'click_script|popup\.' "$B"
@@ -200,6 +206,28 @@ while read -r p; do
 done <<<"$used"
 eq "every plugin is used" "$(cd "$B" && find plugins -name '*.sh' | sort | paste -sd' ' -)" "$(paste -sd' ' - <<<"$used")"
 called "--add event spotify_change com.spotify.client.PlaybackStateChanged"
+
+# the font: at login the bar starts before macos has the fonts in ~/Library/Fonts, and a font asked for
+# then is drawn in helvetica, its symbols as boxed question marks, for as long as the bar runs. so the
+# config asks for nothing until the font is there
+# steps: the first word of each call the config made, sleeps aside, up to the first thing it set
+steps() { cut -d' ' -f1 "$T/calls" | grep -v '^sleep$' | sed '/^sketchybar$/q' | paste -sd' ' -; }
+eq "the font there already: asked once, and on with it" "osascript sketchybar" "$(steps)"
+not_called "sleep"
+ok "the font is asked for by the name the bar draws in" grep -q '^osascript .* JetBrainsMono Nerd Font$' "$T/calls"
+: >"$T/asked"
+stub osascript 'echo again >>"$T/asked"; if (($(grep -c . "$T/asked") < 3)); then echo false; else echo true; fi'
+config
+eq "the font not there yet: nothing set until it is" "osascript osascript osascript sketchybar" "$(steps)"
+eq "and a wait before each new look" 2 "$(grep -c '^sleep ' "$T/calls")"
+# a mac that hasn't the font at all still gets its bar, in whatever macos draws instead
+stub osascript 'echo false'
+config
+called "sketchybar --bar "
+eq "no font: half a minute's wait, and no more" 30 "$(awk '$1 == "sleep" { s += $2 } END { print s + 0 }' "$T/calls")"
+stub osascript 'exit 1'
+config
+called "sketchybar --bar "
 
 # only macos links it
 (load macos && link_home) >/dev/null
