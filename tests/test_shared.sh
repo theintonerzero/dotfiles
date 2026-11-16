@@ -54,6 +54,36 @@ source "$(dirname "$0")/helpers.sh"
   called "rustup-init -y --no-modify-path --default-toolchain stable -c rust-analyzer -c rust-src"
 )
 
+# mason's intel netcoredbg, which an apple silicon mac can't run: an earlier install's is taken away
+(
+  load macos
+  stub nvim
+  mason=$HOME/.local/share/nvim/mason/packages/netcoredbg
+  stub uname 'case $1 in -m) echo arm64 ;; -s) echo Darwin ;; esac'
+  neovim_netcoredbg
+  not_called "MasonUninstall"
+  mkdir -p "$mason"
+  # neovim says a command went fine whether it did or not, so what counts is whether the folder went
+  eq "one that stays is a warning" 1 "$(neovim_netcoredbg 2>&1 | grep -c "couldn't remove Mason's netcoredbg")"
+  called "nvim --headless +MasonUninstall netcoredbg +qa"
+  stub nvim 'rm -rf "$HOME/.local/share/nvim/mason/packages/netcoredbg"'
+  no "one that goes isn't" grep -q "couldn't remove" <(neovim_netcoredbg 2>&1)
+  mkdir -p "$mason"
+  : >"$T/calls"
+  stub uname 'case $1 in -m) echo x86_64 ;; -s) echo Darwin ;; esac'
+  neovim_netcoredbg
+  not_called "MasonUninstall"
+  rm -f "$T/bin/uname"
+  load fedora
+  neovim_netcoredbg
+  not_called "MasonUninstall"
+  # install and update both come to it, once mason has installed its tools
+  neovim_kotlin() { :; }
+  neovim_netcoredbg() { echo netcoredbg; }
+  eq "install comes to it" netcoredbg "$(neovim_install | tail -n 1)"
+  eq "update too" netcoredbg "$(neovim_update | tail -n 1)"
+)
+
 # godot
 eq "mac formatter" '^gdscript-formatter-.*-macos-aarch64\.zip$' "$(load macos && godot_formatter_asset)"
 eq "fedora formatter" '^gdscript-formatter-.*-linux-x86_64\.zip$' "$(load fedora && godot_formatter_asset)"

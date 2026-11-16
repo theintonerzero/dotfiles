@@ -66,6 +66,60 @@ for f in godot markdown-preview; do
   eq "$f stays on a desktop" false "$(probe desktop "$empty")"
 done
 
+# --- c#'s debugger on an apple silicon mac ---
+# mason has only an intel netcoredbg for a mac, which one without rosetta can't run; there neovim runs the
+# netcoredbg command the vscodium step makes (shared/vscodium.sh) and mason installs none
+
+# as <mac-arm|mac-intel|linux>: lua that has neovim take itself for that machine; the rest of what
+# os_uname says stays the real machine's, as neovim's own modules read it
+as() {
+  local mac=0 machine=x86_64
+  case $1 in
+    mac-arm) mac=1 machine=arm64 ;;
+    mac-intel) mac=1 ;;
+  esac
+  echo "local uname = vim.uv.os_uname() uname.machine = '$machine' vim.uv.os_uname = function() return uname end vim.fn.has = function(f) return f == 'mac' and $mac or 0 end"
+}
+tools='local spec = dofile("'$REPO'/home/nvim/.config/nvim/lua/plugins/mason.lua") local opts = { ensure_installed = { "csharpier", "netcoredbg" } } spec.opts(nil, opts) io.write(table.concat(opts.ensure_installed, " "))'
+eq "an apple silicon mac installs no netcoredbg from mason" \
+  "csharpier pyright typescript-language-server kotlin-lsp" "$(probe desktop "$(as mac-arm) $tools")"
+eq "an intel mac does" "csharpier netcoredbg pyright typescript-language-server kotlin-lsp" "$(probe desktop "$(as mac-intel) $tools")"
+eq "linux does" "csharpier netcoredbg pyright typescript-language-server kotlin-lsp" "$(probe desktop "$(as linux) $tools")"
+
+csharp='local spec = dofile("'$REPO'/home/nvim/.config/nvim/lua/plugins/csharp.lua")'
+eq "linux keeps mason's debugger" true "$(probe desktop "$(as linux) $csharp io.write(tostring(next(spec) == nil))")"
+eq "an intel mac does too" true "$(probe desktop "$(as mac-intel) $csharp io.write(tostring(next(spec) == nil))")"
+eq "an apple silicon mac sets the debugger up itself" "1 mfussenegger/nvim-dap" \
+  "$(probe desktop "$(as mac-arm) $csharp io.write(#spec, ' ', spec[1][1])")"
+# debug <cs configurations there already, as lua>: sets the debugger up against a stand-in nvim-dap, then
+# starts the adapter: what it hands nvim-dap, any warning, and the configurations c# and f# end with
+debug() {
+  probe desktop "$(as mac-arm)"'
+local dap = { adapters = {}, configurations = { cs = '"$1"' } }
+package.loaded.dap = dap
+package.loaded["mason-nvim-dap.mappings.configurations"] = { coreclr = { { type = "coreclr", name = "NetCoreDbg: Launch" } } }
+vim.notify = function(msg) io.write("warned: ", msg, "\n") end
+'"$csharp"'
+spec[1].opts()
+dap.adapters.coreclr(function(a) io.write(a.type, " ", a.command, " ", table.concat(a.args, " "), "\n") end, {})
+io.write("cs: ", dap.configurations.cs[1].name, " ", #dap.configurations.cs, "\n")
+io.write("fsharp: ", dap.configurations.fsharp[1].name, "\n")'
+}
+mkdir -p "$HOME/.local/bin"
+printf '#!/bin/sh\n' >"$HOME/.local/bin/netcoredbg"
+chmod +x "$HOME/.local/bin/netcoredbg"
+out=$(debug nil)
+eq "the adapter runs the step's netcoredbg" "executable $HOME/.local/bin/netcoredbg --interpreter=vscode" "$(sed -n 1p <<<"$out")"
+eq "c# has a way to launch" "cs: NetCoreDbg: Launch 1" "$(sed -n 2p <<<"$out")"
+eq "f# too" "fsharp: NetCoreDbg: Launch" "$(sed -n 3p <<<"$out")"
+# mason's own netcoredbg, where an earlier install left it, has set c#'s configurations up already
+eq "configurations there already aren't doubled" "cs: theirs 1" "$(debug '{ { name = "theirs" } }' | sed -n 2p)"
+rm -f "$HOME/.local/bin/netcoredbg"
+out=$(debug nil)
+ok "with no netcoredbg, a warning says what to run" grep -q '^warned: .*dot install' <<<"$out"
+no "and no adapter is started" grep -q '^executable' <<<"$out"
+rm -rf "$HOME" && mkdir -p "$HOME"
+
 # only ubuntu links the file that says so
 (load ubuntu && link_home) >/dev/null
 ok "ubuntu says it's a server" grep -q 'server = true' "$HOME/.config/nvim/lua/machine.lua"

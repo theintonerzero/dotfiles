@@ -48,6 +48,7 @@ os_uninstall() {
   apps_uninstall
   bar_uninstall
   neovim_uninstall
+  vscodium_uninstall
   godot_uninstall
   unity_uninstall
 }

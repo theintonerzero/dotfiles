@@ -20,6 +20,11 @@ return {
         "kotlin-lsp",
       })
     end
+    -- mason has only an intel netcoredbg for a mac, which an apple silicon one can't run; c#'s debugger
+    -- there is the netcoredbg command the vscodium step makes (lua/plugins/csharp.lua)
+    if vim.fn.has "mac" == 1 and vim.uv.os_uname().machine == "arm64" then
+      opts.ensure_installed = vim.tbl_filter(function(tool) return tool ~= "netcoredbg" end, opts.ensure_installed)
+    end
     -- with no screen, as dot install runs it, the tools are installed by MasonToolsInstallSync alone: the
     -- pass this plugin makes by itself at startup would start the same installs first, and the command
     -- never hears that an install it didn't start has finished, so it would wait for good

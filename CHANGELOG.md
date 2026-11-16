@@ -179,6 +179,14 @@ All notable changes to this project are documented here. The format is based on
   them from `about:logins` before running `dot install`. The last session, WebGL, DRM video, Safe
   Browsing and Sync are as they were.
 
+### Fixed
+
+- C# can be debugged on an Apple Silicon Mac. In VSCodium, the C# extension unpacks its debugger,
+  Samsung's arm64 netcoredbg, without its execute bit; `dot install` and `dot update` set it. In
+  Neovim, Mason has only an Intel netcoredbg for a Mac, which one without Rosetta can't run, so
+  Mason installs none there, one it left is removed, and Neovim runs a copy of the extension's, kept
+  in `~/.local/opt/netcoredbg` with a `netcoredbg` command in `~/.local/bin`. Fedora keeps Mason's.
+
 ## [1.2.0] - 2026-10-31
 
 ### Added
