@@ -24,6 +24,8 @@ if [[ -d /opt/homebrew ]]; then
   fi
   ok "zshrc looks in homebrew for the plugins" grep -q 'HOMEBREW_PREFIX' "$REPO/home/zsh/.config/zsh/.zshrc"
 fi
+# cmake writes the compile_commands.json clangd reads, whoever runs it
+eq "cmake writes a compile database" ON "$(zsh -f -c "source '$REPO/home/zsh/.zshenv'; print \$CMAKE_EXPORT_COMPILE_COMMANDS")"
 ok "functions open with macos's open too" grep -q 'else open ' "$REPO/home/zsh/.config/zsh/functions.zsh"
 
 # GIT_CONFIG_NOSYSTEM, from helpers.sh, matters here: homebrew's git sets osxkeychain for the whole system

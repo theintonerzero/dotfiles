@@ -9,6 +9,10 @@ K=$REPO/shared/vscodium-keybindings.json
 
 ok "the vim extension is listed" grep -qx 'vscodevim.vim' "$REPO/shared/vscodium-extensions.txt"
 ok "unity's snippets are listed" grep -qx 'kleber-swf.unity-code-snippets' "$REPO/shared/vscodium-extensions.txt"
+# clangd's extension has no debugger, so c and c++ get the one neovim uses; cmake's brings its language
+ok "a c and c++ debugger is listed" grep -qx 'vadimcn.vscode-lldb' "$REPO/shared/vscodium-extensions.txt"
+ok "cmake's extension is listed" grep -qx 'ms-vscode.cmake-tools' "$REPO/shared/vscodium-extensions.txt"
+ok "fedora has cmake" grep -qx 'cmake' "$REPO/fedora/packages.txt"
 # json <filter> <file>: whether the file is json that the filter holds for, saying nothing
 json() { jq -e "$1" "$2" >/dev/null 2>&1; }
 ok "settings are json" json 'type == "object"' "$S"

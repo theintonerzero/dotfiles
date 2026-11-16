@@ -40,6 +40,7 @@ dotnet-sdk-10.0
 gcc
 gcc-c++
 make
+cmake
 # what bevy games and bevy_brp_mcp, bevy's mcp server, build against (bevy's fedora list)
 libX11-devel
 alsa-lib-devel

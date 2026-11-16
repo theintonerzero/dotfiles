@@ -18,6 +18,7 @@ local imports = {
   { "pack.rust", false },
   { "pack.go", false },
   { "pack.cpp", false },
+  { "pack.cmake", false },
   { "pack.cs", false },
   { "pack.java", false },
   { "pack.kotlin", false },

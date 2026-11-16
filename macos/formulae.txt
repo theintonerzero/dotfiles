@@ -33,10 +33,11 @@ lazygit
 gh
 
 # toolchains (mise brings node, bun, go, java, kotlin, zig and sesh; rust comes from rustup's own
-# installer, as homebrew has no rustup-init; the c and c++ compilers are apple's)
+# installer, as homebrew has no rustup-init; the c and c++ compilers are apple's, and make is too)
 mise
 uv
 dotnet@10
+cmake
 
 # neovim
 neovim

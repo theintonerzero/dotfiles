@@ -52,7 +52,7 @@ eq "a server's packs and extras" \
   "pack.lua pack.bash pack.json pack.yaml pack.toml pack.markdown markdown-and-latex.render-markdown-nvim diagnostics.trouble-nvim git.diffview-nvim search.grug-far-nvim motion.nvim-surround colorscheme.kanagawa-nvim" \
   "$(probe server "$imports")"
 # off a server, every pack and extra, in the order they have always had
-before="pack.lua pack.bash pack.json pack.yaml pack.toml pack.markdown pack.godot pack.python pack.rust pack.go pack.cpp pack.cs pack.java pack.kotlin pack.zig pack.typescript pack.html-css completion.blink-copilot ai.claudecode-nvim media.cord-nvim markdown-and-latex.render-markdown-nvim markdown-and-latex.markdown-preview-nvim diagnostics.trouble-nvim git.diffview-nvim test.neotest debugging.nvim-dap-virtual-text code-runner.overseer-nvim search.grug-far-nvim motion.nvim-surround colorscheme.kanagawa-nvim"
+before="pack.lua pack.bash pack.json pack.yaml pack.toml pack.markdown pack.godot pack.python pack.rust pack.go pack.cpp pack.cmake pack.cs pack.java pack.kotlin pack.zig pack.typescript pack.html-css completion.blink-copilot ai.claudecode-nvim media.cord-nvim markdown-and-latex.render-markdown-nvim markdown-and-latex.markdown-preview-nvim diagnostics.trouble-nvim git.diffview-nvim test.neotest debugging.nvim-dap-virtual-text code-runner.overseer-nvim search.grug-far-nvim motion.nvim-surround colorscheme.kanagawa-nvim"
 eq "a desktop's list is unchanged" "$before" "$(probe desktop "$imports")"
 
 tools='local spec = dofile("'$REPO'/home/nvim/.config/nvim/lua/plugins/mason.lua") local opts = { ensure_installed = { "lua-language-server", "bash-language-server", "shfmt", "prettierd" } } spec.opts(nil, opts) io.write(table.concat(opts.ensure_installed, " "))'

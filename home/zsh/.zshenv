@@ -28,6 +28,10 @@ export FZF_DEFAULT_OPTS_FILE=$XDG_CONFIG_HOME/fzf/fzfrc
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
 
+# cmake writes a compile_commands.json beside what it builds, which is where clangd, in neovim, vscodium
+# and claude, learns a project's flags
+export CMAKE_EXPORT_COMPILE_COMMANDS=ON
+
 # the unity cli: no usage pings, crash reports, plugin tips or update check, as dot update updates it
 # (environment.d does the same for apps on fedora, and a launch agent on macos)
 export UNITY_NO_CLI_INVOKED_TELEMETRY=1 UNITY_NO_CRASH_REPORT=1 UNITY_NO_AGENT_HINTS=1 UNITY_NO_UPDATE_CHECK=1

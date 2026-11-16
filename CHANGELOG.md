@@ -134,6 +134,11 @@ All notable changes to this project are documented here. The format is based on
   sketchybar comes from its author's Homebrew tap, named in `macos/taps.txt` with the one formula
   trusted from it. Pro Black is the wallpaper, or plain black until macOS has fetched it.
   `dot uninstall` stops the bar and brings Apple's menu bar back.
+- CMake, on Fedora and macOS, with its language in both editors: AstroNvim's CMake pack in Neovim and
+  CMake Tools in VSCodium. A `cmake -B build` from the shell writes the `compile_commands.json`
+  clangd reads a project's flags from, as `CMAKE_EXPORT_COMPILE_COMMANDS` is set in `.zshenv`.
+- VSCodium debugs C and C++, with CodeLLDB, the debugger Neovim uses for them. The clangd extension
+  has none of its own.
 
 ### Changed
 

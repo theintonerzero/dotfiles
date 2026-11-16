@@ -195,4 +195,5 @@ ok "lm studio's settings merged" jq -e '.developerMode == true' "$HOME/.lmstudio
 )
 ok "podman is listed" grep -qx 'podman' <(list "$REPO/macos/formulae.txt")
 ok "wget is listed" grep -qx 'wget' <(list "$REPO/macos/formulae.txt")
+ok "cmake is listed" grep -qx 'cmake' <(list "$REPO/macos/formulae.txt")
 ok "install makes podman's vm" grep -qx '  podman_machine' "$REPO/macos/apps.sh"
